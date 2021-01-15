@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+{% load static i18n reportes_filters %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/print.css' %}"> 
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="block-header hidden-print">
+        <h2>{% trans "estadistico de reuniones" %} {{ request.tenant.termino_gar }}</h2>
+    </div>
+
+    <div id="id-formulario" class="card hidden-print">
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+            <form action="" method="POST">
+                {% csrf_token %}
+                {% include "_alert_non_field_errors.html" %}
+
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.fecha_inicial.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.fecha_inicial.id_for_label }}" class="fg-label control-label" data-trigger="hover" data-toggle="popover"
+                                    data-placement="top" data-content="Escoge una fecha de la cual partirán los estadisticos." title="" data-original-title="Ayuda">
+                                    {{ form.fecha_inicial.label }}*:
+                                </label>
+                                {{ form.fecha_inicial }}
+                            </div>
+                            {{ form.fecha_inicial.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.fecha_final.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar-note"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.fecha_final.id_for_label }}" class="fg-label control-label" data-trigger="hover" data-toggle="popover"
+                                    data-placement="top" data-content="Escoge una fecha limite para los estadisticos." title="" data-original-title="Ayuda">
+                                    {{ form.fecha_final.label }}*:
+                                </label>
+                                {{ form.fecha_final }}
+                            </div>
+                            {{ form.fecha_final.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="input-group {{ form.grupo.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.grupo.id_for_label }}" class="fg-label control-label" data-trigger="hover" data-toggle="popover"
+                                    data-placement="top" data-content="Escoge el grupo de el cual quieres ver los estadisticos." title="" data-original-title="Ayuda">
+                                    {{ form.grupo.label }}*:
+                                </label>
+                                {{ form.grupo }}
+                            </div>
+                            {{ form.grupo.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.descendientes.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.descendientes.id_for_label }}" class="checkbox control-label">
+                                    {{ form.descendientes }}
+                                    <i class="input-helper m-r-20"></i>
+                                    {{ form.descendientes.label }}
+                                </label>
+                            </div>
+                            {{ form.descendientes.errors }}
+                        </div>
+                    </div>
+                    {% if perms.miembros.es_administrador %}
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.ofrenda.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.ofrenda.id_for_label }}" class="checkbox control-label">
+                                    {{ form.ofrenda }}
+                                    <i class="input-helper m-r-20"></i>
+                                    {{ form.ofrenda.label }}
+                                </label>
+                            </div>
+                            {{ form.ofrenda.errors }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" name="verReporte" class="btn btn-success btn-block">{% trans "Ver" %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if grafico %}
+    <div class="block-header">
+        <h2>
+            Estadístico Reuniones {{ request.tenant.termino_gar }} de{% if form.cleaned_data.descendientes %} la red{% else %}l grupo{% endif %} <strong>{{ form.cleaned_data.grupo.nombre|upper }}</strong>
+        </h2>
+    </div>
+
+    <div class="visible-print">
+        <h5>GRUPOS INACTIVOS: {{ grupos_inactivos }}</h5>
+        <h5>RANGO DE FECHAS: {{ form.fecha_inicial.value }} - {{ form.fecha_final.value }}</h5>
+    </div>
+
+    {% if values_asistencias %}
+    <div class="card chart-g">
+        <div class="card-body card-padding">
+            <div id="asistencia-grupo"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if values_porcentaje_utilidad %}
+    <div class="card chart-g">
+        <div class="card-body card-padding">
+            <div id="porcentaje-grupo"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if values_ofrenda %}
+    <div class="card chart-g">
+        <div class="card-body card-padding">
+            <div id="ofrenda-grupo"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if tabla %}
+    <div class="card">
+        <div class="card-header">
+            <h3>{% trans "Tabla Estadísticos" %}</h3>
+        </div>
+        <div class="card-body card-padding">
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered" id="estadisticos">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Rango de Fecha" %}</th>
+                            <th>{% trans "Nuevos" %}</th>
+                            <th>{% trans "Regulares" %}</th>
+                            <th>{% trans "Líderes" %}</th>
+                            <th>{% trans "Total Asistentes" %}</th>
+                            <th>{% trans "Grupos Reportaron" %}</th>
+                            <th>{% trans "Grupos sin Reportar" %}</th>
+                            <th>{% trans "Porcentaje Reportes" %}</th>
+                            <th>{% trans "Total Grupos Semana" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dato in tabla %}
+                        <tr>
+                            <td>{{ dato.fecha }}</td>
+                            <td class="to_suma">{{ dato.reuniones.visitas_ }}</td>
+                            <td class="to_suma">{{ dato.reuniones.asistentes_regulares }}</td>
+                            <td class="to_suma">{{ dato.reuniones.lideres_asistentes }}</td>
+                            <td class="to_suma">{{ dato.reuniones.total_asistentes }}</td>
+                            <td class="to_prom">{{ dato.grupos_semana|sub:dato.sin_reportar }}</td>
+                            <td class="to_prom">{{ dato.sin_reportar }}</td>
+                            <td class="to_prom percent">{{ dato.porcentaje }}%</td>
+                            <td class="to_prom">{{ dato.grupos_semana }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9">{% trans "No hay datos para mostrar" %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-header">
+            <h3>{% trans "Grupos Faltantes por Registrar Reunión" %}</h3>
+        </div>
+        <div class="card-body card-padding">
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered" id="table-faltantes">
+                    <thead>
+                        <tr>
+                            <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                            <th data-column-id="lideres" data-identifier="true">{% trans "Líderes" %}</th>
+                            <th data-column-id="discipulos" data-identifier="true">{% trans "Discípulos De" %}</th>
+                            <th data-column-id="fecha" data-identifier="true">{% trans "Fecha Reunión" %}</th>
+                            <th data-column-id="numero" data-identifier="true">{% trans "No. Sobres" %}</th>
+                            {% if perms.miembros.es_administrador %}
+                                <th data-column-id="commands" data-formatter="commands" data-sortable="false">{% trans "Acciones" %}</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grupo in sin_reportar %}
+                        <tr>
+                            <td class="hidden">{{ grupo.id }}</td>
+                            <td>{{ grupo }}</td>
+                            <td>{{ grupo.get_parent }}</td>
+                            <td>{{ grupo.fechas }}</td>
+                            <td>{{ grupo.no_reportes }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            {% if perms.miembros.es_administrador %}
+                                <td colspan="6">{% trans 'No hay faltantes' %}</td>
+                            {% else %}
+                                <td colspan="5">{% trans 'No hay faltantes' %}</td>
+                            {% endif%}    
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>   
+    {% endif %}
+</div>
+
+{% if grafico %}
+<button class="btn btn-float bgm-red m-btn" data-action="print">
+    <i class="zmdi zmdi-print"></i>
+</button>
+{% endif %}
+{% endblock contenido %}
+
+{% block js %}
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    const fechaInicialInput = $('#id_fecha_inicial');
+    const fechaFinalInput = $('#id_fecha_final');
+
+    fechaInicialInput.datetimepicker({
+        format: 'DD/MM/YY',
+        maxDate: moment(),
+    });
+
+    fechaFinalInput.datetimepicker({
+        useCurrent: false,
+        format: 'DD/MM/YY',
+        maxDate: moment(),
+    });
+
+    fechaInicialInput.on("dp.change", function (e) {
+        fechaFinalInput.data("DateTimePicker").minDate(e.date);
+    });
+
+    fechaFinalInput.on("dp.change", function (e) {
+        fechaInicialInput.data("DateTimePicker").maxDate(e.date);
+    });
+
+    $('#imprimir').click(function (event) {
+        window.print();
+    });
+
+    var grid = $("#table-faltantes").bootgrid({
+        css: {
+            icon: 'zmdi icon',
+            iconColumns: 'zmdi-view-module',
+            iconDown: 'zmdi-expand-more',
+            iconRefresh: 'zmdi-refresh',
+            iconUp: 'zmdi-expand-less'
+        },
+        rowCount: -1,
+        caseSensitive: false,
+        formatters: {
+            "commands": function(column, row){
+                {% if perms.miembros.es_administrador %}
+                    return "<button class=\"command-mail btn btn-xs btn-default btn-icon\" data-row-id=\"" + row.id +"\"><span class=\"zmdi zmdi-email\"></span></button>"
+                {% endif %}
+            }
+        }
+    }).on("loaded.rs.jquery.bootgrid", function()
+        {
+            /* Executes after data is loaded and rendered */
+            grid.find(".command-mail").on("click", function(e){
+                pk = $(this).data("row-id");
+                selectedRow = $(this).closest("tr");
+                dates = selectedRow.find("td:eq(2)").text();
+                quantity = selectedRow.find("td:eq(3)").text();
+                $(this).attr('disabled', true);
+                $.ajax({
+                    url: "{% url 'grupos:mail_missing_gar_envelopes_to_report_api' 0 %}".replace('0', pk),
+                    method: 'GET',
+                    contentType: 'application/json',
+                    traditional: true,
+                    data: {
+                        quantity: quantity,
+                        dates: dates,
+                    },
+                    success: function (data) {
+                        if (!data.status) {
+                            alert("Hubo un Error al enviar mensaje");
+                        }
+                    }
+                });
+            })
+    });
+
+    {% if grafico %}
+    const tabla = {{ tabla|safe }};
+    google.charts.load('current', { packages: ['corechart'] });
+
+    {% if values_ofrenda %}
+    const values_ofrenda = {{ values_ofrenda|safe }};
+    google.charts.setOnLoadCallback(drawChartOfrenda);
+
+    function drawChartOfrenda() {
+        const data = new google.visualization.DataTable();
+        data.addColumn('string', 'Fechas');
+        data.addColumn('number', 'Ofrenda');
+
+        data.addRows(values_ofrenda);
+
+        const options = {
+            title: 'Ofrendas Sobre Rango de Fechas',
+            width: '100%',
+            height: 500,
+            legend: {
+                position: 'bottom'
+            },
+            hAxis: {
+                title: 'Fechas'
+            },
+            vAxis: {
+                title: 'Ofrendas'
+            },
+        };
+
+        const chart = new google.visualization.LineChart(document.getElementById('ofrenda-grupo'));
+
+        chart.draw(data, options);
+    }
+    {% endif %}
+
+    {% if values_asistencias %}
+    const data_asistencias = {{ values_asistencias|safe }};
+    google.charts.setOnLoadCallback(drawAsistenciasChart);
+
+    function drawAsistenciasChart() {
+        const data = new google.visualization.DataTable();
+        for (let x = 0; x < data_asistencias[0].length; x++) {
+            if (data_asistencias[0][x] == 'Fechas') {
+                data.addColumn('string', data_asistencias[0][x]);
+            } else {
+                data.addColumn('number', data_asistencias[0][x]);
+                data.addColumn({ type: 'string', role: 'annotation' });
+            }
+        }
+
+        for (let x = 1; x < data_asistencias.length; x++) {
+            data.addRow(data_asistencias[x]);
+        }
+
+        const options = {
+            width: '100%',
+            height: 500,
+            title: 'Asistencia en Grupos de Amistad',
+            subtitle: 'Rango de fechas',
+            hAxis: {
+                title: 'Fechas'
+            },
+            vAxis: {
+                title: 'Numero de Personas'
+            },
+            legend: {
+                position: 'bottom'
+            },
+        };
+        const chart = new google.visualization.ColumnChart(document.getElementById('asistencia-grupo'));
+        chart.draw(data, options);
+    }
+    {% endif %}
+
+    {% if values_porcentaje_utilidad %}
+    const data_porcentaje = {{ values_porcentaje_utilidad|safe }};
+    google.charts.setOnLoadCallback(drawChartPorcentaje);
+
+    function drawChartPorcentaje() {
+        const data = new google.visualization.DataTable();
+        data.addColumn('string', 'Fechas');
+        data.addColumn('number', 'Porcentaje');
+        data.addColumn({ type: 'string', role: 'annotation' });
+
+        for (let x = 0; x < data_porcentaje[0].length; x++) {
+            let arr = new Array();
+            arr.splice(0, 0, data_porcentaje[0][x]);
+            arr.splice(1, 0, data_porcentaje[1][x]);
+            arr.splice(2, 0, data_porcentaje[1][x].toString() + '%');
+            data.addRow(arr);
+        }
+
+        const options = {
+            width: '100%',
+            height: 500,
+            title: 'Porcentaje de Grupos Reportando',
+            subtitle: 'Rango de fechas',
+            hAxis: {
+                title: 'Fechas'
+            },
+            vAxis: {
+                title: 'Porcentaje',
+                minValue: 0
+            },
+            legend: {
+                position: 'bottom'
+            }
+        };
+        const chart = new google.visualization.ColumnChart(document.getElementById('porcentaje-grupo'));
+        chart.draw(data, options);
+    }
+    {% endif %}
+
+    $(window).resize(function () {
+        {% if values_asistencias %}
+        drawAsistenciasChart();
+        {% endif %}
+        {% if values_ofrenda %}
+        drawChartOfrenda();
+        {% endif %}
+        {% if values_porcentaje_utilidad %}
+        drawChartPorcentaje();
+        {% endif %}
+    });
+
+    {% endif %}
+
+    {% if tabla %}
+    const $tabla_estadisticos = $('#estadisticos');
+    const $trs = $tabla_estadisticos.find('tbody').find('tr');
+
+    let _sum = new Array();
+    let _prom = new Array();
+
+    $.each($trs, function (ind, obj) {
+        let sum = new Array();
+        let prom = new Array();
+        $.each($(obj).find('.to_suma'), function (i, value) {
+            sum.push($(value).html());
+        })
+        $.each($(obj).find('.to_prom'), function (i, value) {
+            prom.push($(value).html());
+        })
+        _sum.push(sum);
+        _prom.push(prom);
+    });
+
+    let sumas = new Array();
+    let promedios = new Array();
+
+    let tr = '<tr><td><strong>Total</strong></td>0</tr>';
+
+    for (let y = 0; y < _sum[0].length; y++) {
+        let resultado = 0;
+        for (let x = 0; x < _sum.length; x++) {
+            resultado += parseInt(_sum[x][y]); //
+        }
+        sumas.push('<td>0</td>'.replace('0', resultado.toString()));
+    }
+
+    for (let y = 0; y < _prom[0].length; y++) {
+        let resultado = 0;
+        for (let x = 0; x < _prom.length; x++) {
+            resultado += parseInt(_prom[x][y]);
+        }
+        promedios.push('<td>0</td>'.replace('0', (resultado / _prom.length).toFixed(3)));
+    }
+
+    $tabla_estadisticos.find('tbody').append(tr.replace('0', sumas.join(' ') + promedios.join(' ')));
+
+    $.each($tabla_estadisticos.find('tbody').find('tr').last().find('td'), function (i, obj) {
+        if (i == 7) {
+            $(obj).addClass('percent');
+            $(obj).html($(obj).html() + '%');
+        }
+    });
+    {% endif %}
+
+</script>
+{% endblock js %}

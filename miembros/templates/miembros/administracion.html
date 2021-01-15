@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+
+    <div class="block-header">
+        <h2>{% trans "Resumen de la Iglesia" %}</h2>
+    </div>
+    <div class="mini-charts">
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div class="mini-charts-item bgm-red">
+                    <div class="clearfix">
+                        <div class="chart stats-bar"></div>
+                        <div class="count">
+                            <small>{% trans "Total grupos" %}</small>
+                            <h2>{{ total_grupos }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="mini-charts-item bgm-green">
+                    <div class="clearfix">
+                        <div class="chart stats-line"></div>
+                        <div class="count">
+                            <small>{% trans "Grupos Activos" %}</small>
+                            <h2>{{ grupos_activos }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="mini-charts-item bgm-blue">
+                    <div class="clearfix">
+                        <div class="chart stats-line-2"></div>
+                        <div class="count">
+                            <small>{% trans "Grupos Inactivos" %}</small>
+                            <h2>{{ grupos_inactivos }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div class="mini-charts-item bgm-orange">
+                    <div class="clearfix">
+                        <div class="chart stats-bar-2"></div>
+                        <div class="count">
+                            <small>{% trans "Total líderes" %}</small>
+                            <h2>{{ total_lideres }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="mini-charts-item bgm-lime">
+                    <div class="clearfix">
+                        <div class="chart stats-line-2"></div>
+                        <div class="count">
+                            <small>{% trans "Grupos Solo Discipulado" %}</small>
+                            <h2>{{ grupos_discipulados }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="mini-charts-item bgm-cyan">
+                    <div class="clearfix">
+                        <div class="chart stats-line-2"></div>
+                        <div class="count">
+                            <small>{% trans "Grupos Solo Reuniones Amistad" %}</small>
+                            <h2>{{ grupos_amistad }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h2>
+                {% trans "Estadísticos" %}
+                <small>{% trans "Estadísticos Génerales de los Miembros" %}</small>
+            </h2>
+        </div>
+        <div class="card-body m-t-0">
+            <table class="table table-inner table-vmiddle">
+                <thead>
+                    <tr>
+                        <th>{% trans "Estadísticos" %}</th>
+                        <th style="width: 60px;">{% trans "Total" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="f-500 c-cyan">{% trans "Total de Miembros" %}</td>
+                        <td class="f-500 c-cyan">{{ total_miembros }}</td>
+                    </tr>
+                    <tr>
+                        <td class="f-500 c-cyan">{% trans "Miembros Activos" %}</td>
+                        <td class="f-500 c-cyan">{{ miembros_activos }}</td>
+                    </tr>
+                    <tr>
+                        <td class="f-500 c-cyan">{% trans "Miembros en Restauración" %}</td>
+                        <td class="f-500 c-cyan">{{ miembros_restauracion }}</td>
+                    </tr>
+                    <tr>
+                        <td class="f-500 c-cyan">{% trans "Miembros Inactivos" %}</td>
+                        <td class="f-500 c-cyan">{{ miembros_inactivos }}</td>
+                    </tr>
+                    <tr>
+                        <td class="f-500 c-cyan">{% trans "Líderes" %}</td>
+                        <td class="f-500 c-cyan">{{ total_lideres }}</td>
+                    </tr>
+                    <tr>
+                        <td class="f-500 c-cyan">{% trans "Maestros" %}</td>
+                        <td class="f-500 c-cyan">{{ maestros }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

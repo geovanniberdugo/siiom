@@ -1,0 +1,130 @@
+{% load i18n static %}
+<div class="loaded_into">
+    <div class="modal fade" id="modal-eliminar-grupo" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title replacement-grupo">{% if not not_show_members %}{% trans "Escoja que desea hacer con los miembros del grupo" %}{% else %}{% if change_titulo %}{% trans "¿Desea escoger un lider para reemplazar a " %}{{ miembro }}?{% endif %}{% endif %}</h4>
+                    <small class="help-block {% if not miembro %}hidde-if-not-miembros{% endif %}"></small>
+                </div>
+                <form action="" enctype="multipart/form-data" method="POST" id="form-modal-archivar">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        {% if not not_show_members %}
+                        <div class="row hidde-if-not-miembros">
+                            <div class="col-md-12">
+                                <div class="input-group {{ form.grupo_destino.css_classes }}">
+                                    <span class="input-group-addon">
+                                        <i class="zmdi zmdi-map"></i>
+                                    </span>
+                                    <div class="fg-line">
+                                        <label for="{{ form.grupo_destino.id_for_label }}" class="control-label">{{ form.grupo_destino.label }}*:</label>
+                                        {{ form.grupo_destino }}
+                                    </div>
+                                    <small class="help-block">{{ form.grupo_destino.help_text }}</small>
+                                    {{ form.grupo_destino.errors }}
+                                </div>
+                            </div>
+                            <br class="space">
+                        </div>
+                        <br>
+                        {% if not form.lider %}
+                        <br class="space-down">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group {{ form.mantener_lideres.css_classes }}">
+                                    <label for="{{ form.mantener_lideres.id_for_label }}" class="checkbox control-label">
+                                        {{ form.mantener_lideres }}
+                                        <i class="input-helper m-r-20"></i>
+                                        {{ form.mantener_lideres.label }}
+                                    </label>
+                                    <small class="help-block">{{ form.mantener_lideres.help_text }}</small>
+                                    {{ form.mantener_lideres.errors }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="input-group {{ form.nuevo_lider.css_classes }}">
+                                    <span class="input-group-addon">
+                                        <i class="zmdi zmdi-map"></i>
+                                    </span>
+                                    <div class="fg-line">
+                                        <label for="{{ form.nuevo_lider.id_for_label }}" class="control-label">{{ form.nuevo_lider.label }}*:</label>
+                                        {{ form.nuevo_lider }}
+                                    </div>
+                                    <small class="help-block">{{ form.nuevo_lider.help_text }}</small>
+                                    {{ form.nuevo_lider.errors }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <br>
+                        {% if not not_show_members %}
+                        <table id="table-miembros-eliminar" class="table table-striped hidde-if-not-miembros">
+                            <thead>
+                                <tr>
+                                    <th data-column-id="id" data-visible="false" data-identifier="true"></th>
+                                    <th data-column-id="nombre" data-identifier="true">{% trans 'Miembro' %}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="insert-miembros">
+                            </tbody>
+                        </table>
+                        {% endif %}
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" name="confirmar-eliminar" class="btn btn-link">{% trans "Aceptar" %}</button>
+                    <button type="button" class="btn btn-link" data-dismiss="modal">{% trans "Cancelar" %}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<a data-toggle="modal" id="toggleModalEliminarGrupo" href="#modal-eliminar-grupo"></a>
+
+
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones.js' %}" type="text/javascript"></script>
+<script src="{% static 'Scripts/IGSearch/IGSearch.js' %}" type="text/javascript"></script>
+<script src="{% static 'Scripts/utils_archivar_grupo.js' %}" type="text/javascript"></script>
+<script>
+$(document).ready(function () {
+
+    $('.loaded_into').carga_miembros({
+        url_discipulos: '{% url "grupos:discipulos_miembros_api" 0 %}',
+        url_busqueda: '{% url "common:busqueda_grupo_api" 0 %}',
+        {% if not not_show_members %}
+        grupo_selector: '#{{ form.grupo.id_for_label }}',
+        grupo_destino_selector: '#{{ form.grupo_destino.id_for_label }}',
+        {% endif %}
+        {% if change_titulo %}
+        override_titles: false,
+        {% endif %}
+    })
+
+    {% if form.nuevo_lider %}
+    $('#{{ form.nuevo_lider.id_for_label }}').IGSearch({
+        url: "{% url 'common:busqueda_miembro_api' miembro.grupo.red.id %}",
+        key: 'miembros',
+        items: [],
+        type: 'POST',
+        messageError: 'Ha ocurrido un error y no se pueden mostrar los miembros',
+    });
+    {% endif %}
+
+    $('#{{ form.grupo_destino.id_for_label }}').selectpicker(); // no remover
+
+    var $form = $('#form-modal-archivar');
+
+    $('button[name="confirmar-eliminar"]').click(function (event) {
+        if ($('#{{ form.grupo.id_for_label }}')[0]) {
+            $form.append('<input type="hidden" name="grupo" value="0">'.replace('0', $('#{{ form.grupo.id_for_label }}').val()));
+        }
+        $form.submit();
+    });
+});
+</script>

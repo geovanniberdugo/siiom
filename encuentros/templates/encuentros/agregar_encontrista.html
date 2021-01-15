@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block js %}
+    <script>
+        jQuery(document).ready(function($) {
+            $('#id_fecha_inicial').datetimepicker({
+                format: 'DD/MM/YY H:m',
+                minDate: moment(),
+            });
+
+            $('#id_fecha_final').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YY',
+                minDate: moment(),
+            });
+
+            // $('#id_fecha_inicial').keypress(function(event) {
+            //     event.preventDefault();
+            //     return false;
+            // });
+
+            // $('#id_fecha_inicial').on("dp.change",function(e){
+            //     $('#id_fecha_final').data("DateTimePicker").minDate(e.date);
+            // });
+
+            // $('#id_fecha_final').on("dp.change",function(e){
+            //     $('#id_fecha_inicial').data("DateTimePicker").maxDate(e.date);
+            // });
+
+
+            function agregar_opciones(data, id){
+                var opciones = '';
+                for (var i = 0; i < data.length; i++) {
+                    opciones += '<option value="' + data[i]['pk'] + '">' + data[i]['nombre'] + '</option>';
+                }
+                $("#"+id).html(opciones);
+                $("#"+id).trigger('chosen:updated');
+            }
+
+            // setTimeout(auxiliar, 2000);
+            // function auxiliar(){
+            //    $(".grupo .bs-searchbox input").on('keydown', function(event){
+            //         if($(this).val() != ''){
+            //             $.ajax({
+            //                 url: "{% url 'encuentros:obtener_grupos' %}",
+            //                 data: {
+            //                     id_red: {{ encuentro.coordinador.grupo.red.id }},
+            //                     combo_grupo: $(this).val(),
+            //                     value: $(this).val(),
+            //                     csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val()
+            //                 },
+            //                 type: 'POST',
+            //                 error: function(xhr, ajaxOptions, thrownError){
+            //                     alert(xhr.status);
+            //                     alert(thrownError);
+            //                 },
+            //                 async: true,
+            //                 success: function(data){
+            //                     // console.log(data);
+            //                     agregar_opciones(data, 'id_grupo');
+            //                     $('#id_grupo').selectpicker('refresh');
+            //                 }
+            //             });
+            //         }
+            //         else{
+            //             $("#id_grupo").html('');
+            //             $("#id_grupo").trigger('chosen:updated');
+            //         }
+            //     });
+            // }
+
+        });
+    </script>
+{% endblock js %}
+
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{{accion}} Encontrista para el encuentro ({{ encuentro.hotel|upper }}-{{ encuentro.fecha_inicial }})</h3></legend>
+            </h1>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="row">
+                        <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+                            <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                            <p>{{ message|safe }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card-body card-padding">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="input-group {{form.primer_nombre.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_primer_nombre" class="fg-label requerido control-label">Primer Nombre*:</label>
+                                {{form.primer_nombre}}
+                            </div>
+                            {% for error in form.primer_nombre.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group {{form.segundo_nombre.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_segundo_nombre" class="fg-label control-label requerido">Segundo Nombre:</label>
+                                {{form.segundo_nombre}}
+                            </div>
+                            {% for error in form.segundo_nombre.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group {{form.primer_apellido.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account-o"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_primer_apellido" class="fg-label requerido control-label">Primer Apellido*:</label>
+                                {{form.primer_apellido}}
+                            </div>
+                            {% for error in form.primer_apellido.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group {{form.segundo_apellido.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account-o"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_segundo_apellido" class="fg-label requerido control-label">Segundo Apellido:</label>
+                                {{form.segundo_apellido}}
+                            </div>
+                            {% for error in form.segundo_apellido.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="input-group {{form.talla.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-fullscreen-alt"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_talla" class="fg-label control-label requerido">Talla:</label>
+                                {{form.talla}}
+                            </div>
+                            {% for error in form.talla.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group {{form.genero.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts-alt"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_genero" class="fg-label control-label requerido">Género*:</label>
+                                {{form.genero}}
+                            </div>
+                            {% for error in form.genero.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group {{form.identificacion.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-card"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_identificacion" class="fg-label requerido control-label">Identificación*:</label>
+                                {{form.identificacion}}
+                            </div>
+                            {% for error in form.identificacion.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="input-group {{form.email.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-email"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_email" class="fg-label control-label requerido">Email*:</label>
+                                {{form.email}}
+                            </div>
+                            {% for error in form.email.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1 grupo">
+                        <div class="input-group {{form.grupo.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-star"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_grupo" class="fg-label control-label requerido">Grupo:</label>
+                                {{form.grupo}}
+                            </div>
+                            {% for error in form.grupo.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="aceptar" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

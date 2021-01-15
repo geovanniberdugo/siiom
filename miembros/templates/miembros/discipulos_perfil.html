@@ -1,0 +1,132 @@
+{% extends "perfil_base.html" %}
+{% load static %}
+
+{% block card %}
+
+{% if not no_discipulos %}
+<div class="pmb-block">
+    <div class="pmbb-header">
+        <h2><i class="zmdi zmdi-balance m-r-5"></i> Datos del Discipulado</h2>
+
+        {% if mismo or perms.miembro.es_administrador %}
+        <ul class="actions">
+            <li class="dropdown">
+                <a href="" data-toggle="dropdown">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a data-pmb-action="edit" href="" class="edit-error">Editar</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+    <div class="pmbb-body p-l-30">
+        <div class="pmbb-view">
+            <dl class="dl-horizontal">
+                <dt>Dia Discipulado</dt>
+                <dd>{{ miembro.grupo_lidera.get_diaDiscipulado_display|upper }}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Hora Discipulado</dt>
+                <dd>{{ miembro.grupo_lidera.horaDiscipulado|upper }}</dd>
+            </dl>
+        </div>
+
+    <form action="" id="form-discipulos" method="post" enctype="multpart/form-data">
+        {% csrf_token %}
+        <div class="pmbb-edit">
+            <div class="input-group {{form.diaDiscipulado.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_diaDiscipulado" class="requerido control-label">Dia Discípulado*:</label>
+                    </dt>
+                    <dd>
+                        <div class="fg-line">
+                            {{form.diaDiscipulado}}
+                        </div>
+                        {% for error in form.diaDiscipulado.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="input-group {{form.horaDiscipulado.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_horaDiscipulado" class="requerido control-label">Hora Discípulado*:</label>
+                    </dt>
+                    <dd>
+                        <div class="fg-line">
+                           {{form.horaDiscipulado}}
+                        </div>
+                        {% for error in form.horaDiscipulado.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="m-t-30">
+                <button type="submit" name="aceptar" class="btn btn-primary btn-sm">Guardar</button>
+                <button data-pmb-action="reset" class="btn btn-link btn-sm">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+<div class="pmb-block">
+    <div class="p-header">
+    	<div class="pmbb-header">
+        	<h2><i class="zmdi zmdi-accounts-alt m-r-5"></i> Discipulos</h2>
+        </div>
+        <ul class="p-menu">
+            <!--<li class="pm-search">
+                <div class="pms-inner">
+                    <i class="zmdi zmdi-search"></i>
+                    <input type="text" placeholder="Buscar...">
+                </div>
+            </li>-->
+        </ul>
+
+    </div>
+
+    <div class="contacts c-profile clearfix row">
+    	{% for discipulo in discipulos %}
+        <div class="col-md-3 col-sm-4 col-xs-6">
+            <div class="c-item">
+                <a href="{% url 'miembros:editar_perfil' discipulo.id %}" class="ci-avatar">
+                    <img src="{% if discipulo.foto_perfil %}{{ discipulo.foto_perfil.url }}{% else %}{% static 'Imagenes/profile-none.jpg' %}{% endif%}" alt="">
+                </a>
+
+                <div class="c-info">
+                    <strong>{{discipulo.nombre|upper}} {{discipulo.primer_apellido|upper}}</strong>
+                    <small>{{discipulo.cedula}}</small>
+                </div>
+
+                <div class="c-footer">
+                    <button class="waves-effect" style="width: 20%; display:inline; padding: 3px 10px 3px" title="información" onclick="window.location='{% url "miembros:ver_informacion" discipulo.id %}'"><i class="zmdi zmdi-balance"></i></button>
+                    {% if discipulo.discipulos %}
+                    <button class="waves-effect" style="width: 20%; display:inline; padding: 3px 10px 3px" title="discípulos" onclick="window.location='{% url "miembros:ver_discipulos" discipulo.id %}'"><i class="zmdi zmdi-accounts-alt"></i></button>
+                    {% endif %}
+                    <button class="waves-effect" style="width: 20%; display:inline; padding: 3px 10px 3px" title="grupo" onclick="window.location='{% url "miembros:editar_grupo" discipulo.id %}'"><i class="zmdi zmdi-view-comfy"></i></button>
+                </div>
+            </div>
+        </div>
+    	{% endfor %}
+    </div>
+</div>
+{% else %}
+{% if mismo %}
+<div class="container">
+	<div class="p-25 p-t-25">No Tienes Discípulos Aún</div>
+</div>
+{% else %}
+<div class="container">
+	<div class="p-25 p-t-25">El Miembro No Tiene Discípulos</div>
+</div>
+{% endif %}
+{% endif %}
+{% endblock card %}

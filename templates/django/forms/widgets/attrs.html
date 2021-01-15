@@ -1,0 +1,13 @@
+{% if "class" not in widget.attrs %}
+    {% if 'select.html' in widget.template_name %}class="selectpicker"{% else %}class="form-control"{% endif %}
+{% endif %}
+
+{% for name, value in widget.attrs.items %}
+    {% if value is not False %} 
+        {% if name == 'class' %}
+            {{ name }}="{{ value }} {% if 'select.html' in widget.template_name %}selectpicker{% else %}form-control{% endif %}"
+        {% else %}
+            {{ name }}{% if value is not True %}="{{ value }}"{% endif %}
+        {% endif %}
+    {% endif %}
+{% endfor %}

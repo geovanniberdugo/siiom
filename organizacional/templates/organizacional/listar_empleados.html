@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700 f-20">
+            	<legend><h3>{% trans "Listado de los Empleados" %}</h3></legend>
+				<small><a alt="Agregar Área" href="{% url 'organizacional:empleado_nuevo' %}">{% trans "Agregar Empleados" %}</a></small>
+	        </h1>
+        </div>
+
+        {% include "_alert_messages.html" %}
+
+        <div class="table-responsive">
+            <table id="data-table-command" class="table table-striped table-vmiddle">
+                <thead>
+                    <tr>
+                        <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                        <th data-column-id="nombre" data-identifier="true">{% trans "Nombre" %}</th>
+                        <th data-column-id="cedula" data-identifier="true">{% trans "Cédula" %}</th>
+                        <th data-column-id="correo" data-identifier="true">{% trans "Email" %}</th>
+                        <th data-column-id="area" data-identifier="true">{% trans "Área" %}</th>
+                        <th data-column-id="commands" data-formatter="commands" data-sortable="false">{% trans "Comandos" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empleado in empleados %}
+                        <tr>
+                            <td>{{ empleado.id }}</td>
+                            <td>{{ empleado.primer_nombre|upper }} {{empleado.segundo_nombre|upper}} {{empleado.primer_apellido|upper}} {{empleado.segundo_apellido|upper}}</td>
+                            <td>{{ empleado.cedula }}</td>
+                            <td>{{ empleado.usuario.email }}</td>
+                            <td>{{ empleado.areas.all|join:", " }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        $("#data-table-command").bootgrid({
+	        		css: {
+                        icon: 'zmdi icon',
+                        iconColumns: 'zmdi-view-module',
+                        iconDown: 'zmdi-expand-more',
+                        iconRefresh: 'zmdi-refresh',
+                        iconUp: 'zmdi-expand-less'
+	                    },
+                    caseSensitive: false,
+                    formatters: {
+                        "commands": function(column, row) {
+                            return "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/organizacional/editar_empleado/" + row.id + "'\"><span class=\"zmdi zmdi-edit\"></span></button> ";
+                        }
+                    }
+                });
+
+    })
+</script>
+{% endblock %}

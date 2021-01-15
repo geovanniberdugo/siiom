@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% load static waffle_tags %}
+
+{% block contenido %}
+{% if not grupo.get_posicion %}
+{% endif %}
+<div class="container">
+    {% if empleado %}
+        {% switch "compras" %}
+        {% if empleado.is_compras %}
+        <div class="card-body card-padding">
+            <div class="row">
+                <div class="mini-charts">
+                    <div class="row">
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-red">
+                                <div class="clearfix">
+                                    <div class="chart stats-bar"></div>
+                                    <div class="count">
+                                        <small>Requisiciones Totales Ingresadas Este Mes</small>
+                                        <h2>{{ requisiciones_ingresadas_mes }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-orange">
+                                <div class="clearfix">
+                                    <div class="chart stats-pie chart-pie"></div>
+                                    <div class="count">
+                                        <small>Porcentaje de Requisiciones Atendidas este Mes</small>
+                                        <h2>{{ porcentage_atencion_mes|floatformat:2 }}%</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-green">
+                                <div class="clearfix">
+                                    <div class="chart stats-line"></div>
+                                    <div class="count">
+                                        <small>Requisicioness Totales en Compras</small>
+                                        <h2>{{ requisiciones_empleado }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            {% if ultimas_requisiciones %}
+            <div class="card">
+                <div class="card-header">
+
+                </div>
+                <div class="card-body card-padding">
+                    <div class="row">
+                        <div class="col-sm-6 m-b-20">
+                            <p class="f-500 m-b-20 c-black">Requisiciones Ingresadas Recientemente (Sin atención)</p>
+
+                            <ul class="list-group">
+                                {% for requisicion in ultimas_requisiciones %}
+                                <li class="list-group-item"><a href="{{ requisicion.get_url_progreso }}">{{ requisicion.asunto|title }}</a>, <small>{{ requisicion.fecha_ingreso }}</small></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="epc-item bgm-teal">
+                                <div class="easy-pie main-pie" data-percent="{{porcetaje_total_en_compras}}">
+                                    <div class="percent">{{porcetaje_total_en_compras}}</div>
+                                    <div class="pie-title">Porcentaje en Compras</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+        {% if empleado.is_jefe_administrativo %}
+        <div class="card-body card-padding">
+            <div class="row">
+                <div class="mini-charts">
+                    <div class="row">
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-red">
+                                <div class="clearfix">
+                                    <div class="chart stats-bar"></div>
+                                    <div class="count">
+                                        <small>Requisiciones Terminadas Este Mes</small>
+                                        <h2>{{ requisiciones_terminadas }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-orange">
+                                <div class="clearfix">
+                                    <div class="chart stats-pie chart-pie"></div>
+                                    <div class="count">
+                                        <small>Requisiciones Faltante Por Aprobar (Director Administrativo)</small>
+                                        <h2>{{ requisiciones_faltantes_aprobar_trazabilidad }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-green">
+                                <div class="clearfix">
+                                    <div class="chart stats-line"></div>
+                                    <div class="count">
+                                        <small>Requisiciones Faltante Por Aprobar (Departamento)</small>
+                                        <h2>{{ requisiciones_faltantes_aprobar_departamento }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            {% if requisiciones_recientes %}
+            <div class="card">
+                <div class="card-header">
+
+                </div>
+                <div class="card-body card-padding">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-">
+                            <div class="mini-charts-item bgm-bluegray">
+                                <div class="clearfix">
+                                    <div class="chart stats-line-2"></div>
+                                    <div class="count">
+                                        <small>Requisiciones En Mora</small>
+                                        <h2>{{ requisiciones_mora }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="col-m-b-20">
+                                <p class="f-500 m-b-20 c-black">Requisiciones Ingresadas Recientemente (Sin atención)</p>
+
+                                <ul class="list-group">
+                                    {% for requisicion in requisiciones_recientes %}
+                                    <li class="list-group-item"><a href="{{ requisicion.get_url_progreso }}">{{ requisicion.asunto|title }}</a>, <small>{{ requisicion.fecha_ingreso }}</small></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="epc-item bgm-teal">
+                                <div class="easy-pie main-pie" data-percent="{{porcetaje_total_en_compras}}">
+                                    <div class="percent">{{porcetaje_total_en_compras}}</div>
+                                    <div class="pie-title">Porcentaje en Jefe Administrativo</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+        {% if empleado.is_jefe_financiero %}
+        <div class="card-body card-padding">
+            <div class="row">
+                <div class="mini-charts">
+                    <div class="row">
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-red">
+                                <div class="clearfix">
+                                    <div class="chart stats-bar"></div>
+                                    <div class="count">
+                                        <small>Requisiciones Faltante Por Aprobar (Departamento)</small>
+                                        <h2>{{ requisiciones_faltantes_aprobar_departamento }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-orange">
+                                <div class="clearfix">
+                                    <div class="chart stats-pie chart-pie"></div>
+                                    <div class="count">
+                                        <small>Requisiciones Faltante Por Aprobar (Director Administrativo)</small>
+                                        <h2>{{ requisiciones_faltantes_aprobar_trazabilidad }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-green">
+                                <div class="clearfix">
+                                    <div class="chart stats-line"></div>
+                                    <div class="count">
+                                        <small>Requisiciones en Espera</small>
+                                        <h2>{{ requisiciones_espera|length }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div class="card">
+                <div class="card-header">
+
+                </div>
+                <div class="card-body card-padding">
+                    <div class="row">
+                        <div class="col-sm-6 col-md-">
+                            <div class="mini-charts-item bgm-bluegray">
+                                <div class="clearfix">
+                                    <div class="chart stats-line-2"></div>
+                                    <div class="count">
+                                        <small>Dinero que ha salido en este mes CREDITO</small>
+                                        <h2>${{ salida_credito }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            {% if requisiciones_espera %}
+                            <div class="col-m-b-20">
+                                <p class="f-500 m-b-20 c-black">Requisiciones En Espera</p>
+
+                                <ul class="list-group">
+                                    {% for requisicion in requisiciones_espera %}
+                                    <li class="list-group-item"><a href="{{ requisicion.get_url_progreso }}">{{ requisicion.asunto|title }}</a>, <small>{{ requisicion.fecha_ingreso }}</small></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="mini-charts-item bgm-teal">
+                                <div class="clearfix">
+                                    <div class="chart stats-line-2"></div>
+                                    <div class="count">
+                                        <small>Dinero que ha salido en este mes EFECTIVO</small>
+                                        <h2>${{ salida_efectivo }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if mis_requisiciones_activas %}
+            <div class="card">
+                <div class="card-header">
+                </div>
+                <div class="card-body card-padding">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-">
+                            <div class="col-m-b-20">
+                                <p class="f-500 m-b-20 c-black">Requisiciones En Proceso</p>
+
+                                <ul class="list-group">
+                                    {% for requisicion in mis_requisiciones_activas %}
+                                    <li class="list-group-item">
+                                        <span class="badge">{{ requisicion.get_rastreo }}</span>
+                                        <a href="{{ requisicion.get_url_for_solicitante }}">{{ requisicion.asunto|title }}</a>, <small>{{ requisicion.fecha_ingreso }}</small></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% endswitch %}
+    {% endif %}
+
+
+
+
+
+
+
+
+	{% if grupo %}
+    <div class="card" style="background: #edecec;box-shadow: none;">
+        <div class="card-header">
+            <div class="row">
+                <h1>Resumen de mi Grupo</h1>
+            </div>
+        </div>
+        <div class="card-body card-padding">
+            <div class="row">
+                <div class="mini-charts">
+                    <div class="row">
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-red">
+                                <div class="clearfix">
+                                    <div class="chart stats-bar"></div>
+                                    <div class="count">
+                                        <small>Total Grupos</small>
+                                        <h2>{{totalGrupos}}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-orange">
+                                <div class="clearfix">
+                                    <div class="chart stats-bar-2"></div>
+                                    <div class="count">
+                                        <small>Total Líderes</small>
+                                        <h2>{{totalLideres}}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-md-">
+                            <div class="mini-charts-item bgm-green">
+                                <div class="clearfix">
+                                    <div class="chart stats-line"></div>
+                                    <div class="count">
+                                        <small>Lideres en Grupo</small>
+                                        <h2>{{lideresGrupo}}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	{% endif %}
+
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script>
+    {% if miembro %}
+        {% if not grupo.get_position %}
+        $(document).ready(function() {
+            $('#toggleModal').click();
+        })
+        {% endif %}
+    {% endif %}
+</script>
+</script>
+{% endblock js %}

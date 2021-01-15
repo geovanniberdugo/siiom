@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header card-padding">
+            <div class="row">
+                <div class="col-md-4">
+                    <h2 style="text-align:center">No.{{ requisicion.id }}</h2>
+                </div>
+                <div class="col-md-4">
+                    <h2 style="text-align:center;">{% trans "Requisición de Bienes y Servicios" %}</h2>
+                </div>
+                <div class="col-md-4">
+                    <h2 style="text-align:center;">{{ requisicion.fecha_ingreso }}</h2>
+                </div>
+            </div>
+            <!--<hr>-->
+            <br>
+            <br>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>{% trans "Solicitante:" %}</th>
+                        <td>{{ requisicion.empleado }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Departamento:" %}</th>
+                        <td>{{ requisicion.empleado.areas.first.departamento.nombre|upper }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Área:" %}</th>
+                        <td>{{ requisicion.empleado.areas.first.nombre|upper }}</td>
+                    </tr>
+                    <tr>
+                        <th>{% trans "Cargo:" %}</th>
+                        <td>{{ requisicion.empleado.cargo|upper }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="card-body card-padding">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">{% trans "ASUNTO" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ requisicion.asunto }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{% trans "CANTIDAD" %}</th>
+                            <th>{% trans "DESCRIPCION" %}</th>
+                            <th>{% trans "REFERENCIA" %}</th>
+                            <th>{% trans "MARCA" %}</th>
+                            <th>{% trans "VALOR UNITARIO" %}</th>
+                            <th>{% trans "TOTAL" %}</th>
+                            <th>{% trans "FORMA DE PAGO" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detalle in requisicion.detallerequisicion_set.all %}
+                        <tr>
+                            <td>{{ detalle.cantidad }}</td>
+                            <td>{{ detalle.descripcion }}</td>
+                            <td>{{ detalle.referencia }}</td>
+                            <td>{{ detalle.marca }}</td>
+                            <td>{{ detalle.valor_aprobado }}</td>
+                            <td>{{ detalle.total_aprobado }}</td>
+                            <td>{{ detalle.get_forma_pago_display|upper }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="5"><strong>{% trans "Total" %}</strong></td>
+                            <td>{{ requisicion.get_total }}</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center;">{% trans "JUSTIFICACIÓN Y OBSERVACIONES" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ requisicion.observaciones }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<button class="btn btn-float bgm-red m-btn" data-action="print"><i class="zmdi zmdi-print"></i></button>
+{% endblock contenido %}

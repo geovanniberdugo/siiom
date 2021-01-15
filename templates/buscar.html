@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block contenido %}
+<div class="container">
+	<div class="card">
+		<div class="card-header">
+			<h1>
+				<legend>
+					<h3>
+						{% trans 'Resultados de búsqueda' %}
+					</h3>
+				</legend>
+				<small>
+					<a style="cursor: pointer;" id="buscarDiferente">{% trans "Buscar en" %} {% if tipo == 'grupo' %}{% trans "miembros" %}{% else %}{% trans "grupos" %}{% endif %}</a>
+				</small>
+			</h1>
+		</div>
+
+		<div class="card">
+			<div class="listview lv-bordered lv-lg">
+				<div class="lv-header-alt clearfix">
+					<h2 class="lvh-label hidden-xs">{% trans "Tipo de búsqueda:" %} {% trans tipo %}</h2>
+				</div>
+				<div class="lv-body">
+					{% if tipo == 'miembro' %}
+					{% for resultado in resultados %}
+					<div class="lv-item media">
+						<div class="pull-left">
+							<img class="lv-img-sm" src="{% if resultado.foto_perfil %}{{ resultado.foto_perfil.url }}{% else %}{% static 'Imagenes/profile-none.jpg' %}{% endif %}" />
+						</div>
+
+						<div class="media-body">
+							<div class="lv-title">
+								<a href="{% url 'miembros:editar_perfil' resultado.pk %}">{% filter upper %}{{ resultado.nombre }} {{ resultado.primer_apellido }}{% endfilter %} ({{ resultado.cedula }})</a>
+								<small class="lv-small">
+									{% if resultado.grupo_lidera %}
+										{% trans "Lider de grupo" %} {{ resultado.grupo_lidera.nombre|upper }}
+									{% elif resultado.grupo %}
+										{% trans "Asiste al grupo" %} {{ resultado.grupo.nombre|upper }}
+									{% else %}
+										{% trans "No asiste a ningún grupo" %}
+									{% endif %}
+								</small>
+							</div>
+						</div>
+					</div>
+					{% empty %}
+					<div class="lv-item media">
+						<div class="media-body">
+							{% trans "No se encontraron resultados de su búsqueda." %}
+						</div>
+					</div>
+					{% endfor %}
+					{% else %}
+					{% for resultado in resultados %}
+					<div class="lv-item media">
+						<div class="media-body">
+							<div class="lv-title">
+								<a href="{% url 'grupos:detalle' resultado.pk %}">{{ resultado|upper }}</a>
+							</div>
+							<small class="lv-small">{{ resultado.direccion|upper }}, {{ resultado.horaGAR }}, {{ resultado.nombre|upper }} ({{ resultado.get_estado_display|upper }})</small>
+						</div>
+					</div>
+					{% empty %}
+					<div class="lv-item media">
+						<div class="media-body">
+							{% trans "No se encontraron resultados de su búsqueda." %}
+						</div>
+					</div>
+					{% endfor %}
+					{% endif %}
+				</div>
+			</div>
+
+			{% if tipo == 'miembro' %}
+				{% url 'buscar' 'grupo' as form_url %}
+			{% else %}
+				{% url 'buscar' 'miembro' as form_url %}
+			{% endif %}
+
+			<form id="buscarHidden" action="{{ form_url }}" method="GET">
+				<input type="hidden" name="buscar" value="{{ termino }}">
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#buscarDiferente").click(function(){
+			$("#buscarHidden").submit();
+		});
+	});
+</script>
+{% endblock js %}

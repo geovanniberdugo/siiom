@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        $("#data-table-command").bootgrid({
+    		css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+                },
+            caseSensitive: false,
+            {% if custodias %}
+            formatters: {
+                "commands": function(column, row) {
+                    var clase;
+                    if (row.color == 'red' || row.color == 'yellow') {
+                        clase = 'proceso';
+                    } else  {
+                        clase = '';
+                    }
+
+                    return "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle " + clase + " c-" + row.color + "\" data-row-id=\"" + row.id + "\"><span class=\"zmdi zmdi-circle\"></span></button> ";
+                }
+            }
+            {% endif %}
+        });
+
+        $("#data-table-command").on('loaded.rs.jquery.bootgrid', function(evento) {
+            $('.proceso').click(function(event) {
+                var $id = $(this).attr('data-row-id');
+                $('#toggleModalCustoria').click();
+                $('input[name="id_custodia"]').val($id);
+            })
+        });
+
+    })
+</script>
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700 f-20">
+            	<legend><h3>Listado Custodia de Documentos</h3></legend>
+	        </h1>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="row">
+                    <div class="alert alert-{{message.tags}} alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>{{message}}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="table table-responsive">
+            <table id="data-table-command" class="table table-striped table-vmiddle">
+                <thead>
+                    <tr>
+                        <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                        <th data-visible="false" data-identifier="true" data-column-id="color"></th>
+                        <th data-column-id="nombre" data-identifier="true">Fecha Solicitud</th>
+                        <th data-column-id="cedula" data-identifier="true">Nombre Solicitante</th>
+                        <th data-column-id="area" data-identifier="true">Área</th>
+                        <th data-column-id="ubicacion" data-identifier="true">Tipo Documento</th>
+                        <th data-column-id="correo" data-identifier="true">Descripción</th>
+                        <th data-column-id="estado" data-identifier="true">Estado</th>
+                        <th data-column-id="commands" data-formatter="commands" data-sortable="false">Comandos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for custodia in custodias %}
+                        <tr>
+                            <td>{{ custodia.id }}</td>
+                            <td>{% if custodia.estado == 'PE' %}red{% elif custodia.estado == 'PR' %}yellow{% else %}green{% endif %}</td>
+                            <td>{{ custodia.fecha_solicitud }}</td>
+                            <td>{{ custodia.solicitante }}</td>
+                            <td>{{ custodia.area.nombre|upper }}</td>
+                            <td>{{ custodia.tipo_documento.nombre|upper }}</td>
+                            <td>{% if custodia.descripcion %}{{ custodia.descripcion }}{% else %}SIN COMENTARIOS{% endif %}</td>
+                            <td>{{ custodia.get_estado_display }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td colspan="2" class="centrarTexto">No existen solicitudes de custodia aún.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <br>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNarrowerCustodia" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Seguro Cambiar Estado?</h4>
+            </div>
+            <form action="" method="POST" id="form-solicitud-proceso" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>¿Seguro que quiere Cambiar el estado de esta solicitud?.</p>
+                    <input type="hidden" name="finalizar">
+                    <input type="hidden" name="id_custodia">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="solicitar_registro" class="btn btn-link">Aceptar</button>
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<a data-toggle="modal" id="toggleModalCustoria" href="#modalNarrowerCustodia"></a>
+
+{% endblock %}

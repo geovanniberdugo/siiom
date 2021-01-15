@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1><legend><h3>{{ title }}</h3></legend></h1>
+        </div>
+
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+            <form action="" method="POST">
+                {% csrf_token %}
+
+                {% include "_alert_non_field_errors.html" %}
+
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="input-group {{ form.old_password.css_classes}}" id="contrasenaAnterior">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-shield-security"></i>
+                            </span>
+                            <div class="fg-line">
+                                <labe for="{{ form.old_password.id_for_label}}" class="fg-label control-label">{{ form.old_password.label }}*:</labe>
+                                {{ form.old_password }}
+                            </div>
+                            {{ form.old_password.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.new_password1.css_classes }}" id="div-{{ form.new_password1.id_for_label }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-shield-security"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.new_password1.id_for_label }}" class="control-label">{{ form.new_password1.label }}*:</label>
+                                {{ form.new_password1 }}
+                            </div>
+                            {{ form.new_password1.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.new_password2.css_classes }}" id="div-{{ form.new_password2.id_for_label }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-shield-check"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.new_password2.id_for_label }} control-label">{{ form.new_password2.label }}</label>
+                                {{ form.new_password2 }}
+                            </div>
+                            {{ form.new_password2.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button name="aceptar" class="btn btn-primary btn-block">{% trans "Cambiar" %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        var validar = function(emisor, receptor) {
+
+            emisor.on('keydown keyup blur focus click change', function(){
+                var $val = emisor.val();
+                var listen = function (){
+                    if ($val.length >= 10) {
+                        if (receptor.hasClass('has-error')) {
+                            receptor.removeClass('has-error');
+                        };
+
+                        if (receptor.hasClass('has-warning')) {
+                            receptor.removeClass('has-warning');
+                        };
+                        receptor.addClass('has-success');
+
+                    } else if ($val.length <= 3) {
+                        if (receptor.hasClass('has-warning') || receptor.hasClass('has-success')) {
+                            receptor.removeClass('has-warning')
+                                .removeClass('has-success')
+                                .addClass('has-error');
+                        }
+
+                    } else if ($val.length <= 9) {
+                        if (receptor.hasClass('has-success')) {
+                            receptor.removeClass('has-success')
+                                .addClass('has-warning');
+
+                        } else if (receptor.hasClass('has-error')) {
+                            receptor.removeClass('has-error')
+                                .addClass('has-warning');
+
+                        } else {
+                            receptor.addClass('has-warning');
+                        }
+                    }
+                }
+                setTimeout(listen, 200);
+            });
+        }
+
+        validar($('#{{ form.new_password1.id_for_label }}'), $('#div-{{ form.new_password1.id_for_label }}'));
+        validar($('#{{ form.new_password2.id_for_label }}'), $('#div-{{ form.new_password2.id_for_label }}'));
+    });
+</script>
+{% endblock %}

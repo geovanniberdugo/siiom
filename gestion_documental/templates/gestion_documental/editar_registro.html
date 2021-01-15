@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block css %}
+	<link rel="stylesheet" href="{% static 'Scripts/tagsinput/bootstrap-tagsinput.css' %}">
+	<style>
+		.label-info {
+			background-color: #2196f3;
+		}
+
+		.bootstrap-tagsinput {
+			background-color: #fff;
+			border: 1px solid #e0e0e0;
+			border-left: 0;
+			border-right: 0;
+			border-top: 0;
+			box-shadow: inherit;
+			display: inherit;
+			padding: inherit;
+			color: #555;
+			vertical-align: inherit;
+			border-radius: inherit;
+			max-width: 100%;
+			line-height: inherit;
+			cursor: text;
+			width: 100%;
+		}
+
+		.bootstrap-tagsinput .tag {
+			margin-right: 2px;
+			margin-bottom: 2px;
+			color: white;
+			display: inline-block;
+			font-size: 12px;
+		}
+
+		.bootstrap-tagsinput .twitter-typeahead .tt-hint {
+			top: 8px !important;
+			left: -5px !important;
+		}
+	</style>
+{% endblock css %}
+
+{% block contenido %}
+	<div class="container">
+		<form action="" method="post" enctype="multipart/form-data">
+			<div class="card">
+				<div class="card-header">
+					<h2>
+						<legend><h3>{% trans "Editar Registro" %}</h3></legend>
+					</h2>
+					{% if messages %}
+						{% for message in messages %}
+							<div class="row">
+				                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+				                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+				                    <p>{{ message|safe }}</p>
+				                </div>
+				            </div>
+						{% endfor %}
+					{% endif %}
+				</div>
+				{% csrf_token %}
+				<div class="card-body card-padding">
+					<div class="row">
+	                    <div class="col-md-4">
+	                        <div class="input-group {{form.departamento.css_classes}}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-balance"></i>
+	                            </span>
+	                            <div class="fg-line requerido">
+	                                <label for="id_departamento" class="fg-label requerido control-label">{{ form.departamento.label }}:</label>
+	                                {{ form.departamento }}
+	                            </div>
+	                            {% for error in form.departamento.errors %}
+	                                <small class="help-block">{{error}}</small>
+	                            {% endfor %}
+	                        </div>
+	                    </div>
+	                    <br class="space">
+	                    <div class="col-md-4">
+	                        <div class="input-group {{ form.area.css_classes }}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-share"></i>
+	                            </span>
+	                            <div class="fg-line requerido">
+	                                <label for="id_area" class="fg-label requerido control-label">{{ form.area.label }}:</label>
+	                                {{ form.area }}
+	                            </div>
+	                            {% for error in form.area.errors %}
+	                                <small class="help-block">{{error}}</small>
+	                            {% endfor %}
+	                        </div>
+	                    </div>
+	                    <br class="space">
+	                    <div class="col-md-4">
+	                        <div class="input-group {{form.fecha.css_classes}}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-calendar"></i>
+	                            </span>
+	                            <div class="fg-line requerido">
+	                                <label for="id_fecha" class="fg-label requerido control-label">{{ form.fecha.label }}:</label>
+	                                {{ form.fecha }}
+	                            </div>
+	                            {% for error in form.fecha.errors %}
+	                                <small class="help-block">{{error}}</small>
+	                            {% endfor %}
+	                        </div>
+	                    </div>
+	                </div>
+	                <br class="space-down">
+	                <br>
+	                <div class="row">
+	                    <div class="col-md-4">
+	                        <div class="input-group {{form.descripcion.css_classes}}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-comment-alt-text"></i>
+	                            </span>
+	                            <div class="fg-line requerido">
+	                                <label for="id_descripcion" class="fg-label control-label requerido">{{ form.descripcion.label }}:</label>
+	                                {{ form.descripcion }}
+	                            </div>
+	                            {% for error in form.descripcion.errors %}
+	                                <small class="help-block">{{error}}</small>
+	                            {% endfor %}
+	                        </div>
+	                    </div>
+	                    <br class="space">
+	                    <div class="col-md-4">
+	                        <div class="input-group {{form.palabras.css_classes}}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-key"></i>
+	                            </span>
+	                            <div class="fg-line requerido">
+	                                <label for="id_palabras" class="fg-label requerido control-label">{{ form.palabras.label|title }}:</label>
+	                                {{ form.palabras }}
+	                                <!--<div id="palabras" class="form-control"></div>-->
+	                            </div>
+	                            {% for error in form.palabras.errors %}
+	                                <small class="help-block">{{error}}</small>
+	                            {% endfor %}
+	                        </div>
+	                    </div>
+	                    <br class="space">
+	                    <div class="col-md-2">
+	                        <div class="input-group {{form.estante.css_classes}}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-grid"></i>
+	                            </span>
+	                            <div class="fg-line requerido">
+	                                <label for="{{ form.estante.id_for_label }}" class="fg-label requerido control-label">{{ form.estante.label|title }}:</label>
+	                                {{ form.estante }}
+	                            </div>
+	                            {% for error in form.estante.errors %}
+	                                <small class="help-block">{{error}}</small>
+	                            {% endfor %}
+	                        </div>
+	                    </div>
+	                    <br class="space">
+	                    <div class="col-md-2">
+	                        <div class="input-group {{form.caja.css_classes}}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-stack-overflow"></i>
+	                            </span>
+	                            <div class="fg-line requerido">
+	                                <label for="{{ form.caja.id_for_label }}" class="fg-label requerido control-label">{{ form.caja.label|title }}:</label>
+	                                {{ form.caja }}
+	                            </div>
+	                            {% for error in form.caja.errors %}
+	                                <small class="help-block">{{error}}</small>
+	                            {% endfor %}
+	                        </div>
+	                    </div>
+	                </div>
+				</div>
+			</div>
+
+			{% for form_d in form_documentos %}
+			{{ form_d.id }}
+			<div class="form-documentos">
+				<div class="block-header">
+					<h2>{% trans "Documentos" %}</h2>
+
+					<ul class="actions">
+			            <li>
+			                <a href="">
+			                    <i class="zmdi zmdi-minus"></i>
+			                </a>
+			            </li>
+			        </ul>
+				</div>
+				<div class="card">
+					<div class="card-header">
+						
+					</div>
+					<div class="card-body card-padding">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="input-group {{ form_d.archivo.css_classes }}">
+		                            <span class="input-group-addon">
+		                                <i class="zmdi zmdi-file"></i>
+		                            </span>
+		                            <label for="{{ form_d.archivo.id_for_label }}" class="fg-label requerido control-label">{{ form_d.archivo.label|title }}:</label>
+		                            <br>
+		                            <div class="fileinput fileinput-new" data-provides="fileinput">
+						                {{ form_d.archivo }}
+						                <a href="#" class="close fileinput-exists" data-dismiss="fileinput">&times;</a>
+						            </div>
+		                            {% for error in form_d.archivo.errors %}
+		                                <small class="help-block">{{error}}</small>
+		                            {% endfor %}
+		                        </div>
+							</div>
+							<br class="space">
+							<div class="col-md-6">
+								<div class="input-group {{form_d.tipo_documento.css_classes}}">
+		                            <span class="input-group-addon">
+		                                <i class="zmdi zmdi-file-text"></i>
+		                            </span>
+		                            <div class="fg-line requerido">
+		                                <label for="{{ form_d.tipo_documento.id_for_label }}" class="fg-label requerido control-label">{{ form_d.tipo_documento.label|title }}:</label>
+		                                {{ form_d.tipo_documento }}
+		                            </div>
+		                            {% for error in form_d.tipo_documento.errors %}
+		                                <small class="help-block">{{error}}</small>
+		                            {% endfor %}
+		                        </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% if form_documentos.can_delete %}
+		        {{ form_d.DELETE }}
+		    {% endif %}
+			</div>
+			{% endfor %}
+			{{ form_documentos.management_form }}
+			<br>
+			<br>
+			<div class="row">
+				<div class="col-md-4 col-md-offset-4">
+					<button class="btn btn-block btn-primary" type="submit">
+						{% trans "Aceptar" %}
+					</button>
+				</div>
+			</div>
+	    </form>
+	</div>
+{% endblock contenido %}
+
+	<script src="{% static 'Scripts/' %}"></script>
+	<script src="{% static 'Scripts/tokenizer/bootstrap-tokenfield.js' %}"></script>
+	<script src="{% static 'Scripts/tagsinput/bootstrap-tagsinput.js' %}"></script>
+{% block js %}
+	<script src="{% static 'Scripts/jquery.formset.js' %}"></script>
+	<script src="{% static 'Scripts/tagsinput/bootstrap-tagsinput.js' %}"></script>
+	<script>
+		$(window).load(function (e) {
+			window.localStorage.removeItem('__/sgd/palabras_claves_json/__data')
+		})
+		jQuery(document).ready(function($) {
+			$('#id_fecha').datetimepicker({
+				format: 'DD/MM/YYYY',
+			})
+
+			$('.form-documentos').formset({
+	            addText: 'Agregar Beneficiario',
+	            deleteText: 'Quitar',
+	            // prefix: 'documentos',
+	            especial: true,
+	            added: function (row) {
+	            	var $tipo = row.find('.tipo_doc');
+	            	var $viejo_select = row.prev(".form-documentos").find(".tipo_doc");
+	            	$tipo.html($viejo_select.html());
+	            	// $tipo.selectpicker();
+	            },
+	            removed: function(row) {
+	            	console.log(row);
+	            }
+	        });
+
+	        $('.delete-row').click(function(event) {
+	        	console.log($(this).parent());
+	        });
+
+	        var citynames = new Bloodhound({
+			  	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+			  	queryTokenizer: Bloodhound.tokenizers.whitespace,
+			  	prefetch: {
+			    	url: '{% url "sgd:palabras_claves_json" %}',
+			    	filter: function(list) {
+			      		return $.map(list, function(cityname) {
+			        		return { name: cityname };
+			        	});
+			    	}
+			  	}
+			});
+
+			citynames.initialize();
+
+			$('#id_palabras').tagsinput({
+			  	typeaheadjs: {
+			    	name: 'citynames',
+			    	displayKey: 'name',
+			    	valueKey: 'name',
+			    	source: citynames.ttAdapter()
+			  	}
+			});
+
+			{% for palabra in registro.palabras_claves.all %}
+			$('#id_palabras').tagsinput('add', '{{ palabra.nombre }}');
+			{% endfor %}
+
+			$('.tt-input').addClass('form-control')
+
+        	$('#id_palabras').keypress(function(e) {
+        		if (e.keyCode == 13) {
+        			// e.preventDefault();
+        			// $('#id_palabras').tagsinput('add', $(this).val());
+        			return true;
+        		}
+        	})
+
+        	$('.tt-input').blur(function(event) {
+        		$('#id_palabras').tagsinput('add', $(this).val())
+        		$(this).val(' ')
+        	});
+
+        	$('form').keypress(function(e) {
+        		if (e.keyCode == 13) {
+        			// e.preventDefault();
+        			return false;
+        		}
+        	})
+
+        	$('#id_departamento').change(function(event) {
+        		$.ajax({
+        			url : '{% url "organizacional:areas_departamento_json" %}',
+        			type: 'POST',
+        			data: {'id_departamento': $(this).val()},
+        			success: function(data) {
+        				function agregar_opciones(data, id){
+							var opciones = '<option value="-1" selected="selected">------</option>';
+							datos = eval(data);
+							for (var i = 0; i < datos.length; i++) {
+								opciones += '<option value="' + datos[i]['id'] + '">' + datos[i]['area'] + '</option>';
+							}
+						    $("#"+id).html(opciones);
+						    $("#"+id).trigger('chosen:updated');
+						}
+
+						agregar_opciones(data, 'id_area');
+						$('#id_area').selectpicker('refresh');
+        			}
+        		})
+        	});
+
+        	$('#id_area').change(function(event) {
+        		$.ajax({
+        			url : '{% url "sgd:area_tipo_documento_json" %}',
+        			type: 'POST',
+        			data: {'id_area': $(this).val()},
+        			success: function(data) {
+        				function agregar_opciones(data, id){
+        					// $('.tipo_doc').selectpicker('refresh');	
+							var opciones = '<option value="-1" selected="selected">------</option>';
+							datos = eval(data);
+							for (var i = 0; i < datos.length; i++) {
+								opciones += '<option value="' + datos[i]['id'] + '">' + datos[i]['tipo'] + '</option>';
+							}
+						    $("."+id).html(opciones);
+						    // $("."+id).trigger('chosen:updated');
+						}
+
+						agregar_opciones(data, 'tipo_doc');
+						// $('.tipo_doc').selectpicker();
+						// console.log(data);
+        			}
+        		})
+        	});
+		});
+	</script>
+{% endblock js %}

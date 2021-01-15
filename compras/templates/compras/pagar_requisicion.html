@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+	<form action="" method="post" enctype="multipart/form-data">
+		<div class="card">
+			<div class="card-header">
+				<h2>
+					<legend><h3>{% trans "Pago Requisicion No." %} {{ requisicion.id }}</h3></legend>
+				</h2>
+				{% if messages %}
+					{% for message in messages %}
+						<div class="row">
+			                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+			                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+			                    <p>{{ message|safe }}</p>
+			                </div>
+			            </div>
+					{% endfor %}
+				{% endif %}
+			</div>
+			{% csrf_token %}
+			<div class="card-body card-padding">
+				<p>{{ requisicion.observaciones }}</p>
+				<br>
+				{% if requisicion.adjunto_set.all %}
+				<div class="">
+					<h5>Archivos adjuntos a esta requisición</h5>
+					<ul>
+						{% for archivo in requisicion.adjunto_set.all %}
+							<li><a href="{{ archivo.archivo.url }}">{{ archivo.archivo.url }}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+				{% endif %}
+				<br>
+				<br>
+				<div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Cantidad" %}</th>
+                                <th>{% trans "Descripción" %}</th>
+                                <th>{% trans "Referencia" %}</th>
+                                <th>{% trans "Marca" %}</th>
+                                <th>{% trans "Valor Unitario" %}</th>
+                                <th>{% trans "Valor Total" %}</th>
+                                <th>{% trans "Forma Pago" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        	{% for detalle in requisicion.detallerequisicion_set.all %}
+                            <tr class="form_detalles">
+                                <td>{{ detalle.cantidad }}</td>
+                                <td>{{ detalle.descripcion }}</td>
+                                <td>{{ detalle.referencia }}</td>
+                                <td>{{ detalle.marca }}</td>
+                                <td>{% if detalle.valor_aprobado %}{{ detalle.valor_aprobado }}{% else %}0{% endif %}</td>
+                                <td>{% if detalle.total_aprobado %}{{ detalle.total_aprobado }}{% else %}0{% endif %}</td>
+                                <td>{{ detalle.get_forma_pago_display|upper }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <br>
+                <br class="space">
+                <br class="space-down">
+                <div class="row">
+                	<div class="col-md-4 col-md-offset-4">
+	                	<div class="input-group {{ form.estado_pago.css_classes }}">
+					        <span class="input-group-addon">
+					            <i class="zmdi zmdi-calendar"></i>
+					        </span>
+					        <div class="fg-line requerido">
+					            <label for="{{ form.estado_pago.id_for_label }}" class="fg-label requerido control-label">{{ form.estado_pago.label|title }}:</label>
+					            {{ form.estado_pago }}
+					        </div>
+					        {% for error in form.estado_pago.errors %}
+					            <small class="help-block">{{ error }}</small>
+					        {% endfor %}
+					    </div>
+                	</div>
+                	<br class="space">
+                	{% comment %}<div class="col-md-4">
+	                	<div class="input-group {{ form.fecha_pago.css_classes }}">
+					        <span class="input-group-addon">
+					            <i class="zmdi zmdi-calendar"></i>
+					        </span>
+					        <div class="fg-line requerido">
+					            <label for="{{ form.fecha_pago.id_for_label }}" class="fg-label requerido control-label">{{ form.fecha_pago.label|title }}:</label>
+					            {{ form.fecha_pago }}
+					        </div>
+					        {% for error in form.fecha_pago.errors %}
+					            <small class="help-block">{{ error }}</small>
+					        {% endfor %}
+					    </div>
+                	</div>
+                	<br class="space">{% endcomment %}
+                </div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<button class="btn btn-block btn-primary" type="submit">
+					{% trans "Aceptar" %}
+				</button>
+			</div>
+		</div>
+    </form>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+	<script src="{% static 'Scripts/tagsinput/bootstrap-tagsinput.js' %}"></script>
+	<script>
+		jQuery(document).ready(function($) {
+			$('#id_fecha_pago').datetimepicker({
+				format: 'DD/MM/YY',
+				minDate: moment(),
+			})
+		});
+	</script>
+{% endblock js %}

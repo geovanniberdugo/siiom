@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static %}
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+        $("#data-table-selection").bootgrid({
+                css: {
+                    icon: 'zmdi icon',
+                    iconColumns: 'zmdi-view-module',
+                    iconDown: 'zmdi-expand-more',
+                    iconRefresh: 'zmdi-refresh',
+                    iconUp: 'zmdi-expand-less'
+                },
+                {% if encontristas %}
+                selection: true,
+                multiSelect: true,
+                rowSelect: true,
+                keepSelection: true,
+                {% endif %}
+                caseSensitive: false,
+            });
+
+        var $seleccionados = [];
+        var $seleccion = [];
+
+
+        {% for m in encontristas %}
+            {% if m.asistio %}
+                $seleccionados.push('{{m.id}}');
+            {% endif %}
+        {% endfor %}
+
+        // Se controla el uso y manejo de la tabla
+        bootgrid_table_solution("#data-table-selection", $seleccionados);
+
+        $('#aceptarAsistencia').submit(function(event) {
+            try {
+                for (var i = 0; i < $seleccionados.length; i++) {
+                    var x = $seleccionados[i];
+                    $('button[name="aceptarAsistencia"]').append('<input type="hidden" name="seleccionados" value="'+ x.toString() +'">')
+                }
+            }
+            catch (err) {
+                console.log(err);
+            }
+        });
+
+        {% if nadie %}
+        $(window).load(function() {
+            swal({   
+                title: "Lo Sentimos",
+                text: "Parece que no hay encontristas en este encuentro",   
+                type: "warning",
+                confirmButtonColor: "#DD6B55",   
+                confirmButtonText: "Aceptar",   
+                closeOnConfirm: false 
+            });
+        });
+        {% endif %}
+	});		
+</script>
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>Asistencia Encuentro ({{ encuentro.hotel|upper }}-{{ encuentro.fecha_inicial }})</h3></legend>
+            </h1>
+            {% if ok %}
+            <div class="row">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                    <p>Se ha creado correctamente la asistencia.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+            <div class="table-responsive">
+                <table id="data-table-selection" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th data-visible="false" data-identifier="true" data-column-id="id"></th>  
+                            <th data-identifier="true" data-column-id="estudiante">Nombre</th>
+                            <th data-identifier="true" data-column-id="fecha">Apellido</th>
+                            <th data-identifier="true" data-column-id="modulo">Identificación</th>
+                            <th data-identifier="true" data-column-id="pago">Género</th>
+                            <th data-identifier="true" data-column-id="hotel">Talla</th>
+                            <th data-identifier="true" data-column-id="grupos">Grupo al cual asiste</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for encontrista in encontristas %}
+                        <tr>
+                            <td>{{ encontrista.id}}</td>
+                            <td>{{ encontrista.primer_nombre|upper }} {{ encontrista.segundo_nombre|upper }}</td>
+                            <td>{{ encontrista.primer_apellido|upper }} {{ encontrista.segundo_apellido|upper }}</td>
+                            <td>{{ encontrista.identificacion }}</td>
+                            <td>{{ encontrista.get_genero_display|upper }}</td>
+                            <td>{{ encontrista.talla|upper }}</td>
+                            <td>{{ encontrista.grupo }}</td>
+                        </tr>
+                        {% empty %}
+                            <tr>
+                                <td></td>
+                                <td colspan="2">{{ mensaje }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        <form action="" method="POST" id="aceptarAsistencia" enctype="multipart/form-data">
+            {% csrf_token %}   
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4">
+                    {% if encontristas %}
+                    <button id="sa-warning" type="submit" class="btn btn-success btn-block" name ="aceptarAsistencia">Aceptar</button>
+                    {% endif %}
+                </div>
+            </div>
+            <br>
+            <br>
+        </form>  
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+    

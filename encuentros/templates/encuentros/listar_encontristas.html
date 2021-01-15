@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load static %}
+{% block js %}
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    jQuery(document).ready(function($) {
+        $("#data-table-command").bootgrid({
+                    css: {
+                        icon: 'zmdi icon',
+                        iconColumns: 'zmdi-view-module',
+                        iconDown: 'zmdi-expand-more',
+                        iconRefresh: 'zmdi-refresh',
+                        iconUp: 'zmdi-expand-less'
+                        },
+                    caseSensitive: false,
+                    formatters: {
+                        "commands" : function(column, row) {
+                            return "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/encuentro/editar_encontrista/" + row.id + "'\"><span class=\"zmdi zmdi-edit\"></span></button> " + "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/encuentro/borrar_encontrista/" + row.id + "'\"><span class=\"zmdi zmdi-minus\"></span></button> "
+                        },
+                    }
+                });
+    });
+</script>
+
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700 f-20">
+            	<legend>
+            		<h3>Encontristas del encuentro ({{ encuentro.hotel|upper }}-{{ encuentro.fecha_inicial }})</h3>
+                </legend>
+                {% if perms.miembros.es_administrador or perms.miembros.es_tesorero %}
+                <small><a href="{% url 'encuentros:agregar_encontrista' encuentro.id %}">Agregar encontrista a este encuentro</a></small>
+                {% endif %}
+            </h1>
+        </div>
+        <div class="card-body card-padding table-responsive">
+            <br>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="data-table-command" class="table table-striped table-vmiddle">
+                        <thead>
+					       	<tr>
+                                <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+					            <th data-identifier="true" data-column-id="estudiante">Nombre</th>
+					            <th data-identifier="true" data-column-id="fecha">Apellido</th>
+					            <th data-identifier="true" data-column-id="modulo">Identificación</th>
+                                <th data-identifier="true" data-column-id="pago">Género</th>
+                                <th data-identifier="true" data-column-id="hotel">Talla</th>
+					            <th data-identifier="true" data-column-id="grupos">Grupo al cual asiste</th>
+                                {% if perms.miembros.es_administrador or perms.miembros.es_tesorero %}
+                                <th data-column-id="commands" data-formatter="commands" data-sortable="false">Comandos</th>
+                                {% endif %}
+					       	</tr>
+				    	</thead>
+				    	<tbody>
+						{% for encontrista in encontristas %}
+							<tr>
+                                <td>{{ encontrista.id}}</td>
+                                <td>{{ encontrista.primer_nombre|upper }} {{ encontrista.segundo_nombre|upper }}</td>
+								<td>{{ encontrista.primer_apellido|upper }} {{ encontrista.segundo_apellido|upper }}</td>
+								<td>{{ encontrista.identificacion }}</td>
+                                <td>{{ encontrista.get_genero_display|upper }}</td>
+                                <td>{{ encontrista.talla|upper }}</td>
+								<td>{{ encontrista.grupo }}</td>
+							</tr>
+		                {% empty %}
+		                	<tr>
+                                <td></td>
+		                    	<td colspan="4" class="centrarTexto">No existen Encontristas para este encuentro aún. {% if perms.miembros.es_coordinador %}Comunicate con el tesorero de este encuentro para agregar encontristas ({{ encuentro.tesorero }}){% endif %}</td>
+		                    </tr>
+						{% endfor %}
+						</tbody>
+                    </table>
+                    <br/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

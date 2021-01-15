@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/estilos_foto_perfil.css' %}">
+<link href="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/css/lightGallery.css' %}" rel="stylesheet">
+<link href="{% static 'Template/jquery/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+{% endblock css %}
+
+{% block contenido %}
+<div class="load_modal_archivar_grupo"></div>
+<section>
+    <section>
+        <div class="container">
+            <div class="block-header">
+                <h2>{{miembro.nombre|upper}} {{miembro.primer_apellido|upper}}<small>{% if miembro.grupo_lidera %}Lider del grupo '{{miembro.grupo_lidera.nombre|upper}}'{% else %}{% if miembro.grupo %}Pertenece al grupo '{{miembro.grupo.nombre|upper}}'{% else %}No Pertenece a Grupo Aún{% endif %}{% endif %}</small></h2>
+                {% if perms.miembros.es_administrador or request.miembro.es_cabeza_red %}
+                <ul class="actions m-t-20 hidden-xs">
+                    <li class="dropdown">
+                        <a href="" data-toggle="dropdown">
+                            <i class="zmdi zmdi-more-vert"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            {% if not miembro.grupo and perms.miembros.es_administrador %}
+                            <li>
+                                <a href="{% url 'miembros:asignar_grupo' miembro.id %}">Asignar a Grupo</a>
+                            </li>
+                            {% endif %}
+                            {% if not miembro.usuario and perms.miembros.es_administrador %}
+                            <li>
+                                <a href="{% url 'miembros:asignar_usuario' miembro.id %}">Asignar Usuario</a>
+                            </li>
+                            {% endif %}
+                            {% if miembro.grupo %}
+                                {% if request.miembro.grupo_lidera == miembro.grupo.cabeza_red or perms.miembro.es_administrador %}
+                                <li>
+                                    <a href="javascript:void(0);" id="desvincular-lider">{% trans "Desvincular Lider de grupo de amistad" %}</a>
+                                </li>
+                                {% endif %}
+                            {% endif %}
+                            {% if perms.miembros.es_administrador %}
+                            <li><a href="javascript:void(0);" id="resetear-contrasena">{% trans "Resetear contraseña" %}</a></li>
+                            {% endif %}
+                            <li>
+                                <a href="">{% trans "Refrescar" %}</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+
+            <div class="card" id="profile-main">
+                <div class="pm-overview c-overflow">
+                    <div class="pmo-pic">
+                        <div class="p-relative">
+                            {% if mismo %}
+                            <input type="file" name="foto_perfil" id="id_foto_perfil" accept="image/*" onchange="uploadPhotos('{% url 'miembros:editar_perfil' request.miembro.id %}')">
+                            {% endif %}
+                            <img id="photo-p" class="img-responsive" src="{% if miembro.foto_perfil %}{{ miembro.foto_perfil.url }}{% else %}{% static 'Imagenes/profile-none.jpg' %}{% endif%}" alt="">
+
+                            {% if mismo %}
+                            <a class="pmop-edit" id="change-photo" style="width:50%; cursor:pointer;">
+                                <i class="zmdi zmdi-camera"></i> <span class="hidden-xs">Cambiar Foto de Perfil</span>
+                            </a>
+                            <a  class="pmop-edit" id="delete-photo" style="width:50%; margin-left:50%; cursor:pointer;">
+                                <i class="zmdi zmdi-delete"></i> <span class="hidden-xs">Eliminar Foto de Perfil</span>
+                            </a>
+                            {% else %}
+                                {% if perms.miembro.es_administrador and miembro.foto_perfil %}
+                                <a href="#" class="pmop-edit" id="delete-photo">
+                                    <i class="zmdi zmdi-delete"></i> <span class="hidden-xs">Eliminar foto de perfil</span>
+                                </a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="preloader pl-xxl loader-fotop" style="">
+                            <svg class="pl-circular" viewBox="25 25 50 50">
+                                <circle class="plc-path" cx="50" cy="50" r="20" />
+                            </svg>
+                        </div>
+
+
+                        <div class="pmo-stat {% if miembro.genero == 'F' %} bgm-pink{% else %} bgm-cyan{% endif %}">
+                            <h2 class="m-0 c-white">{{miembro.nombre|upper}}</h2>
+                             {{miembro.cedula}}
+                        </div>
+                    </div>
+
+                    <div class="pmo-block pmo-contact hidden-xs">
+                        <h2>Contacto</h2>
+
+                        <ul>
+                            <li><i class="zmdi zmdi-phone"></i> {% if miembro.celular %}{{miembro.celular}}{% else %}SIN DATOS{% endif %}</li>
+                            <li><i class="zmdi zmdi-email"></i> {% if miembro.email %}{{miembro.email}}{% else %}SIN DATOS{% endif %}</li>
+                            <li><i class="zmdi zmdi-pin"></i> {% if miembro.direccion %}{{miembro.direccion|upper}}{% else %}SIN DATOS{% endif %}</li>
+                            <li><i class="zmdi zmdi-facebook-box"></i> Proximamente...</li>
+                            <li><i class="zmdi zmdi-twitter"></i> Proximamente...</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pm-body clearfix">
+                    <ul class="tab-nav tn-justified">
+                        <li class="{% if p %}active{% endif %} waves-effect"><a href="{% if pk %}{% url 'miembros:editar_perfil' pk %}{% else %}{% url 'miembros:editar_perfil' request.miembro.id %}{% endif %}">Información de Miembro</a></li>
+                        {% if miembro.grupo %}
+                        <li class="{% if g %}active{% endif %} waves-effect"><a href="{% if pk %}{% url 'miembros:editar_grupo' pk %}{% else %}{% url 'miembros:editar_grupo' request.miembro.id %}{% endif %}">Grupo</a></li>
+                        {% endif %}
+                        {% if miembro.discipulos %}
+                        <li class="{% if d %}active{% endif %} waves-effect"><a href="{% if pk %}{% url 'miembros:ver_discipulos' pk %}{% else %}{% url 'miembros:ver_discipulos' request.miembro.id %}{% endif %}">Discípulos</a></li>
+                        {% endif %}
+                        <li class="{% if i %}active{% endif %} waves-effect"><a href="{% if pk %}{% url 'miembros:ver_informacion' pk %}{% else %}{% url 'miembros:ver_informacion' request.miembro.id %}{% endif %}">Información de la Iglesia</a></li>
+                        {% if miembro.grupo_lidera %}
+                        <li class="{% if discipulados %}active{% endif %} waves-effect">
+                            <a href="{% url 'miembros:discipulados' miembro.pk %}">{% trans 'Discipulados' %}</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                {% block card %}
+
+                {% endblock card %}
+                </div>
+            </div>
+        </div>
+
+    </section>
+</section>
+{% endblock contenido %}
+
+{% block js %}
+{% if miembro.grupo %}
+    {% if not miembro.grupo_lidera.grupos_red|length > 1 and miembro.grupo_lidera.lideres.all|length == 1 %}
+        {% include "grupos/_modal_archivar_grupo.html" with form=form_desvincular miembro=miembro change_titulo=1 %}
+    {% else%}
+        {% include "grupos/_modal_archivar_grupo.html" with form=form_desvincular not_show_members=1 miembro=miembro change_titulo=1 %}
+    {% endif %}
+{% endif %}
+<script src="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/js/lightGallery.min.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bower_components/mediaelement/build/mediaelement-and-player.min.js' %}"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+        $("#id_horaDiscipulado").datetimepicker({
+            format: 'HH:mm',
+        });
+        $("#id_horaGAR").datetimepicker({
+            format: 'HH:mm'
+        });
+
+        {% if miembro.estado_civil != 'C' %}
+        $("#cpm1").addClass('hidden');
+        {% endif %}
+
+        $("#id_estado_civil").change(function(event) {
+            if ($(this).val() == 'C') {
+                if ($("#cpm1").hasClass('hidden')) {
+                    $("#cpm1").removeClass('hidden')
+                }
+            } else {
+                if (!$("#cpm1").hasClass('hidden')) {
+                    $("#id_conyugue").val('');
+                    $("#cpm1").addClass('hidden');
+                }
+            }
+        });
+
+
+        {% if ok %}
+        $(window).load(function(e){
+            var nFrom = $(this).attr('data-from');
+            var nAlign = $(this).attr('data-align');
+            var nIcons = $(this).attr('data-icon');
+            var nType = $(this).attr('data-type');
+            var nAnimIn = $(this).attr('data-animation-in');
+            var nAnimOut = $(this).attr('data-animation-out');
+
+            notify('{{ms}}', nFrom, nAlign, nIcons, 'success', 'animated bounceIn', nAnimOut);
+        });
+        {% endif %}
+        {% if form.errors %}
+        $(window).load(function(e){
+            var nFrom = $(this).attr('data-from');
+            var nAlign = $(this).attr('data-align');
+            var nIcons = $(this).attr('data-icon');
+            var nType = $(this).attr('data-type');
+            var nAnimIn = $(this).attr('data-animation-in');
+            var nAnimOut = $(this).attr('data-animation-out');
+
+            notify('{{ms}}', nFrom, nAlign, nIcons, 'danger', 'animated bounceIn', nAnimOut);
+
+            $('.edit-error').click();
+        });
+        {% endif %}
+
+        var $nombre = $('#id_nombre').val();
+        var $papellido = $('#id_primer_apellido').val();
+        var $sapellido = $('#id_segundo_apellido').val();
+        var $genero = $('#id_genero').val();
+        var $fecha = $('#id_fecha_nacimiento').val();
+        var $estado_civil = $('#id_estado_civil').val();
+        var $telefono = $('#id_telefono').val();
+        var $celular = $('#id_celular').val();
+        var $direccion = $('#id_direccion').val();
+        var $email = $('#id_email').val();
+
+		$("#id_fecha_nacimiento").datetimepicker({
+			format: 'DD/MM/YYYY',
+            maxDate: moment(),
+		});
+
+
+        $('#change-photo').click(function(event) {
+            $('#id_foto_perfil').click();
+        });
+
+        if(!$('html').hasClass('ismobile')) {
+            if($('.loader-fotop')[0]) {
+                setTimeout (function () {
+                    $('.loader-fotop').fadeOut();
+                }, 500);
+
+            }
+        }
+
+        function escalar(h, w, max) {
+            retorna = (h * max) / w
+            return retorna
+        }
+
+        // Funcion al momento de subir las fotos evitar error 413(Http status)
+        window.uploadPhotos = function(url) {
+            var file = event.target.files[0];
+
+            if(file.type.match(/image.*/)) {
+
+                var reader = new FileReader();
+                reader.onload = function (readerEvent) {
+                    var image = new Image();
+                    image.onload = function (imageEvent) {
+                        // console.log(imageEvent.path[0].height);
+                        var canvas = document.createElement('canvas'),
+                        max_size = 250;
+                        // if (imageEvent.path[0].height > 1000) {
+                        //     max_size = 1000
+                        // }
+                        width = max_size;
+                        height = max_size;
+                        // width = escalar(imageEvent.path[0].height, imageEvent.path[0].width, max_size)
+                        // height = escalar(imageEvent.path[0].height, imageEvent.path[0].width, max_size)
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+                        var dataUrl = canvas.toDataURL('image/jpeg');
+                        var resizedImage = dataURLToBlob(dataUrl);
+                        $.event.trigger({
+                            type: "imageResized",
+                            blob: resizedImage,
+                            url: url
+                        });
+                    }
+                    image.src = readerEvent.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+
+        var dataURLToBlob = function(dataURL) {
+            var BASE64_MARKER = ';base64,';
+            if (dataURL.indexOf(BASE64_MARKER) == -1) {
+                var parts = dataURL.split(',');
+                var contentType = parts[0].split(':')[1];
+                var raw = parts[1];
+
+                return new Blob([raw], {type: contentType});
+            }
+
+            var parts = dataURL.split(BASE64_MARKER);
+            var contentType = parts[0].split(':')[1];
+            var raw = window.atob(parts[1]);
+            var rawLength = raw.length;
+
+            var uInt8Array = new Uint8Array(rawLength);
+
+            for (var i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+
+            blob = new Blob([uInt8Array], {type: contentType});
+            console.log(blob);
+            return blob;
+        }
+
+
+        $(document).on("imageResized", function (event) {
+            var nFrom = $(this).attr('data-from');
+            var nAlign = $(this).attr('data-align');
+            var nIcons = $(this).attr('data-icon');
+            var nType = $(this).attr('data-type');
+            var nAnimIn = $(this).attr('data-animation-in');
+            var nAnimOut = $(this).attr('data-animation-out');
+            var $csrf = $('input[name="csrfmiddlewaretoken"]').val()
+
+            var data = new FormData();
+            var date = new Date();
+            if (event.blob && event.url) {
+                if (event.blob.size < 2000000) {
+                    data.append('file', '');
+                    data.append('foto_perfil', event.blob, date.getSeconds().toString() + '-' + date.getMilliseconds().toString() + '.png');
+                    data.append('csrfmiddlewaretoken', $csrf);
+                    $.ajax({
+                        url: event.url,
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        type: 'POST',
+                        beforeSend: function(){
+                            if ($('.loader-fotop')[0]) {
+                                $('.loader-fotop').fadeIn();
+                            }
+                            $('#photo-p').attr('src', function() {
+                                return '{% static "Imagenes/profile-none.jpg" %}';
+                            })
+                        },
+                        success: function(data){
+                            setTimeout(function() {
+                                $('#photo-p, .mCS_img_loaded').attr('src', function() {
+                                    return data.ruta;
+                                })
+                                $('.loader-fotop').fadeOut();
+                            }, 2000)
+                            notify(data.ms, nFrom, nAlign, nIcons, data.status, 'animated bounceIn', nAnimOut);
+                        }
+                    });
+                } else {
+                    notify('Imagen Muy Grande', nFrom, nAlign, nIcons, 'warning', 'animated bounceIn', nAnimOut);
+                }
+            }
+        });
+
+        $('#delete-photo').click(function(event) {
+            var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+            $.ajax({
+                url: '{% url "miembros:eliminar_foto" miembro.id %}',
+                type: 'POST',
+                data: {'delete_file': '', 'csrfmiddlewaretoken': csrf},
+                success: function(data){
+                    $('#photo-p, .mCS_img_loaded').attr('src', function() {
+                        return data.ruta;
+                    })
+                    var nFrom = $(this).attr('data-from');
+                    var nAlign = $(this).attr('data-align');
+                    var nIcons = $(this).attr('data-icon');
+                    var nType = $(this).attr('data-type');
+                    var nAnimIn = $(this).attr('data-animation-in');
+                    var nAnimOut = $(this).attr('data-animation-out');
+
+                    notify(data.ms, nFrom, nAlign, nIcons, data.status, 'animated bounceIn', nAnimOut);
+                }
+            })
+        });
+
+        $('#desvincular-lider').click(function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            swal({
+                title: "¿Estás seguro que deseas desvincular a {{ miembro.nombre|upper }} {{ miembro.primer_apellido|upper}} del grupo de amistad?",
+                text: "Al momento de desvincular un miembro del grupo, este miembro será inactivado",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Confirmar",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: true,
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    {% if miembro.grupo_lidera.lideres.all|length > 1 or miembro.grupo_lidera.grupos_red|length > 1 or miembro.grupo_lidera.miembros.all|length %}
+                        $('.loaded_into').carga_miembros('update', {grupo_selector: '{{ miembro.grupo_lidera_id }}'})
+                        $('.loaded_into').carga_miembros('reload');
+                    {% else %}
+                        $('#form-modal-archivar').submit();
+                    {% endif %}
+                }
+            });
+        });
+
+        $('#form-modal-archivar').on('submit', function (event) {
+            $('input[value="all"]').prop('name', 'not-sended');
+            event.stopImmediatePropagation();
+            event.preventDefault();
+
+            var form = new FormData(this);
+            form.append('lider', '{{ miembro.id }}');
+
+            data = {};
+            for (var x of form.keys()) {
+                data[x] = form.get(x);
+            }
+
+            $('.page-loader').fadeIn();
+
+            $.ajax({
+                url: '{% url "miembros:desvincular_grupo_api" miembro.id %}',
+                type: 'POST',
+                data: data,
+                success: function (data) {
+                    if (data.response_code == 403) {
+                        for (let error in data.errors) {
+                            let trace = '\n '.join(data.errors[error].trace);
+                            if ($('.added-in-form')[0]) {
+                                $('.added-in-form').remove();
+                            }
+                            let small = $('<small></small>').text(trace).addClass('help-block added-in-form');
+                            $('#id_' + '{0}'.format(error)).parent().parent().addClass(data.errors[error].class).append(small);
+                        }
+                    } else {
+                        window.location.href = data.url;
+                    }
+                },
+                error: function (error) {
+                    danger(error);
+                }
+            })
+            $('.page-loader').fadeOut();
+        });
+    });
+
+    document.querySelector('#resetear-contrasena').addEventListener('click', function() {
+        swal({
+            title: "¿Estás seguro que deseas resetear la contraseña de {{ miembro.nombre|upper }} {{ miembro.primer_apellido|upper}}?",
+            text: "",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Si",
+            cancelButtonText: "No",
+            closeOnConfirm: true,
+        }, function (isConfirm) {
+            if (isConfirm) {
+                var csrf = $('input[name="csrfmiddlewaretoken"]').val()
+                $.ajax({
+                    url: '{% url "miembros:resetear_contrasena_api" %}',
+                    type: 'POST',
+                    data: {'miembro': '{{ miembro.pk }}', 'csrfmiddlewaretoken': csrf},
+                    success: function(data) {
+                        var message, nType;
+                        if (data['response_code']==200) {
+                            message = data['message'];
+                            nType = 'success';
+                        }
+                        else {
+                            message = 'Hubo un error al intentar cambiar la contraseña. Por favor intentalo de nuevo';
+                            nType = 'danger';
+                        }
+
+                        var nAnimIn = $(this).attr('data-animation-in');
+                        var nAnimOut = $(this).attr('data-animation-out');
+                        notify(message, 'top', 'center', 'fa fa-comments', nType, nAnimIn, nAnimOut);
+                    }
+                });
+            }
+        });
+    })
+</script>
+{% block js2 %}
+{% endblock js2 %}
+{% endblock %}

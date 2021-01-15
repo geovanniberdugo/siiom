@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block css %}
+{% include "_datatable_css.html" %}
+{% endblock css %}
+
+{% block contenido %}
+<div class="container">
+    <div class="block-header">
+        <h2>{% trans "seguimiento estudiantes" %}</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+            <form role="form" action="" method="POST" class="row">
+                {% csrf_token %} 
+                {% include "_alert_non_field_errors.html" %}
+
+                <div class="col-sm-4">
+                    <div class="input-group {{ form.curso.css_classes }}">
+                        <span class="input-group-addon">
+                            <i class="zmdi zmdi-book"></i>
+                        </span>
+                        <div class="fg-line">
+                            <label for="{{ form.curso.id_for_label }}" class="fg-label control-label">{{ form.curso.label }}*:</label>
+                            {{ form.curso }}
+                        </div>
+                        {{ form.curso.errors }}
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="input-group {{ form.modulo.css_classes }}">
+                        <span class="input-group-addon">
+                            <i class="zmdi zmdi-book"></i>
+                        </span>
+                        <div class="fg-line">
+                            <label for="{{ form.modulo.id_for_label }}" class="fg-label control-label">{{ form.modulo.label }}*:</label>
+                            {{ form.modulo }}
+                        </div>
+                        {{ form.modulo.errors }}
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <button type="submit" class="btn btn-primary btn-sm">{% trans "ver estudiantes" %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="block-header">
+        <h2>{% trans "estudiantes" %}</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body card-padding">
+            <div class="table-responsive">
+                <table id="table-estudiantes" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th colspan="2">{% trans "Datos Generales" %}</th>
+                            <th colspan="2">{% trans "Modulo" %}</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">{% trans "No." %}</th>
+                            <th rowspan="2">{% trans "Nombre" %}</th>
+                            <th colspan="2">{% trans "Sesion 1" %}</th>
+                            <th colspan="2">{% trans "Sesion 2" %}</th>
+                        </tr>
+                        <tr>
+                            <th>{% trans "Asistencia" %}</th>
+                            <th>{% trans "Nota" %}</th>
+                            <th>{% trans "Asistencia" %}</th>
+                            <th>{% trans "Nota" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Maria Mendoza</td>
+                            <td><input type="checkbox" name="Asistencia" id="Asistencia"></td>
+                            <td><input type="text" name="nota" id="nota"></td>
+                            <td><input type="checkbox" name="Asistencia" id="Asistencia"></td>
+                            <td><input type="text" name="nota" id="nota"></td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Valentina Medina</td>
+                            <td><input type="checkbox" name="Asistencia" id="Asistencia"></td>
+                            <td><input type="text" name="nota" id="nota"></td>
+                            <td><input type="checkbox" name="Asistencia" id="Asistencia"></td>
+                            <td><input type="text" name="nota" id="nota"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>        
+        </div>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+{% include "_datatable_js.html" %}
+
+<script>
+    estudiantesTable = $("#table-estudiantes").DataTable({
+        language: {
+            url: 'http://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
+        }
+    });
+</script>
+{% endblock js %}

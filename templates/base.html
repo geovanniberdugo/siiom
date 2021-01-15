@@ -1,0 +1,893 @@
+{% load static i18n waffle_tags %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Ingeniarte Soft">
+
+    {% include "_pwa_tags.html" %}
+
+    <title>{% if request.tenant.schema_name == 'gng' %}SARA{% else %}SIIOM{% endif %}: {{ request.tenant.nombre|upper }}</title>
+
+    <link href="{% static 'Template/jquery/vendors/bower_components/fullcalendar/dist/fullcalendar.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/bower_components/animate.css/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.min.css' %}" rel="stylesheet">
+
+    <link href="{% static 'Template/jquery/vendors/bower_components/bootstrap-select/dist/css/bootstrap-select.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/bower_components/nouislider/distribute/jquery.nouislider.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/farbtastic/farbtastic.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/bower_components/chosen/chosen.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/vendors/summernote/dist/summernote.css' %}" rel="stylesheet">
+    <!-- CSS -->
+    <link href="{% static 'Template/jquery/css/app.min.1.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/css/app.min.2.css' %}" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'leaflet/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'leaflet-control-geocoder-1.5.3/dist/Control.Geocoder.css' %}"></link>
+    <style>
+        #mapa {
+            height: 500px;
+        }
+    </style>
+
+    <style>
+        @media screen and (min-width: 991px) {
+            br.space {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 991px){
+            br.space-down{
+                display: none;
+            }
+        }
+
+        .has-error .input-group-addon{
+            border-color: #fff;
+            background-color: initial;
+        }
+
+        .has-success .input-group-addon{
+            border-color: #fff;
+            background-color: initial;
+        }
+
+        .has-warning .input-group-addon{
+            border-color: #fff;
+            background-color: initial;
+        }
+
+        .bootstrap-select.btn-group .dropdown-toggle .filter-option {
+            display: inline-block;
+            overflow: hidden;
+            width: 100%;
+            text-align: left;
+            position: absolute !important;
+            left: 1px !important;
+        }
+
+        .has-error.fg-float .fg-label {
+            color: #f6675d;
+        }
+
+        .modal-footer button.btn.btn-link.cancelar {
+            margin-top: 20%;
+        }
+
+        blockquote {
+            padding: 9 18px;
+            margin: 0 0 18px;
+            font-size: 16.25;
+            border-left: 5px solid #770f0f;
+        }
+
+        .bootstrap-select.btn-group .dropdown-menu.open {
+            width: 50%;
+        }
+
+        .bootstrap-select.btn-group .dropdown-menu {
+            z-index: 11;
+        }
+
+    </style>
+    {% block css %}
+    {% endblock %}
+
+    {% include "_analytics.html" %}
+</head>
+
+<body class="toggled sw-toggled">
+
+<div class="modal fade" id="modalNarrower" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans 'Ubica A Tú Grupo' %}</h4>
+                <small>{% trans 'Marca la posicion de donde haces tu grupo Actualmente' %}</small>
+            </div>
+	        <form action="" method="POST" id="" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+                    <div id="mapa"></div>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" name="aceptar" id="accept_position" class="btn btn-link">{% trans 'Aceptar' %}</button>
+	                <button type="button" class="btn btn-link" data-dismiss="modal">{% trans 'Cerrar' %}</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<a data-toggle="modal" id="toggleModal" href="#modalNarrower"></a>
+<div class="modal fade" id="modalNarrower2" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans 'Ubica A Grupo' %}</h4>
+                <small>{% trans 'Marca la posicion de donde haces tu grupo Actualmente' %}</small>
+            </div>
+	        <form action="" method="POST" id="" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" name="aceptar" id="send_position" class="btn btn-link">{% trans 'Aceptar' %}</button>
+	                <button type="button" class="btn btn-link" data-dismiss="modal">{% trans 'Cerrar' %}</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+    <a data-toggle="modal" id="toggleModal2" href="#modalNarrower2"></a>
+    <header id="header" class="clearfix" data-current-skin="blue">
+        <ul class="header-inner">
+            {% if request.user.is_authenticated %}
+            <li id="menu-trigger" data-trigger="#sidebar">
+                <div class="line-wrap">
+                    <div class="line top"></div>
+                    <div class="line center"></div>
+                    <div class="line bottom"></div>
+                </div>
+            </li>
+            {% endif %}
+            <li class="logo hidden-xs">
+                <a href="{% if perms.miembros.es_administrador %}/administracion/{% else %}/miembro/{% endif %}">
+                    <img src="{% static 'Imagenes/favicons/apple-icon-144x144.png' %}" width="32" height="32">
+                    {% if request.tenant.schema_name == 'gng' %}SARA{% else %}SIIOM{% endif %}
+                </a>
+            </li>
+            <li class="pull-right">
+                <ul class="top-menu">
+                    {% if request.user.is_authenticated %}
+                    <li id="toggle-width">
+                        <div class="toggle-switch">
+                            <input id="tw-switch" type="checkbox" hidden="hidden" checked='true'>
+                            <label for="tw-switch" class="ts-helper"></label>
+                        </div>
+                    </li>
+                    {% endif %}
+                    {% if request.miembro %}
+                    <li id="top-search">
+                        <a href=""><i class="tm-icon zmdi zmdi-search"></i></a>
+                    </li>
+                    {% endif %}
+                    {% if request.miembro.grupo_lidera and not request.miembro.grupo_lidera.get_position %}
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" href="">
+                            <i class="tm-icon zmdi zmdi-notifications"></i>
+                            <i class="tmn-counts">1</i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-lg pull-right">
+                            <div class="listview" id="notifications">
+                                <div class="lv-header">
+                                    {% trans 'Notificaciones' %}
+                                </div>
+                                <div class="lv-body">
+                                    <a class="lv-item">
+                                        <div class="media" id="tomodalmap">
+                                            <div class="media-body">
+                                                <div class="lv-title">{% trans 'Actualiza Datos' %}</div>
+                                                <small class="lv-small">{% trans 'Ubica a tu grupo en el mapa' %}</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" href=""><i class="tm-icon zmdi zmdi-more-vert"></i></a>
+                        <ul class="dropdown-menu dm-icon pull-right">
+                        {% if request.user.is_authenticated %}
+                            {% if request.miembro %}
+                            <li class="hidden-xs">
+                                <a  href="{% url 'miembros:editar_perfil' request.miembro.id %}"><i class="zmdi zmdi-account-o"></i> {% trans 'Perfil Usuario' %}</a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a  href="{% url 'miembros:cambiar_contrasena' %}"><i class="zmdi zmdi-wrench"></i> {% trans 'Cambiar Clave' %}</a>
+                            </li>
+                            <li class="divider hidden-xs"></li>
+                            <li>
+                                <a href="{% url 'logout' %}"><i class="zmdi zmdi-power"></i> {% trans 'Salir' %}</a>
+                            </li>
+                        {% else %}
+                            <li class="hidden-xs">
+                                <a  href="{% url 'inicio' %}"><i class="zmdi zmdi-assignment-account"></i> {% trans 'Iniciar Sesión' %}</a>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <!-- Top Search Content -->
+        {% if request.miembro %}
+        <div id="top-search-wrap">
+            <div class="tsw-inner">
+            <form action="{% url 'buscar' 'miembro' %}" method="GET">
+                <i id="top-search-close" class="zmdi zmdi-arrow-left"></i>
+                <input name="buscar" type="text" placeholder="Buscar Grupo o Miembro...">
+            </form>
+            </div>
+        </div>
+        {% endif %}
+    </header>
+    <!-- start -->
+    <section id="main" data-layout="layout-1">
+        {% if request.user.is_authenticated %}
+        <aside id="sidebar" class="sidebar c-overflow">
+            <div class="profile-menu">
+                <a href="" style="background: url('{% if request.tenant.logo %}{{ request.tenant.logo.url }}{% endif %}') no-repeat !important;">
+                    <div class="profile-pic">
+                        <img src="{% if request.miembro.foto_perfil %}{{ request.miembro.foto_perfil.url }}{% else %}{% static 'Imagenes/profile-none.jpg' %}{% endif%}" alt="">
+                    </div>
+                    <div class="profile-info">
+                        {{ request.user.email }}
+                        <i class="zmdi zmdi-caret-down"></i>
+                    </div>
+                </a>
+                {% if request.user.is_authenticated %}
+                <ul class="main-menu">
+                    {% if request.miembro %}
+                    <li>
+                        <a href="{% url 'miembros:editar_perfil' request.miembro.id %}"><i class="zmdi zmdi-account"></i> {% trans 'Perfil' %}</a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'miembros:cambiar_contrasena' %}"><i class="zmdi zmdi-input-antenna"></i> {% trans 'Cambiar Clave' %}</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'logout' %}"><i class="zmdi zmdi-time-restore"></i> {% trans 'Salir' %}</a>
+                    </li>
+                </ul>
+            </div>
+            <ul class="main-menu">
+                <li class="active">
+                    <a href="{% if perms.miembros.es_administrador %}{% url 'administracion' %}{% else %}{% url 'miembros:miembro_inicio' %}{% endif %}"><i class="zmdi zmdi-home"></i> Dashboard</a>
+                </li>
+                {% if perms.miembros.es_administrador or request.miembro.es_director_red or request.miembro.es_cabeza_red %}
+                <li class="sub-menu">
+                    <a href="#"><i class="zmdi zmdi-accounts-list-alt"></i>{% trans 'Administración' %}</a>
+                    <ul>
+                    {% if perms.miembros.es_administrador %}
+                        <li>
+                            <a href="{% url 'grupos:raiz' %}">{% trans 'Grupo Padre' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'grupos:listar_predicas' %}">{% trans 'Listar Prédicas' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'miembros:listar_zonas' %}">{% trans 'Listar Zonas' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'grupos:sin_confirmar_ofrenda_GAR' %}">{% trans 'Grupos Faltantes Confirmar Ofrenda' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'miembros:nuevo' %}">{% trans 'Agregar Líder' %}</a>
+                        </li>
+                    {% endif %}
+                    {% if perms.miembros.es_administrador or request.miembro.es_cabeza_red %}
+                        <li>
+                            <a href="{% url 'grupos:redes_listar' %}">{% trans "Listar Redes" %}</a>
+                        </li>
+                    {% endif %}
+                    {% if perms.miembros.es_administrador or request.miembro.es_director_red %}
+                        <li>
+                            <a href="{% url 'grupos:reportar_reunion_grupo_admin' %}">{% trans 'Reportar Reunión' %} {{ request.tenant.termino_gar }}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'grupos:admin_reportar_reunion_discipulado' %}">{% trans 'Reportar Reunión Discipulado' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'grupos:reportes_grupo' %}">{% trans 'Ver Reportes Enviados Por Grupos' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'reportes:confirmar_ofrenda_grupos_red' %}">{% trans 'Confirmar Ofrenda Grupo Por Red' %}</a>
+                        </li>
+                    {% endif %}
+                    </ul>
+                </li>
+                {% endif %}
+                {% if request.miembro.grupo_lidera or perms.miembros.es_administrador %}
+                <li class="sub-menu">
+                    <a href=""><i class="zmdi zmdi-view-subtitles"></i> {% trans 'Mi' %} {{ request.tenant.termino_gar }}</a>
+                    <ul>
+                        {% if request.miembro.grupo_lidera.estado == GRUPO_ACTIVO %}
+                        <li>
+                            <a href="{% url 'grupos:reportar_reunion_grupo' %}">{% trans 'Ingresar Sobre' %} {{ request.tenant.termino_gar }}</a>
+                        </li>
+                        {% endif %}
+                        {% if request.miembro.grupo_lidera %}
+                        <li>
+                            <a href="{% url 'miembros:editar_grupo' request.miembro.id %}">{% trans 'Editar mi' %} {{ request.tenant.termino_gar }}</a>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url 'reportes:estadistico_reuniones_gar' %}">{% trans "Informe General de mi" %} {{ request.tenant.termino_gar }}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'grupos:ensenanza_listado' %}">{% trans "Enseñanzas de mi " %} {{ request.tenant.termino_gar }}</a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+                {% switch "instituto" %}
+                    {% if perms.miembros.es_administrador %}
+                    <li class="sub-menu">
+                        <a href=""><i class="zmdi zmdi-assignment-o"></i> {% trans 'Instituto Life' %}</a>
+                        <ul>
+                            <li>
+                                <a href="{% url 'instituto:reporte-instituto' %}">{% trans 'Reporte Instituto' %}</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'instituto:salones' %}">{% trans 'Salones' %}</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'instituto:materias' %}">{% trans 'Materias' %}</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'instituto:crear-curso' %}">{% trans 'Cursos' %}</a>
+                            </li>
+                            {% if perms.instituto.add_seguimiento %}
+                            <li>
+                                <a href="{% url 'instituto:seguimiento-estudiantes' %}">{% trans "Seguimiento" %}</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                {% endswitch %}
+                {% if request.miembro.grupo_lidera or perms.miembros.es_administrador %}
+                <li class="sub-menu">
+                    <a href=""><i class="zmdi zmdi-accounts"></i> {% trans 'Discipulado' %}</a>
+                    <ul>
+                        <li>
+                            <a href="{% url 'grupos:reportar_reunion_discipulado' %}">{% trans 'Ingresar D12' %}</a>
+                        </li>
+                        {% if request.miembro.tiene_subred or perms.miembros.es_administrador %}
+                        <li>
+                            <a href="{% url 'reportes:estadistico_reunion_discipulado' %}">{% trans 'Reporte D12' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'reportes:reporte_asistencia_discipulado_excel' %}">{% trans 'Reporte Asistencia D12 Excel' %}</a>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <a href="{% url 'grupos:organigrama' %}">{% trans 'Organigrama de mi Red' %}</a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+                {% if perms.miembros.es_administrador or request.miembro.es_director_red %}
+                <li class="sub-menu">
+                    <a href="#"><i class="zmdi zmdi-trending-up"></i>{% trans 'Informes Generales' %}</a>
+                    <ul>
+                        <li>
+                            <a href="{% url 'reportes:estadistico_reuniones_discipulado' %}">{% trans 'Estadistico de reuniones Discipulado' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'reportes:estadistico_totalizado_reuniones_grupo' %}">{% trans 'Estadistico totalizado de reuniones' %} {{ request.tenant.termino_gar }}</a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+                {% if perms.miembros.es_agente or perms.miembros.es_administrador %}
+                <li class="sub-menu">
+                    <a href=""><i class="zmdi zmdi-account-box-mail"></i>{% trans 'Consolidación' %}</a>
+                    <ul>
+                        <li>
+                            <a href="{% url 'consolidacion:crear_visita' %}">{% trans 'Agregar Visita' %}</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'consolidacion:asignar_grupo_visitas' %}">{% trans 'Asignar Visita A Grupo' %}</a>
+                        </li>
+                    </ul>
+                    {% endif %}
+                </li>
+                    {% if perms.miembros.es_tesorero or perms.miembros.es_administrador or perms.miembros.es_coordinador %}
+                    <li class="sub-menu">
+                        <a href=""><i class="zmdi zmdi-globe"></i>{% trans 'Encuentros' %}</a>
+                        <ul>
+                            {% if perms.miembros.es_administrador %}
+                            <li>
+                                <a href="{% url 'encuentros:crear_encuetro' %}">{% trans 'Crear Encuentro' %}</a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a href="{% url 'encuentros:listar_encuentros' %}">{% trans 'Listar Encuentros' %}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% switch "gestion_documental" %}
+                        {% if request.user.empleado %}
+                            <li class="sub-menu">
+                                <a href=""><i class="zmdi zmdi-collection-text"></i>{% trans "Gestión Documental" %}</a>
+                                <ul>
+                                    {% if perms.gestion_documental.add_registro %}
+                                    <li>
+                                        <a href="{% url 'sgd:ingresar_registro' %}">{% trans "Nuevo Registro" %}</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'sgd:lista_solicitudes' %}">{% trans "Listado Solicitudes de Registro" %}</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'sgd:historial_registros' %}">{% trans "Historial de Registros" %}</a>
+                                    </li>
+                                    {% endif %}
+                                    <li>
+                                        <a href="{% url 'sgd:busqueda_registros' %}">{% trans "Buscar Registro" %}</a>
+                                    </li>
+                                    {% if perms.gestion_documental.add_registro %}
+                                    <li class="sub-menu">
+                                        <a href="#">{% trans "Solicitudes Custodia Documentos" %}</a>
+                                        <ul>
+                                            <li>
+                                                <a href="{% url 'sgd:custodia_documentos' %}">{% trans "Custodia de Documento" %}</a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'sgd:lista_custodias_documentos' %}">{% trans "Listado Custodia de Documentos" %}</a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endswitch %}
+                    {% switch "pqr" %}
+                        <li class="sub-menu">
+                            <a href=""><i class="zmdi zmdi-inbox"></i>{% trans "PQR" %}</a>
+                            <ul>
+                                <li>
+                                    <a href="{% url 'pqr:nuevo_caso' %}">{% trans "Hacer una Queja o Sugerencia" %}</a>
+                                </li>
+                                {% if request.user.empleado.pqr_participa %}
+                                <li>
+                                    <a href="{% url 'pqr:ver_casos_empleado' %}">{% trans "Ver Casos Donde Participo" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if request.user.empleado.is_servicio_cliente %}
+                                <li>
+                                    <a href="{% url 'pqr:ver_casos_servicio_cliente' %}">{% trans "Ver Casos Sin Atención" %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'pqr:nuevo_caso_servicio_cliente' %}">{% trans "Agregar Caso de Buzón" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if request.user.empleado.is_jefe_comercial %}
+                                <li>
+                                    <a href="{% url 'pqr:ver_casos_jefe_comercial' %}">{% trans "Ver Todos los Casos" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if perms.organizacional.es_presidente %}
+                                <li>
+                                    <a href="{% url 'pqr:ver_casos_presidencia' %}">{% trans "Ver casos en presidencia" %}</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    {% endswitch %}
+                    {% switch "compras" %}
+                    {% if request.user.empleado %}
+                        <li class="sub-menu">
+                            <a href=""><i class="zmdi zmdi-shopping-cart"></i>{% trans "Compras" %}</a>
+                            <ul>
+                                {% if request.user.empleado %}
+                                <li>
+                                    <a href="{% url 'compras:crear_requisicion' %}">{% trans "Nueva Requisición" %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'compras:ver_requisiciones_empleado' %}">{% trans "Mis Requisiciones" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if request.user.empleado.jefe_departamento %}
+                                <li>
+                                    <a href="{% url 'compras:ver_requisiciones_jefe_departamento' %}">{% trans "Requisiciones de mi Departamento" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if request.user.empleado.is_compras %}
+                                <li>
+                                    <a href="{% url 'compras:ver_requisiciones_compras' %}">{% trans "Requisiciones Totales" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if request.user.empleado.is_jefe_administrativo %}
+                                <li>
+                                    <a href="{% url 'compras:ver_requisiciones_jefe_administrativo' %}">{% trans "Requisiciones Aprobadas por Compras" %}</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'compras:informes_totales_area_departamento' %}">{% trans "Informe por totales" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if request.user.empleado.is_jefe_financiero %}
+                                <li>
+                                    <a href="{% url 'compras:ver_requisiciones_financiero' %}">{% trans "Requisiciones Aprobadas por Jefe Administrativo" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if request.user.empleado.is_usuario_pago %}
+                                <li>
+                                    <a href="{% url 'compras:ver_requisiciones_usuario_pago' %}">{% trans "Requisiciones Esperando por pago" %}</a>
+                                </li>
+                                {% endif %}
+                                {% if perms.organizacional.es_presidente %}
+                                <li>
+                                    <a href="{% url 'compras:ver_requisiciones_presidencia' %}">{% trans "Requisiciones En Presidencia" %}</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                    {% endswitch %}
+                    {% switch "gestion_documental" or switch "pqr" or switch "compras" %}
+                        {% if perms.organizacional.es_administrador_sgd %}
+                            <li class="sub-menu">
+                                <a href=""><i class="zmdi zmdi-collection-text"></i>{% trans "Administración Organizacional" %}</a>
+                                <ul>
+                                      <li>
+                                          <a href="{% url 'organizacional:listar_departamentos' %}">{% trans "Listar Departamentos" %}</a>
+                                      </li>
+                                      <li>
+                                          <a href="{% url 'organizacional:listar_areas' %}">{% trans "Listar Áreas" %}</a>
+                                      </li>
+                                      <li>
+                                          <a href="{% url 'sgd:listar_palabras_claves' %}">{% trans "Listar Palabras Claves" %}</a>
+                                      </li>
+                                      <li>
+                                          <a href="{% url 'sgd:listar_tipo_documentos' %}">{% trans "Listar Tipo de Documento" %}</a>
+                                      </li>
+                                      <li>
+                                          <a href="{% url 'organizacional:empleados_listar' %}">{% trans "Listar Empleado" %}</a>
+                                      </li>
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endswitch %}
+                {% endif %}
+            </ul>
+        </aside>
+        {% endif %}
+        <section id="content">
+            {% block contenido %}
+            {% endblock %}
+        </section>
+    </section>
+
+    <footer id="footer">
+        &copy; SIIOM Hecho por "Ingeniarte Soft."
+
+        <!-- <ul class="f-menu">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Reports</a></li>
+            <li><a href="#">Support</a></li>
+            <li><a href="#">Contact</a></li>
+        </ul> -->
+    </footer>
+
+    <!-- end -->
+
+    <div class="page-loader">
+        <div class="preloader pls-blue">
+            <svg class="pl-circular" viewBox="25 25 50 50">
+                <circle class="plc-path" cx="50" cy="50" r="20" />
+            </svg>
+
+            <p>Espere por favor</p>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/serviceworker.js', {scope: '/'})
+                .then(function(registration) {
+                    console.log('Service worker registration succeeded!');
+                })
+                .catch(function (error) {
+                    console.error('Service worker registration failed:', error);
+                });
+        }
+    </script>
+
+
+    <!-- Template JS -->
+
+    <script src="{% static 'Template/jquery/vendors/bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+
+
+    <script src="{% static 'Template/jquery/vendors/bower_components/flot/jquery.flot.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/flot/jquery.flot.resize.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/flot.curvedlines/curvedLines.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/sparklines/jquery.sparkline.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js' %}"></script>
+
+    <script src="{% static 'Template/jquery/vendors/bower_components/moment/min/moment.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/fullcalendar/dist/fullcalendar.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/simpleWeather/jquery.simpleWeather.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/Waves/dist/waves.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bootstrap-growl/bootstrap-growl.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+
+    <script src="{% static 'Template/jquery/vendors/bower_components/bootstrap-select/dist/js/bootstrap-select.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/nouislider/distribute/jquery.nouislider.all.min.js' %}"></script>
+
+    <script src="{% static 'Template/jquery/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/typeahead.js/dist/typeahead.bundle.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/summernote/dist/summernote-updated.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/bower_components/chosen/chosen.jquery.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/fileinput/fileinput.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/input-mask/input-mask.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/vendors/farbtastic/farbtastic.min.js' %}"></script>
+    <script src="{% static 'Template/jquery/js/flot-charts/curved-line-chart.js' %}"></script>
+    <script src="{% static 'Template/jquery/js/flot-charts/line-chart.js' %}"></script>
+    <script src="{% static 'Template/jquery/js/charts.js' %}"></script>
+    <script src="{% static 'Template/jquery/js/functions.js' %}"></script>
+
+    <script src="{% static 'leaflet/leaflet.js' %}"></script>
+    <script src="{% static 'leaflet-control-geocoder-1.5.3/dist/Control.Geocoder.js' %}"></script>
+    <srcipt src="{% static 'leaflet/icons/js/leaflet-color-markers.js' %}"></srcipt>
+    <script>
+        function notify(ms, from, align, icon, type, animIn, animOut){
+            $.growl({
+                icon: icon,
+                title: ' Notificación ',
+                message: ms,
+                url: ''
+            },{
+                    element: 'body',
+                    type: type,
+                    allow_dismiss: true,
+                    placement: {
+                            from: from,
+                            align: align
+                    },
+                    offset: {
+                        x: 20,
+                        y: 85
+                    },
+                    spacing: 10,
+                    z_index: 1031,
+                    delay: 2500,
+                    timer: 5000,
+                    url_target: '_blank',
+                    mouse_over: false,
+                    animate: {
+                            enter: animIn,
+                            exit: animOut
+                    },
+                    icon_type: 'class',
+                    template: '<div data-growl="container" class="alert" role="alert">' +
+                                    '<button type="button" class="close" data-growl="dismiss">' +
+                                        '<span aria-hidden="true">&times;</span>' +
+                                        '<span class="sr-only">Close</span>' +
+                                    '</button>' +
+                                    '<span data-growl="icon"></span>' +
+                                    '<span data-growl="title"></span>' +
+                                    '<span data-growl="message"></span>' +
+                                    '<a href="#" data-growl="url"></a>' +
+                                '</div>'
+            });
+        };
+
+        $('.notifications > div > .btn').click(function(e){
+            e.preventDefault();
+            var nFrom = $(this).attr('data-from');
+            var nAlign = $(this).attr('data-align');
+            var nIcons = $(this).attr('data-icon');
+            var nType = $(this).attr('data-type');
+            var nAnimIn = $(this).attr('data-animation-in');
+            var nAnimOut = $(this).attr('data-animation-out');
+
+            notify(nFrom, nAlign, nIcons, nType, nAnimIn, nAnimOut);
+        });
+
+        {% if sw %}
+
+            $(window).resize(function(){
+                    drawChart();
+                });
+
+            $('#tw-switch').on('change', function() {
+                setTimeout("drawChart()", 500);
+            });
+
+        {% endif %}
+
+        $(document).ready(function() {
+            var local = localStorage.getItem('check');
+
+            if (local == 0) {
+                if ($('body').hasClass('sw-toggled')) {
+                    $('body').removeClass('sw-toggled');
+                    $('#tw-switch').prop('checked', false);
+                }
+            }
+
+            $('body').on('change', '#toggle-width input:checkbox', function () {
+                if ($("#tw-switch").is(':checked')) {
+                    setTimeout(function () {
+                        $('body').addClass('toggled sw-toggled');
+                        localStorage.setItem('check', 1);
+                    }, 250);
+                }
+                else {
+                    setTimeout(function () {
+                        $('body').removeClass('toggled sw-toggled');
+                        localStorage.setItem('check', 0);
+                    }, 250);
+                }
+            });
+        });
+    </script>
+    <script>
+    $(document).ready(function() {
+
+        $('#tomodalmap').click(function (event) {
+            $('#toggleModal').click();
+        });
+        {% if draw_mapa %}
+            {% if request.miembro.grupo_lidera or perms.miembros.es_administrador %}
+            {% if request.tenant.schema_name == 'gng' %}
+                var mymap = L.map('mapa').setView([11.2009692, -74.227405], 18);
+            {%  else %}
+                var mymap = L.map('mapa').setView([10.999236, -74.805117], 18);
+            {% endif %}
+            L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+                maxZoom: 19,
+                minZoom: 18,
+            }).addTo(mymap);
+
+            var _aux_to_fix_error = false;
+            mymap.on('mouseover', function(event){
+                if (!_aux_to_fix_error) {
+                    mymap.invalidateSize();
+                    _aux_to_fix_error = true;
+                }
+            })
+
+            var geocoder = L.Control.Geocoder.nominatim(),
+                control = L.Control.geocoder({
+                    geocoder: geocoder
+                }).addTo(mymap);
+
+            var marker;
+
+            {% if g and miembro.grupo_lidera %}
+            geocoder.geocode('{{ miembro.grupo_lidera.get_direccion }}', function(results){
+                try {
+                    latLng = new L.LatLng(results[0].center.lat, results[0].center.lng);
+                    _marker = new L.Marker(latLng);
+
+                    mymap.setView(latLng, 18);
+                    _marker.addTo(mymap).bindPopup("<b>Actualmente el grupo está aquí</b><br />{{ miembro.grupo_lidera.direccion }}");
+                } catch (err) {
+                    console.log(err);
+                }
+            })
+            {% elif request.miembro.grupo_lidera %}
+            geocoder.geocode('{{ request.miembro.grupo_lidera.get_direccion }}', function(results){
+                try {
+                    latLng = new L.LatLng(results[0].center.lat, results[0].center.lng);
+                    _marker = new L.Marker(latLng);
+
+                    mymap.setView(latLng, 18);
+                    _marker.addTo(mymap).bindPopup("<b>Actualmente Tu grupo está aquí</b><br />{{ grupo.direccion }}");
+                } catch (err) {
+                    console.log(err);
+                }
+            })
+            {% endif %}
+
+            var orangeIcon = new L.Icon({
+                iconUrl: '{% static "leaflet/icons/img/marker-icon-2x-orange.png" %}',
+                shadowUrl: '{% static "leaflet/icons/img/marker-shadow.png" %}',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            mymap.on('click', function(e) {
+                geocoder.reverse(e.latlng, mymap.options.crs.scale(mymap.getZoom()), function(results) {
+                    var r = results[0];
+                    if (r) {
+                        if (marker) {
+                            marker.
+                                setLatLng(r.center).
+                                setPopupContent(r.html || r.name).
+                                openPopup();
+                            if (!mymap.hasLayer(marker)) {
+                                marker.addTo(mymap);
+                            }
+                        } else {
+                            marker = L.marker(r.center, {icon: orangeIcon, draggable: true}).bindPopup(r.name).addTo(mymap).openPopup();
+                        }
+                    }
+                })
+            })
+
+            $('#accept_position').click(function(event) {
+                $('#toggleModal2').click();
+            });
+
+                {% if request.miembro.grupo_lidera %}
+                $('#send_position').click(function(event) {
+                    if (!marker) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return false;
+                    } else {
+                        $.ajax({
+                            url: {% if g and miembro.grupo_lidera %}'{% url "grupos:posicion_grupo" miembro.grupo_lidera.id %}'{% elif request.miembro.grupo_lidera %}'{% url "grupos:posicion_grupo" request.miembro.grupo_lidera.id %}'{% endif %},
+                            type: 'GET',
+                            data: {
+                                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                                latitud: marker._latlng.lat,
+                                longitud: marker._latlng.lng,
+                            },
+                            success: function (data) {
+                                if (data['code_response'] == 400) {
+                                    notify('Ha ocurrido un error al intentar cambiar la ubicacion de el grupo', undefined, undefined, undefined, 'danger', 'animated bounceIn', 5000);
+                                } else if (data['code_response'] == 200) {
+                                    notify('Se ha cambiado la ubicación de su grupo exitosamente', undefined, undefined, undefined, 'success', 'animated bounceIn', 5000);
+                                    $('#modalNarrower, #modalNarrower2').modal('toggle');
+                                    if (_marker && marker) {
+                                        mymap.removeLayer(_marker);
+                                        mymap.removeLayer(marker);
+                                        _marker = new L.Marker(marker._latlng);
+                                        _marker.addTo(mymap).bindPopup("<b>Actualmente Tu grupo está aquí</b><br />{{ grupo.direccion }}");
+                                    }
+                                } else {
+                                    console.log(data);
+                                }
+                            }
+                        })
+                    }
+                });
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    })
+    </script>
+
+    {% block js %}
+    {% endblock %}
+
+
+</body>
+
+</html>

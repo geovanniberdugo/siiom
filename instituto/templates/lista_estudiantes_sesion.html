@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+
+{% block contenido %}
+<div class="container">
+    <div class="block-header">
+        <h2>Lista de estudiantes.</h2>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                {% comment %}<legend><h3>{% trans "Líder" %}</h3></legend>{% endcomment %}
+            </h1>
+        </div>
+
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+            <form action="{% url 'miembros:nuevo' %}" method="POST">
+                {% csrf_token %}
+
+                {% include "_alert_non_field_errors.html" %}
+
+                <div class="row">
+                    <div id="app">
+                        <table :class="mainClasses">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Nombre Estudiante</th>
+                                    <th colspan="2">Sesion 1</th>
+                                    <th colspan="2">Sesion 2</th>
+                                </tr>
+                                <tr>
+                                    <th>Asistencia</th>
+                                    <th>Nota</th>
+                                    <th>Asistencia</th>
+                                    <th>Nota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="persona of students" :key="persona.nombre">
+                                    <td>{[ persona.nombre ]}</td>
+                                    <template v-for="sesion of persona.sesiones">
+                                        <td>
+                                            <label class="checkbox control-label">
+                                                <input type="checkbox" v-model="sesion.asistencia"/>
+                                                <i class="input-helper m-r-20"></i>
+                                            </label>
+                                        </td>
+                                        <td><input class="form-control" type="number" v-model="sesion.nota"></td>
+                                    </template>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% comment %}<br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button name="aceptar" class="btn btn-primary btn-block">{% trans "Aceptar" %}</button>
+                    </div>
+                </div>
+                {% endcomment %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script src="{% static 'academia/index.js' %}"></script>
+{% endblock js %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{% trans 'Grupo Raiz' %}</h3></legend>
+            </h1>
+        </div>
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+            <form action="{% url 'grupos:raiz' %}" method="POST">
+                {% csrf_token %}
+
+                {% include "_alert_non_field_errors.html" %}
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="input-group {{ form.lideres.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.lideres.id_for_label }}" class="fg-label control-label">{{ form.lideres.label }}*:</label>
+                                {{ form.lideres }}
+                            </div>
+                            {{ form.lideres.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.direccion.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-map"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.direccion.id_for_label }}" class="fg-label control-label">{{ form.direccion.label }}*:</label>
+                                {{ form.direccion }}
+                            </div>
+                            {{ form.direccion.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.fechaApertura.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.fechaApertura.id_for_label }}" class="fg-label control-label">{{ form.fechaApertura.label }}*:</label>
+                                {{ form.fechaApertura }}
+                            </div>
+                            {{ form.fechaApertura.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.diaGAR.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.diaGAR.id_for_label }}" class="fg-label control-label">Dia del {{ request.tenant.termino_gar }}*:</label>
+                                {{ form.diaGAR }}
+                            </div>
+                            {{ form.diaGAR.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.horaGAR.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-time"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.horaGAR.id_for_label }}" class="fg-label control-label">Hora del {{ request.tenant.termino_gar }}*:</label>
+                                {{ form.horaGAR }}
+                            </div>
+                            {{ form.horaGAR.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.diaDiscipulado.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar-note"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.diaDiscipulado.id_for_label }}" class="fg-label control-label">{{ form.diaDiscipulado.label }}:</label>
+                                {{ form.diaDiscipulado }}
+                            </div>
+                            {{ form.diaDiscipulado.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.horaDiscipulado.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-time"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.horaDiscipulado.id_for_label }}" class="fg-label control-label">{{ form.horaDiscipulado.label }}:</label>
+                                {{ form.horaDiscipulado }}
+                            </div>
+                            {{ form.horaDiscipulado.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.nombre.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.nombre.id_for_label }}" class="fg-label control-label">{{ form.nombre.label }}*:</label>
+                                {{ form.nombre }}
+                            </div>
+                            {{ form.nombre.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.barrio.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-pin"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.barrio.id_for_label }}" class="fg-label control-label">{{ form.barrio.label }}*:</label>
+                                {{ form.barrio }}
+                            </div>
+                            {{ form.barrio.errors }}
+                        </div>
+                    </div>
+                    {% if form.estado %}
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.estado.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-refresh"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.estado.id_for_label }}" class="fg-label control-label">{{ form.estado.label }}*:</label>
+                                {{ form.estado }}
+                            </div>
+                            {{ form.estado.errors }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="aceptar" name="aceptar" class="btn btn-primary btn-block">{% trans 'Aceptar' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#id_fechaApertura").datetimepicker({
+            maxDate: moment(),
+            format: 'DD/MM/YYYY'
+        });
+    });
+</script>
+{% endblock js %}

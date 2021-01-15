@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend><h3>{{accion}} Zona</h3></legend>
+            </h1>
+            {% if ok %}
+            <div class="row">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                    <p>Se ha {% if accion == 'Crear' %}creado{% else %}editado{% endif %} la zona correctamente.<a alt="Listar Redes" class="alert-link" href="{% url 'miembros:listar_zonas' %}">volver a la lista de zonas.</a></p>
+                </div>
+            </div>
+            {% endif %}
+            {% if form.errors %}
+                <div class="row">
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Aún hay campos vacios. No se creó la zona</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card-body card-padding">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="input-group fg-float input-group-lg {{form.nombre.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="requerido">
+                                <label for="id_nombre" class="control-label requerido">Nombre:</label>
+                                {{form.nombre}}
+                            </div>
+                            {% for error in form.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+					<div class="col-md-4 col-md-offset-4">
+						<button type="submit" value="Aceptar" class="btn btn-primary btn-block">Aceptar</button>
+					</div>
+				</div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

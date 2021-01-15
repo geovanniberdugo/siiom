@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% autoescape off %}
+{% blocktrans %}Hola {{ nombre }}, Un administrador ha reseteado tu contraseña de {{ dominio }}.{% endblocktrans %}
+
+{% blocktrans %}Ahora puedes iniciar sesión con este email y tu cédula como contraseña.{% endblocktrans %}
+
+{% blocktrans %}
+Para mayor seguridad, por favor usa el siguiente link para iniciar sesión y luego cambiar tu contraseña.
+{% endblocktrans %}
+{{ protocolo }}://{{ dominio }}{% url 'miembros:cambiar_contrasena' %}
+
+{% trans "Gracias por usar nuestro sitio!" %}
+
+{% blocktrans %}El equipo de SIIOM{% endblocktrans %}
+
+{% endautoescape %}

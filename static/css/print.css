@@ -1,0 +1,80 @@
+@page {
+    size: letter portrait;
+    margin: 15mm 10mm;
+}
+
+@media print {
+    #card-formulario {
+        display: none !important;
+    }
+
+    .margin-60 {
+        margin-top: 60px !important;
+    }
+
+    #issue-print {
+        page-break-after: always;
+    }
+
+    #hidden_to_print {
+        display: block !important;
+    }
+
+    .infoBar, .actionBar {
+        display: none !important;
+    }
+
+    /* -------------------- */
+
+    body {
+        font-size: 12pt !important;
+    }
+
+    h1 {
+        font-size: 18pt !important;
+    }
+
+    h2 {
+        font-size: 16pt !important;
+    }
+
+    h3 {
+        font-size: 14pt !important;
+    }
+
+    table > thead th {
+        font-weight: bold;
+    }
+
+    #main {
+        padding-top: 50px;
+    }
+
+    .hidden-print {
+        display: none !important;
+    }
+
+    .visible-print {
+        display: block !important;
+    }
+
+    .block-header {
+        padding-bottom: 50px;
+        text-align: center;
+    }
+
+    .table-responsive {
+        overflow-x: initial;
+    }
+
+    .card-header {
+        margin-bottom: 25px;
+    }
+
+    .chart-g {
+        height: 500px !important;
+        width: 100%;
+        margin-top: 32px;
+        page-break-after: always;
+    }
+}

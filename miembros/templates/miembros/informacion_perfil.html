@@ -1,0 +1,131 @@
+{% extends "perfil_base.html" %}
+{% load i18n %}
+
+{% block card %}
+<div class="pmb-block">
+    <div class="pmbb-header">
+        <h2><i class="zmdi zmdi-chart m-r-5"></i> Infomación Géneral</h2>
+
+        {% if perms.miembros.es_administrador %}
+        <ul class="actions">
+            <li class="dropdown">
+                <a href="" data-toggle="dropdown">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a data-pmb-action="edit" href="" class="edit-error">Editar</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+    <div class="pmbb-body p-l-30">
+        <div class="pmbb-view">
+            <dl class="dl-horizontal">
+                <dt>Estado del Miembro</dt>
+                <dd>{% if miembro.estado %}{{miembro.get_estado_display}}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Grupo que Lidera</dt>
+                <dd>{% if miembro.grupo_lidera %}{{miembro.grupo_lidera.nombre|upper}}{% else %}NINGUNO{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Grupo al que pertenece</dt>
+                <dd>{% if miembro.grupo %}{{miembro.grupo.nombre|upper}}{% else %}NO PERTENEC A NINGÚN GRUPO AÚN{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Red a la que pertenece</dt>
+                <dd>{% if miembro.grupo %}{{miembro.grupo.red|upper}}{% else %}NO PERTENECE A NINGUNA RED{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Lideres</dt>
+                <dd>{% if lideres_miembro %}{% for lid in lideres_miembro %}{% if forloop.first %}{% if not lid.grupo_lidera.red == None or perms.miembro.es_administrador %}<a href="{% url 'miembros:editar_perfil' lid.id %}">{% endif %}{{lid.nombre|upper}} {{lid.primer_apellido|upper}} ({{lid.cedula}})</a>{% else %}, {% if not lid.grupo_lidera.red == None or perms.miembro.es_administrador %}<a href="{% url 'miembros:editar_perfil' lid.id %}">{% endif %}{{lid.nombre|upper}} {{lid.primer_apellido|upper}} ({{lid.cedula}})</a>{% endif %}{% endfor %}{% else %}NO TIENE LÍDERES{% endif %}</dd>
+            </dl>
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data" id="form_informacion">
+        {% csrf_token %}
+        <div class="pmbb-edit">
+            <div class="input-group {{form.estado.css_classes}} col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">
+                	<label for="id_estado" class="requerido control-label">Estado del Miembro*:</label>
+                </dt>
+                <dd>
+                    <div class="fg-line">
+                        {{form.estado}}
+                    </div>
+                    {% for error in form.estado.errors %}
+                    <small class="help-block">{{error}}</small>
+                    {% endfor %}
+                </dd>
+            </dl>
+            </div>
+            <div class="m-t-30">
+                <button type="submit" name="aceptar" class="btn btn-primary btn-sm">Guardar</button>
+                <button data-pmb-action="reset" class="btn btn-link btn-sm">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="pmb-block">
+    <div class="pmbb-header">
+        <h2><i class="zmdi zmdi-graduation-cap m-r-5"></i> Logros</h2>
+
+        {% if perms.miembro.es_administrador %}
+        <ul class="actions">
+            <li class="dropdown">
+                <a href="" data-toggle="dropdown">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a data-pmb-action="edit" href="" class="edit-error">Editar</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+    <div class="pmbb-body p-l-30">
+        <div class="pmbb-view">
+            <dl class="dl-horizontal">
+                <dt>Tipo de Miembro</dt>
+                {% for cambio in tipos %}
+                <dd>{{cambio.nuevoTipo|upper}}</dd>
+                {% endfor %}
+            </dl>
+        </div>
+        <div class="pmbb-edit">
+            <div class="input-group col-xs-6">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">Tipos de Miembro:</dt>
+                {% for tipo in form_cambio_tipo.tipos %}
+                <dd>
+                    <div class="fg-line">
+                        <label for="{{tipo.id_for_label}}" class="control-label checkbox">
+                        {{tipo.tag}}
+                        <i class="input-helper m-r-20"></i>
+                        {{tipo.choice_label|upper}}
+                        </label>
+                    </div>
+                </dd>
+                {% endfor %}
+            </dl>
+            </div>
+            <div class="m-t-30">
+                <button type="submit" name="aceptar" class="btn btn-primary btn-sm">Guardar</button>
+                <button data-pmb-action="reset" class="btn btn-link btn-sm">Cancelar</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+
+{% endblock card %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<div class="container">
+	<div class="card">
+		<div class="card-header">
+			<h1><legend><h3>{% if proveedor %}Editar{% else %}Crear{% endif %} Proveedor</h3></legend></h1>
+			{% if messages %}
+				{% for message in messages %}
+					<div class="row">
+		                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+		                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+		                    <p>{{ message|safe }}</p>
+		                </div>
+		            </div>
+				{% endfor %}
+			{% endif %}	
+		</div>
+		<form action="" method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="card-body card-padding">
+				<div class="row">
+	                <div class="col-md-4">
+	                    <div class="input-group fg-float {{ form.nombre.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="{{ form.nombre.id_for_label }}" class="control-label requerido">{{ form.nombre.label }}:</label>
+	                            {{ form.nombre }}
+	                        </div>
+	                        {% for error in form.nombre.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	                <br class="space">
+	                <div class="col-md-4">
+	                    <div class="input-group fg-float {{ form.identificacion.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="{{ form.identificacion.id_for_label }}" class="control-label requerido">{{ form.identificacion.label }}:</label>
+	                            {{ form.identificacion }}
+	                        </div>
+	                        {% for error in form.identificacion.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	                <br class="space">
+	                <div class="col-md-4">
+	                    <div class="input-group fg-float {{ form.codigo.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="{{ form.codigo.id_for_label }}" class="control-label requerido">{{ form.codigo.label }}:</label>
+	                            {{ form.codigo }}
+	                        </div>
+	                        {% for error in form.codigo.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	            </div>
+                <br>
+                <br>
+                <div class="row">
+	                <div class="col-md-4">
+	                    <div class="input-group fg-float {{ form.correo.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="{{ form.correo.id_for_label }}" class="control-label requerido">{{ form.correo.label }}:</label>
+	                            {{ form.correo }}
+	                        </div>
+	                        {% for error in form.correo.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	                <br class="space">
+	                <div class="col-md-4">
+	                    <div class="input-group fg-float {{ form.telefono.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="{{ form.telefono.id_for_label }}" class="control-label requerido">{{ form.telefono.label }}:</label>
+	                            {{ form.telefono }}
+	                        </div>
+	                        {% for error in form.telefono.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	                <br class="space">
+	                <div class="col-md-4">
+	                    <div class="input-group fg-float {{ form.celular.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="{{ form.celular.id_for_label }}" class="control-label requerido">{{ form.celular.label }}:</label>
+	                            {{ form.celular }}
+	                        </div>
+	                        {% for error in form.celular.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	            </div>
+                <br>
+                <br>
+                <div class="row">
+	                <div class="col-md-4">
+	                    <div class="input-group fg-float {{ form.contacto.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="{{ form.contacto.id_for_label }}" class="control-label requerido">{{ form.contacto.label }}:</label>
+	                            {{ form.contacto }}
+	                        </div>
+	                        {% for error in form.contacto.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	            </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="Aceptar" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                    </div>
+                </div>
+			</div>
+        </form>
+	</div>
+</div>
+{% endblock %}

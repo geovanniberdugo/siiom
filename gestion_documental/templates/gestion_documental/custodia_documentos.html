@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block css %}
+	<link rel="stylesheet" href="{% static 'Scripts/tagsinput/bootstrap-tagsinput.css' %}">
+	<link rel="stylesheet" href="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/css/lightGallery.css' %}">
+	<style>
+		.label-info {
+			background-color: #2196f3;
+		}
+
+		.waves-button, .waves-circle {
+			-webkit-mask-image: inherit;
+		}
+
+		.thumbnai.btn {
+			box-shadow: inherit;
+		}
+	</style>
+{% endblock css %}
+
+{% block contenido %}
+<div class="container">
+	<form action="" method="post" enctype="multipart/form-data">
+		<div class="card">
+			<div class="card-header">
+				<h2>
+					<legend><h3>{% trans "Custodia de Documentos" %}</h3></legend>
+				</h2>
+				{% if messages %}
+					{% for message in messages %}
+						<div class="row">
+			                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+			                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+			                    <p>{{ message|safe }}</p>
+			                </div>
+			            </div>
+					{% endfor %}
+                {% endif %}
+            </div>
+            {% csrf_token %}
+            <div class="card-body card-padding">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{form.solicitante.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_solicitante" class="fg-label requerido control-label">{{ form.solicitante.label }}:</label>
+                                {{ form.solicitante }}
+                            </div>
+                            {% for error in form.solicitante.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{form.area.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-share"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_area" class="fg-label requerido control-label">{{ form.area.label }}:</label>
+                                {{ form.area }}
+                            </div>
+                            {% for error in form.area.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{form.tipo_documento.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-file-text"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_tipo_documento" class="fg-label requerido control-label">{{ form.tipo_documento.label }}:</label>
+                                {{ form.tipo_documento }}
+                            </div>
+                            {% for error in form.tipo_documento.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br class="space-down">
+                <br>
+                <div class="row">
+					<div class="col-md-6 col-md-offset-3">
+                        <div class="input-group {{form.descripcion.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-comment-alt-text"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_descripcion" class="fg-label requerido control-label">{{ form.descripcion.label|title }}:</label>
+                                {{ form.descripcion }}
+                                <!--<div id="descripcion" class="form-control"></div>-->
+                            </div>
+                            {% for error in form.descripcion.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+			</div>
+			<br>
+			<br class="space">
+			<div class="row">
+				<div class="col-md-4 col-md-offset-4">
+					<button class="btn btn-block btn-primary" type="submit">
+						{% trans "Aceptar" %}
+					</button>
+				</div>
+			</div>
+			<br>
+			<br>
+		</div>
+    </form>
+	
+	<br>
+	<br>
+	<br>
+    {% if registros %}
+    	<div class="card">
+    		<div class="card-header">
+    			
+    		</div>
+    		<div class="card-body card-padding">
+    			<div class="row table-responsive">
+                    <div class="col-md-12">
+                        <table id="data-table-command" class="table table-striped table-vmiddle">
+                            <thead>
+                                <tr>
+                                    <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                                    <th data-visible="false" data-identifier="true" data-column-id="docs"></th>
+                                    <th data-visible="false" data-identifier="true" data-column-id="solicitado"></th>
+                                    <th data-identifier="true" data-column-id="nombre">{% trans "Descripción" %}</th>
+                                    <th data-identifier="true" data-column-id="modulo">{% trans "Fecha" %}</th>
+                                    <th data-column-id="commands" data-formatter="commands" data-sortable="false">Ver</th>
+                                    <th data-column-id="solicitud" data-formatter="solicitud" data-sortable="false">Solicitud</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for registro in registros %}
+                                    <tr>
+                                        <td>{{ registro.id }}</td>
+                                        <td>{% for documento in registro.documentos.all %}{% if forloop.first %}{{ documento.get_absolute_url }}{% else %},{{ documento.get_absolute_url }}{% endif %}{% endfor %}</td>
+                                        <td>{% if registro.solicitado %}true{% else %}false{% endif %}</td>
+                                        <td>{{ registro.descripcion|title }}</td>
+                                        <td>{{ registro.fecha }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td></td>
+                                        <td colspan="5" style="text-align:center;">{% trans "No se encontraron registros con estas caracteristicas" %}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+    		</div>
+    	</div>
+    {% endif %}
+</div>
+
+{% endblock contenido %}
+
+{% block js %}
+
+<script>
+    jQuery(document).ready(function($) {
+
+        function agregarOpciones(data, idCombo){
+            var opciones = '<option value="-1" selected="selected">------</option>';
+            data.forEach(function(item){
+                opciones += '<option value="' + item['id'] + '">' + item['tipo'] + '</option>';
+            });
+            //$("#"+idCombo).empty();
+            $("#"+idCombo).html(opciones);
+            $("#"+idCombo).trigger('chosen:updated');
+        }
+
+        $('#id_solicitante').change(function(event) {
+            $.ajax({
+                url: '{% url "sgd:empleado_area_json" %}',
+                type: 'POST',
+                data: {'id_solicitante': $(this).val()},
+                success: function(data) {
+                    agregarOpciones(data, 'id_area');
+                    $('#id_area').selectpicker('refresh');
+                }
+            })
+        });    
+
+        $('#id_area').change(function(event) {
+            $.ajax({
+                url: '{% url "sgd:area_tipo_documento_json" %}',
+                type: 'POST',
+                data: {'id_area': $(this).val()},
+                success: function(data) {
+                    agregarOpciones(data, 'id_tipo_documento');
+                    $('#id_tipo_documento').selectpicker('refresh');
+                }
+            })
+        });        
+    });
+</script>
+
+{% endblock js %}

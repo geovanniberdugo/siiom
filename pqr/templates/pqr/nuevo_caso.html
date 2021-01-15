@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+
+{% block css %}
+<link href="{% static 'dropzone/dist/min/dropzone.min.css' %}" rel="stylesheet">
+<link href="{% static 'dropzone/dist/app_2.min.css' %}" rel="stylesheet">
+
+<style>
+    #filedrag {
+        display: none;
+        font-weight: bold;
+        text-align: center;
+        padding: 1em 0;
+        margin: 1em 0;
+        color: #555;
+        border: 2px dashed #555;
+        border-radius: 7px;
+        cursor: default;
+    }
+
+    #filedrag.hover {
+        color: #f00;
+        border-color: #f00;
+        border-style: solid;
+        box-shadow: inset 0 3px 4px #888;
+    }
+</style>
+{% endblock css %}
+
+{% block contenido %}
+<div class="container">
+	<form action="" method="POST" id="form-pqr" enctype="multipart/form-data">
+		{% csrf_token %}
+		<div class="card">
+			<div class="card-header">
+				<h2>
+					<legend>
+						<h3>{% trans "Sugerencia para mejorar nuestro servicio" %}</h3>
+					</legend>
+				</h2>
+				{% if messages %}
+					{% for message in messages %}
+						<div class="row">
+			                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+			                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+			                    <p>{{ message|safe }}</p>
+			                </div>
+			            </div>
+					{% endfor %}
+				{% endif %}
+			</div>
+			<div class="card-body card-padding">
+				<div class="row">
+                    <div class="col-sm-6">                       
+                        <div class="input-group fg-float {{ form.nombre.css_classes }}">
+                            <span class="input-group-addon"><i class="zmdi zmdi-account"></i></span>
+                            <div class="fg-line">
+                                {% if caso %}{{ caso.nombre }}{% else %}{{ form.nombre }}{% endif %}
+                                <label class="fg-label">{{ form.nombre.label }}</label>
+                            </div>
+                            {% for error in form.nombre.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                        <br class="space">
+                        <br class="space-down">
+                        <br class="space">
+                        <br class="space-down">
+                        <div class="input-group fg-float {{ form.identificacion.css_classes }}">
+                            <span class="input-group-addon"><i class="zmdi zmdi-card"></i></span>
+                            <div class="fg-line">
+                                {% if caso %}{{ caso.identificacion }}{% else %}{{ form.identificacion }}{% endif %}
+                                <label class="fg-label">{{ form.identificacion.label }}</label>
+                            </div>
+                            {% for error in form.identificacion.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                        <br class="space">
+                        <br class="space">
+                        <br class="space-down">
+                        <br class="space-down">
+                        <div class="input-group fg-float {{ form.email.css_classes }}">
+                            <span class="input-group-addon"><i class="zmdi zmdi-email"></i></span>
+                            <div class="fg-line">
+                                {{ form.email }}
+                                <label class="fg-label">{{ form.email.label }}</label>
+                            </div>
+                            {% for error in form.email.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                        <br class="space">
+                        <br class="space-down">
+                        <br class="space">
+                        <br class="space-down">
+                        <div class="input-group fg-float {{ form.asunto.css_classes }}">
+                            <span class="input-group-addon"><i class="zmdi zmdi-assignment"></i></span>
+                            <div class="fg-line">
+                                {% if caso %}{{ caso.asunto }}{% else %}{{ form.asunto }}{% endif %}
+                                <label class="fg-label">{{ form.asunto.label }}</label>
+                            </div>
+                            {% for error in form.asunto.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                        <br class="space">
+                        <br class="space-down">
+                        <br class="space">
+                        <br class="space-down">
+                    </div>
+                    <br class="space">
+                    <div class="col-sm-6">                       
+                        <div class="input-group fg-float {{ form.fecha_acontecimiento.css_classes }}">
+                            <div class="fg-line">
+                                {% if caso %}{{ caso.fecha_acontecimiento }}{% else %}{{ form.fecha_acontecimiento }}{% endif %}
+                                <label class="fg-label">{{ form.fecha_acontecimiento.label }}</label>
+                            </div>
+                            {% for error in form.fecha_acontecimiento.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                            <span class="input-group-addon last"><i class="zmdi zmdi-calendar"></i></span>
+                        </div>
+                        <br class="space">
+                        <br class="space-down">
+                        <br class="space">
+                        <br class="space-down">
+                        <div class="input-group fg-float {{ form.direccion.css_classes }}">
+                            <div class="fg-line">
+                                {{ form.direccion }}
+                                <label class="fg-label">{{ form.direccion.label }}</label>
+                            </div>
+                            {% for error in form.direccion.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                            <span class="input-group-addon last"><i class="zmdi zmdi-pin"></i></span>
+                        </div>
+                        <br class="space">
+                        <br class="space-down">
+                        <br class="space">
+                        <br class="space-down">
+                        <div class="input-group fg-float {{ form.telefono.css_classes }}">
+                            <div class="fg-line">
+                                {{ form.telefono }}
+                                <label class="fg-label">{{ form.telefono.label }}</label>
+                            </div>
+                            {% for error in form.telefono.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                            <span class="input-group-addon last"><i class="zmdi zmdi-phone"></i></span>
+                        </div>
+                        <br class="space">
+                        <br class="space-down"><br class="space">
+                        <br class="space-down">
+                    </div>
+                </div>
+                <div class="row">
+                	<div class="col-md-10 col-md-offset-1">
+                		<div class="input-group fg-float {{ form.descripcion.css_classes }}">
+                            <div class="fg-line">
+                                {% if caso %}{{ caso.descripcion }}{% else %}{{ form.descripcion }}{% endif %}
+                                <label class="fg-label">{{ form.descripcion.label }}</label>
+                            </div>
+                            {% for error in form.descripcion.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                            <span class="input-group-addon last"><i class="zmdi zmdi-"></i></span>
+                        </div>
+                	</div>
+                </div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-4" hidden>
+				<button class="" id="buttonsubmit">
+					
+				</button>
+			</div>
+		</div>
+	</form>
+</div>
+
+{% if not caso %}
+<div class="container">
+<div class="card">
+    <div class="card-header">
+        <h2>Archivos <small>Si tienes archivos que anexar al caso, puedes ingresarlos aquí (solo se aceptan 3 archivos como máximo)</small></h2>
+    </div>
+    <div class="card-body card-padding">
+
+        <form class="dropzone" id="dropzone-upload" enctype="multipart/form-data">
+            {% csrf_token %}
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <button class="btn btn-block btn-primary" onclick="$('#buttonsubmit').click();">
+            Aceptar
+        </button>
+    </div>
+</div>
+</div>
+
+{% endblock contenido %}
+
+{% block js %}
+<script src="{% static 'dropzone/dist/min/dropzone.min.js' %}"></script>
+<script>
+$(document).ready(function () {
+
+    if($('.dropzone')[0]) {
+        Dropzone.autoDiscover = false;
+        var myDrop = new Dropzone('#dropzone-upload', {
+            url: "{% url 'pqr:nuevo_caso' %}",
+            addRemoveLinks: true,
+            paramName: 'archivo',
+            autoProcessQueue:false,
+            uploadMultiple: true,
+            maxFiles: 3,
+            parallelUploads: 10,
+            acceptedFiles: 'image/*, application/pdf, application/msword, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        $('#form-pqr').submit(function(event) {
+            $('.page-loader').fadeIn();
+            var formData = new FormData(this);
+            for (var field of formData) {
+                $('#dropzone-upload').append('<input name="' + field[0] + '" type="hidden" value="' + field[1] + '">');
+            }
+            if (myDrop.files.length > 0) {
+                myDrop.processQueue();
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            }
+        });
+
+        myDrop.on("successmultiple", function (file, response){
+            $('.page-loader').fadeOut();
+            var tag;
+
+            if (response['response_code'] == 400) {
+                tag = 'danger';
+                if ('error_fields' in response) {
+                    for (field of response['error_fields']) {
+                        if (!$('#form-pqr input[name="' + field + '"]').parent().parent().hasClass('has-error')) {
+                            $('#form-pqr input[name="' + field + '"]').parent().parent().addClass('has-error');
+                        }
+                        if (field == 'descripcion') {
+                            if (!$('#form-pqr textarea[name="' + field + '"]').parent().parent().hasClass('has-error')) {
+                                $('#form-pqr textarea[name="' + field + '"]').parent().parent().addClass('has-error');
+                            }
+                        }
+                    }
+                }
+                for (file of myDrop.getRejectedFiles()) {
+                    myDrop.removeFile(file);
+                }
+                for (file of myDrop.files) {
+                    file.status = Dropzone.QUEUED
+                }
+                notify(response['message'], undefined, undefined, undefined, tag, undefined);
+            } else if (response['response_code'] == 200) {
+                tag = 'success';
+                notify(response['message'], undefined, undefined, undefined, tag, undefined);
+                location.reload();
+            } else {
+                {% comment %}console.log(response);
+                console.log(typeof response){% endcomment %}
+                notify("ERROR", undefined, undefined, undefined, tag, undefined);
+            }
+        })
+
+        myDrop.on("error", function(file, response) {
+            $('.page-loader').fadeOut();
+            console.log(response);
+            if (response == "You can't upload files of this type.") {
+                notify("No puedes subir archivos de este tipo, Asegurate que sea una imagen, PDF, archivo de Word o  Excel", undefined, undefined, undefined, 'danger', undefined);
+            }
+            for (file of myDrop.getRejectedFiles()) {
+                    myDrop.removeFile(file);
+                }
+            for (file of myDrop.files) {
+                file.status = Dropzone.QUEUED
+            }
+        })
+    }
+
+
+});
+
+</script>
+
+
+<script>
+	jQuery(document).ready(function($) {
+		if ($('body').hasClass('sw-toggled')) {
+			$('body').removeClass('sw-toggled');
+		}
+		$('#{{ form.fecha_acontecimiento.id_for_label }}').datetimepicker({
+			format: 'DD/MM/YY',
+			maxDate: moment()
+		});
+	});
+</script>
+{% endblock js %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block js %}
+    <script>
+        jQuery(document).ready(function($) {
+            $('button[name="aceptar"]').click(function(event) {
+                if ($('#id_contrasena').val() != $('#id_contrasenaVerificacion').val()) {
+                    swal("Alerta!!!","Las contraseñas no coinciden");
+                    return false;
+                } else if ($('#contrasena').hasClass('has-error') || $('#contrasenaVerificacion').hasClass('has-error')) {
+                    swal("Alerta!!!","Contraseña muy corta");
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+
+            var validar = function(emisor, receptor) {
+
+                emisor.on('keydown keyup blur focus click change', function(){
+                    var $val = emisor.val();
+                    var listen = function (){
+                        if ($val.length >= 10) {
+                            if (receptor.hasClass('has-error')) {
+                                receptor.removeClass('has-error');
+                            };
+
+                            if (receptor.hasClass('has-warning')) {
+                                receptor.removeClass('has-warning');
+                            };
+                            receptor.addClass('has-success');
+
+                        } else if ($val.length <= 3) {
+                            if (receptor.hasClass('has-warning') || receptor.hasClass('has-success')) {
+                                receptor.removeClass('has-warning')
+                                    .removeClass('has-success')
+                                    .addClass('has-error');
+                            }
+
+                        } else if ($val.length <= 9) {
+                            if (receptor.hasClass('has-success')) {
+                                receptor.removeClass('has-success')
+                                    .addClass('has-warning');
+
+                            } else if (receptor.hasClass('has-error')) {
+                                receptor.removeClass('has-error')
+                                    .addClass('has-warning');
+
+                            } else {
+                                receptor.addClass('has-warning');
+                            }
+                        } 
+                    }
+                    setTimeout(listen, 200);
+                });
+            }
+
+            validar($('#id_contrasena'), $('#contrasena'));
+            validar($('#id_contrasenaVerificacion'), $('#contrasenaVerificacion')); 
+        });
+    </script>
+{% endblock js %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+			<h1 class="f-700 f-20">
+                <legend><h3>Crear autenticaci&oacute;n de un miembro</h3></legend>
+            </h1>
+            {% if form.errors %}
+                <div class="row">
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Ha Ocurrido un error. Por favor valida los campos</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data" id="form">
+            {% csrf_token %}
+            <div class="card-body card-padding">
+                <br>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group fg-float {{form.contrasena.css_classes}}" id="contrasena">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-key"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_contrasena" class="control-label requerido">Contraseña:</label>
+                                {{form.contrasena}}
+                            </div>
+                            {% for err in form.contrasena.errors %}
+                                <small class="help-block">{{err}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group fg-float {{form.contrasenaVerificacion.css_classes}}" id="contrasenaVerificacion">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-lock"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_contrasenaVerificacion" class="control-label requerido">Verifique Contraseña:</label>
+                                {{form.contrasenaVerificacion}}
+                            </div>
+                            {% for err in form.contrasenaVerificacion.errors %}
+                                <small class="help-block">{{err}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group fg-float {{form.email.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-local-post-office"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_email" class="control-label requerido">Verificar Correo:</label>
+                                {{form.email}}
+                            </div>
+                            {% for err in form.email.errors %}
+                                <small class="help-block">{{err}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="aceptar" class="btn btn-primary btn-block" name ="aceptar">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}  

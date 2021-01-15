@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{% trans "Líder" %}</h3></legend>
+            </h1>
+        </div>
+
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+            <form action="{% url 'miembros:nuevo' %}" method="POST">
+                {% csrf_token %}
+
+                {% include "_alert_non_field_errors.html" %}
+
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.nombre.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.nombre.id_for_label }}" class="control-label">{{ form.nombre.label }}*:</label>
+                                {{ form.nombre }}
+                            </div>
+                            {{ form.nombre.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.primer_apellido.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account-o"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.primer_apellido.id_for_label }}" class="control-label">{{ form.primer_apellido.label }}*:</label>
+                                {{ form.primer_apellido }}
+                            </div>
+                            {{ form.primer_apellido.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.segundo_apellido.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account-o"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.segundo_apellido.id_for_label }}" class="control-label">{{ form.segundo_apellido.label }}:</label>
+                                {{ form.segundo_apellido }}
+                            </div>
+                            {{ form.segundo_apellido.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.genero.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-male-female"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.genero.id_for_label }}" class="control-label">{{ form.genero.label }}*:</label>
+                                {{ form.genero }}
+                            </div>
+                            {{ form.genero.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.telefono.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-phone"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.telefono.id_for_label }}" class="control-label">{{ form.telefono.label }}:</label>
+                                {{ form.telefono }}
+                            </div>
+                            {{ form.telefono.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.celular.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-smartphone-android"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.celular.id_for_label }}" class="control-label">{{ form.celular.label }}:</label>
+                                {{ form.celular }}
+                            </div>
+                            {{ form.celular.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.fecha_nacimiento.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account-calendar"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.fecha_nacimiento.id_for_label }}" class="control-label">{{ form.fecha_nacimiento.label }}:</label>
+                                {{ form.fecha_nacimiento }}
+                            </div>
+                            {{ form.fecha_nacimiento.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.cedula.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.cedula.id_for_label }}" class="control-label requerido">{{ form.cedula.label }}*:</label>
+                                {{ form.cedula }}
+                            </div>
+                            {{ form.cedula.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.direccion.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-map"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.direccion.id_for_label }}" class="control-label">{{ form.direccion.label }}:</label>
+                                {{ form.direccion }}
+                            </div>
+                            {{ form.direccion.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.barrio.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-pin-drop"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.barrio.id_for_label }}" class="control-label">{{ form.barrio.label }}:</label>
+                                {{ form.barrio }}
+                            </div>
+                            {{ form.barrio.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.email.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-local-post-office"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.email.id_for_label }}" class="control-label">{{ form.email.label }}*:</label>
+                                {{ form.email }}
+                            </div>
+                            {{ form.email.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.profesion.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-male"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.profesion.id_for_label }}" class="control-label">{{ form.profesion.label }}:</label>
+                                {{ form.profesion }}
+                            </div>
+                            {{ form.profesion.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div class="input-group {{ form.estado_civil.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-local-wc"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.estado_civil.id_for_label }}" class="control-label">{{ form.estado_civil.label}}:</label>
+                                {{ form.estado_civil }}
+                            </div>
+                            {{ form.estado_civil.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button name="aceptar" class="btn btn-primary btn-block">{% trans "Aceptar" %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#id_fecha_nacimiento").datetimepicker({
+            format: 'DD/MM/YYYY',
+            maxDate: moment(),
+        });
+    });
+</script>
+{% endblock %}

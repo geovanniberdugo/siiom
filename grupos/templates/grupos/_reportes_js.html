@@ -1,0 +1,53 @@
+<script>
+    $(document).ready(function () {
+        var _form = {
+            fecha: '',
+            predica: '',
+            ofrenda: 0,
+            numeroTotalAsistentes: 0,
+            numeroVisitas: 0,
+            numeroLideresAsistentes: 0
+        }
+
+        var $form = {
+            fecha: '',
+            predica: '',
+            ofrenda: 0,
+            numeroTotalAsistentes: 0,
+            numeroVisitas: 0,
+            numeroLideresAsistentes: 0
+        }
+
+        $("#{{ form.no_realizo_grupo.id_for_label }}").change(function (event) {
+            var form = new FormData(document.getElementById('form-reporte'));
+
+            for (field of form) {
+                if (field[0] == "csrfmiddlewaretoken" | field[0] == "no_realizo_grupo" | field[0] == "grupo") {
+                    continue;
+                }
+
+                if ($(this).is(':checked')) {
+                    if (field[0] != "fecha") {
+                        $('input[name="' + field[0] + '"]').attr('readonly', true);
+                    } else {
+                        _form[field[0]] = field[1]
+                    }
+                    $form[field[0]] = field[1]
+                    $('input[name="' + field[0] + '"]').val(_form[field[0]])
+                } else {
+                    if (field[0] == "fecha") {
+                        $form[field[0]] = field[1]
+                    }
+                    $('input[name="' + field[0] + '"]').val($form[field[0]])
+                    $('input[name="' + field[0] + '"]').attr('readonly', false);
+                }
+            }
+        });
+
+        {% if form.errors and form.cleaned_data.no_realizo_grupo %}
+        $("#{{ form.no_realizo_grupo.id_for_label }}").trigger('change');
+        {% elif form.cleaned_data.no_realizo_grupo and reportada %}
+        $("#{{ form.no_realizo_grupo.id_for_label }}").trigger('change');
+        {% endif %}
+    })
+</script>

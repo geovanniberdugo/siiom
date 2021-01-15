@@ -1,0 +1,433 @@
+{% extends 'base.html' %}
+{% load i18n static %}
+
+
+{% block css %}
+<style>
+    .datepicker table td.day:before {
+        width: 100%;
+        border-radius: 0;
+    }
+
+    .flex-form {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+
+    .flex-content-row {
+        display: flex;
+    }
+</style>
+{% endblock %}
+
+
+{% block contenido %}
+
+<div class="container c-alt">
+    <div class="block-header">
+        <h2>{% trans "Calendarios de Cursos" %}
+            <small>{% trans "Una lista de cursos de acuerdo al salón seleccionado. En esta vista, podrá ver detalles de los cursos, y añadir cursos nuevos" %}.</small>
+        </h2>
+
+        <ul class="actions">
+            <li>
+                <a href="">
+                    <i class="zmdi zmdi-trending-up"></i>
+                </a>
+            </li>
+            <li>
+                <a href="">
+                    <i class="zmdi zmdi-check-all"></i>
+                </a>
+            </li>
+            <li class="dropdown">
+                <a href="" data-toggle="dropdown">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a href="">Refresh</a>
+                    </li>
+                    <li>
+                        <a href="">Manage Widgets</a>
+                    </li>
+                    <li>
+                        <a href="">Widgets Settings</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <form action="" method="POST">
+        <div class="card">
+            {% include "_alert_messages.html" %}
+            {% include "_alert_messages.html" %}
+            {% csrf_token %} {% include "_alert_non_field_errors.html" %}
+            <div class="row m-10">
+                <div class="col-md-6 m-t-25">
+                    <div class="form-group {{ form.salon.css_classes }}">
+                        <label for="{{ form.salon.id_for_label }}" class="control-label">{{ form.salon.label }}*:</label>
+                        <div class="fg-line">
+                            {{ form.salon }}
+                        </div>
+                        {{ form.salon.errors }}
+                    </div>
+                </div>
+            </div>
+            <div class="row flex-content-row">
+                <div class="col-md-3 flex-form m-l-10">
+                    <div class="form-group {{ form.fecha_inicio.css_classes }}">
+                        <label for="{{ form.fecha_inicio.id_for_label }}">{{ form.fecha_inicio.label }}</label>
+                        <div class="fg-line">
+                            {{ form.fecha_inicio }}
+                        </div>
+                        {{ form.fecha_inicio.errors }}
+                    </div>
+                    <div class="form-group {{ form.fecha_fin.css_classes }}">
+                        <label for="{{ form.fecha_fin.id_for_label }}">{{ form.fecha_fin.label }}</label>
+                        <div class="fg-line">
+                            {{ form.fecha_fin }}
+                        </div>
+                        {{ form.fecha_fin.errors }}
+                    </div>
+                    <div class="form-group {{ form.hora_inicio.css_classes }}">
+                        <label for="{{ form.hora_inicio.id_for_label }}">{{ form.hora_inicio.label }}</label>
+                        <div class="fg-line">
+                            {{ form.hora_inicio }}
+                        </div>
+                        {{ form.hora_inicio.errors }}
+                    </div>
+                    <div class="form-group {{ form.hora_fin.css_classes }}">
+                        <label for="{{ form.hora_fin.id_for_label }}">{{ form.hora_fin.label }}</label>
+                        <div class="fg-line">
+                            {{ form.hora_fin }}
+                        </div>
+                        {{ form.hora_fin.errors }}
+                    </div>
+                    <div class="form-group {{ form.dia.css_classes }}">
+                        <label for="{{ form.dia.id_for_label }}">{{ form.dia.label }}</label>
+                        <div class="fg-line">
+                            {{ form.dia }}
+                        </div>
+                        {{ form.dia.errors }}
+                    </div>
+                    <div class="form-group {{ form.profesor.css_classes }}">
+                        <label for="{{ form.profesor.id_for_label }}">{{ form.profesor.label }}</label>
+                        <div class="fg-line">
+                            {{ form.profesor }}
+                        </div>
+                        {{ form.profesor.errors }}
+                    </div>
+                    <div class="form-group {{ form.materia.css_classes }}">
+                        <label for="{{ form.materia.id_for_label }}">{{ form.materia.label }}</label>
+                        <div class="fg-line">
+                            {{ form.materia }}
+                        </div>
+                        {{ form.materia.errors }}
+                    </div>
+                    <div class="form-group {{ form.precio.css_classes }}">
+                        <label for="{{ form.precio.id_for_label }}">{{ form.precio.label }}</label>
+                        <div class="fg-line">
+                            {{ form.precio }}
+                        </div>
+                        {{ form.precio.errors }}
+                    </div>
+                    {{ form.color }}
+                    <div class="form-group">
+                        <label for="eventName">Tag Color</label>
+                        <div class="event-tag">
+                            <span data-tag="bgm-teal" class="bgm-teal"></span>
+                            <span data-tag="bgm-red" class="bgm-red"></span>
+                            <span data-tag="bgm-pink" class="bgm-pink"></span>
+                            <span data-tag="bgm-blue" class="bgm-blue"></span>
+                            <span data-tag="bgm-lime" class="bgm-lime"></span>
+                            <span data-tag="bgm-green" class="bgm-green"></span>
+                            <span data-tag="bgm-cyan" class="bgm-cyan"></span>
+                            <span data-tag="bgm-orange" class="bgm-orange"></span>
+                            <span data-tag="bgm-purple" class="bgm-purple"></span>
+                            <span data-tag="bgm-gray" class="bgm-gray"></span>
+                            <span data-tag="bgm-black" class="bgm-black"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4 m-b-20">
+                    <button name="aceptar" class="btn btn-primary btn-block">{% trans "Aceptar" %}</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script type="text/javascript">
+
+function addDays(date, days) {
+    return new Date(date.getTime() + (days * 24 * 60 * 60 * 1000));
+}
+
+$(document).ready(function() {
+    $('#{{ form.fecha_fin.id_for_label }}, #{{ form.fecha_inicio.id_for_label }}').datetimepicker({
+        format: 'YYYY-MM-DD',
+    });
+    $('#{{ form.hora_inicio.id_for_label }}, #{{ form.hora_fin.id_for_label }}').datetimepicker({
+        format: 'HH:mm',
+    });
+
+    $('#{{ form.salon.id_for_label }}').change(function (event) {
+        $('#calendar').fullCalendar('refetchEvents');
+    });
+
+    /**
+     * Normaliza las fechas en base al modelo de Curso de la app
+     */
+    function normalize_days(days) {
+        if (days) {
+            return days.map(i => {
+                let int = parseInt(i) + 1;
+                return int == 7 ? 0: int;
+            }).sort();
+        }
+        return [];
+    }
+
+    $('#calendar').fullCalendar({
+        header: {
+            right: '',
+            center: 'prev, title, next',
+            left: ''
+        },
+        theme: true,
+        selectable: true,
+        selectHelper: true,
+        editable: false,
+        slotEventOverlap: false,
+        // On Day Select
+        select: function (start, end, allDay) {
+            let formattedStartDate = start._d.toISOString().split('T')[0];
+            if ($('#{{ form.salon.id_for_label }}').val()) {
+                // $('#addNew-event').modal('show');
+                // $('#addNew-event input:text').val('');
+                // $('#{{ form.fecha_inicio.id_for_label }}').val(formattedStartDate);
+                // $('#{{ form.fecha_inicio.id_for_label }}').data('DateTimePicker').date(formattedStartDate);
+            }
+        },
+        events: function (start, end, timezone, callback) {
+            let pk = $('#{{ form.salon.id_for_label }}').val();
+
+            if (pk) {
+                $.ajax({
+                    url: '{% url "instituto:api-cursos-salon" 0 %}'.replace('0', pk),
+                    method: 'GET',
+                    data: {
+                        start: start.toISOString().split('T')[0],
+                        end: end.toISOString().split('T')[0]
+                    },
+                    success: function (data) {
+                        let events = [];
+                        for (let curso of data) {
+                            let stringStartDate = `${curso.fecha_inicio}T${curso.hora_inicio}`;
+                            let currentDate = new Date(stringStartDate);
+                            let endDate = new Date(`${curso.fecha_fin}T${curso.hora_fin}`);
+
+                            while (currentDate.getTime() < endDate.getTime()) {
+                                for (let dia of normalize_days(curso.dia)) {
+                                    if (currentDate.getDay() > dia) {
+                                        continue;
+                                    }
+                                    if (currentDate.getDay() < dia) {
+                                        currentDate = addDays(currentDate, dia - currentDate.getDay());
+                                    }
+                                    if (currentDate.getTime() > endDate.getTime()) {
+                                        break;
+                                    }
+
+                                    let localeString = currentDate.toISOString().split('T')[0];
+                                    let stringEndDate = `${localeString}T${curso.hora_fin}`;
+                                    let endStartDate = new Date(stringEndDate);
+                                    events.push({
+                                        title: curso.materia.nombre,
+                                        allDay: false,
+                                        start: currentDate,
+                                        end: endStartDate,
+                                        className: curso.color,
+                                        editable: false,
+                                        overlap: false
+                                    });
+                                }
+                                currentDate = addDays(currentDate, 7 - currentDate.getDay());
+                            }
+                        }
+                        callback(events);
+                    },
+                    error: function (data) {
+                        console.error(data.responseJSON);
+                    }
+                });
+            }
+        }
+    });
+
+    var actionMenu = '<div class="actions actions-alt" id="fc-actions">' +
+        '<li class="dropdown">' +
+            '<a href="" data-toggle="dropdown"><i class="zmdi zmdi-more-vert"></i></a>' +
+            '<ul class="dropdown-menu dropdown-menu-right">' +
+                '<li class="active">' +
+                    '<a data-view="month" href="">Vista de Mes</a>' +
+                '</li>' +
+                '<li>' +
+                    '<a data-view="basicWeek" href="">Vista de Semana</a>' +
+                '</li>' +
+                '<li>' +
+                    '<a data-view="agendaWeek" href="">Vista de Semana Agenda</a>' +
+                '</li>' +
+                '<li>' +
+                    '<a data-view="basicDay" href="">Vista de Día</a>' +
+                '</li>' +
+                '<li>' +
+                    '<a data-view="agendaDay" href="">Vista de Día Agenda</a>' +
+                '</li>' +
+            '</ul>' +
+        '</li>' +
+    '</div>';
+
+    $('#calendar').find('.fc-toolbar').append(actionMenu);
+
+    // Event Tag Selector
+    (function () {
+        $('body').on('click', '.event-tag > span', function () {
+            $('.event-tag > span').removeClass('selected');
+            $(this).addClass('selected');
+            $('#{{ form.color.id_for_label }}').val($('.event-tag > span.selected').attr('data-tag')).change();
+        });
+    })();
+
+    (function () {
+        $('body').on('change', '#{{ form.dia.id_for_label }}', createEvents);
+        $('body').on('change', '#{{ form.materia.id_for_label }}', createEvents);
+        $('body').on('change', '#{{ form.color.id_for_label }}', createEvents);
+        $('#{{ form.fecha_fin.id_for_label }}, #{{ form.fecha_inicio.id_for_label }}, #{{ form.hora_inicio.id_for_label }}, #{{ form.hora_fin.id_for_label }}').on('dp.change', (event) => {
+            createEvents(event);
+        });
+    })();
+
+    function getMateria() {
+        let materia = $('#{{ form.materia.id_for_label }}');
+
+        if (materia.val()) {
+            return materia.find(`option[value="${materia.val()}"]`).html();
+        }
+        return 'Test';
+    }
+
+    function createEvents (event) {
+        let salon = $('#{{ form.salon.id_for_label }}');
+        let fecha_inicio = $('#{{ form.fecha_inicio.id_for_label }}');
+        let fecha_fin = $('#{{ form.fecha_fin.id_for_label }}');
+        let hora_inicio = $('#{{ form.hora_inicio.id_for_label }}');
+        let hora_fin = $('#{{ form.hora_fin.id_for_label }}');
+        let dias = $('#{{ form.dia.id_for_label }}');
+        let color = $('#{{ form.color.id_for_label }}');
+
+        if (fecha_inicio.val() && fecha_fin.val() && hora_inicio.val() && hora_fin.val() && color.val()) {
+            let startDate = new Date(`${fecha_inicio.val()}T${hora_inicio.val()}`);
+            let endDate = new Date(`${fecha_fin.val()}T${hora_fin.val()}`);
+            let currentDate = startDate;
+
+            let events = [];
+            while (currentDate.getTime() < endDate.getTime()) {
+                for (let dia of normalize_days(dias.val())) {
+                    if (currentDate.getDay() > dia) {
+                        continue;
+                    }
+                    if (currentDate.getDay() < dia) {
+                        currentDate = addDays(currentDate, dia - currentDate.getDay());
+                    }
+                    if (currentDate.getTime() > endDate.getTime()) {
+                        break;
+                    }
+
+                    let localeString = currentDate.toISOString().split('T')[0];
+                    let stringEndDate = `${localeString}T${hora_fin.val()}`;
+                    let endStartDate = new Date(stringEndDate);
+                    events.push({
+                        id: 'test',
+                        title: getMateria(),
+                        allDay: false,
+                        start: currentDate,
+                        end: endStartDate,
+                        className: color.val(),
+                        editable: false,
+                        overlap: false
+                    });
+                }
+
+                currentDate = addDays(currentDate, 7 - currentDate.getDay());
+            }
+
+            $.ajax({
+                url: '{% url "instituto:api-disponibilidad-cursos-salon" 0 %}'.replace('0', salon.val()),
+                method: 'GET',
+                contentType: 'application/json',
+                traditional: true,
+                data: {
+                    start: fecha_inicio.val(),
+                    end: fecha_fin.val(),
+                    start_hour: hora_inicio.val(),
+                    end_hour: hora_fin.val(),
+                    dias: dias.val()
+                },
+                success: function (data) {
+                    if (!data.valid) {
+                        danger('No se puede crear el curso en este horario');
+                        $('button[name="aceptar"]').attr('disabled', true);
+                    } else {
+                        $('button[name="aceptar"]').attr('disabled', false);
+                    }
+                },
+                error: function (data) {
+                    for (let error in data.responseJSON) {
+                        for (err of data.responseJSON[error]) {
+                            danger(err);
+                        }
+                    }
+                }
+            });
+
+            if (window._events) {
+                $('#calendar').fullCalendar('removeEventSource', window._events);
+                $('#calendar').fullCalendar('addEventSource', events);
+                window._events = events;
+            } else {
+                $('#calendar').fullCalendar('addEventSource', events);
+                window._events = events;
+            }
+        }
+    }
+
+    // Calendar views
+    $('body').on('click', '#fc-actions [data-view]', function (e) {
+        e.preventDefault();
+        var dataView = $(this).attr('data-view');
+
+        $('#fc-actions li').removeClass('active');
+        $(this).parent().addClass('active');
+        $('#calendar').fullCalendar('changeView', dataView);
+    });
+
+});
+</script>
+
+
+{% endblock %}

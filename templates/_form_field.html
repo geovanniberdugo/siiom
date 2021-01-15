@@ -1,0 +1,14 @@
+
+<div class="input-group {{ field.css_classes }}">
+    <span class="input-group-addon">
+        <i class="zmdi zmdi-{{ icon }}"></i>
+    </span>
+    <div class="fg-line">
+        <label for="{{ field.id_for_label }}" class="fg-label control-label" 
+            {% if popover %}data-trigger="hover" data-toggle="popover" data-placement="top" data-content="{{ popover }}" title="" data-original-title="Ayuda"{% endif %}>
+            {{ field.label }}:
+        </label>
+        {{ field }}
+    </div>
+    {{ field.errors }}
+</div>

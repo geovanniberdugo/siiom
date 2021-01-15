@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+	<div class="card">
+		<div class="card-header">
+			<h1>
+                <legend><h3>Requisiciones por Aprobar</h3></legend>
+            </h1>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="row">
+                    <div class="alert alert-{{message.tags}} alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>{{ message }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+		</div>
+		<div class="card-body card-padding">
+			<div class="row table-responsive">
+                <div class="col-md-12">
+                    <table id="data-table-command" class="table table-striped table-vmiddle">
+                        <thead>
+                            <tr>
+                                <th data-visible="false" data-column-id="files"></th>
+                                <th data-identifier="true" data-column-id="id">{% trans "No." %}</th>
+                                <th data-identifier="true" data-column-id="nombre">{% trans "Asunto" %}</th>
+                                <th data-identifier="true" data-column-id="solicitnte">{% trans "Solicitante" %}</th>
+                                <th data-identifier="true" data-column-id="area">{% trans "Fecha Ingreso" %}</th>
+                                <th data-identifier="true" data-column-id="des">{% trans "Estado" %}</th>
+                                <th data-identifier="true" data-column-id="prioridad">{% trans "Prioridad" %}</th>
+                                <th data-identifier="true" data-column-id="fecha">{% trans "Seguimiento" %}</th>
+                                {% if requisiciones %}
+                                <th data-column-id="commands" data-formatter="commands" data-sortable="false">{% trans "Comandos" %}</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for requisicion in requisiciones %}
+                                <tr>
+                                    <td>{{ requisicion.get_position }}</td>
+                                    <td>{{ requisicion.id }}</td>
+                                    <td>{{ requisicion.asunto }}</td>
+                                    <td>{{ requisicion.empleado }}</td>
+                                    <td>{{ requisicion.fecha_ingreso }}</td>
+                                    <td>{{ requisicion.get_estado_display|upper }}</td>
+                                    <td>{{ requisicion.get_prioridad_display|upper }}</td>
+                                    <td>{{ requisicion.get_rastreo|upper }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td></td>
+                                    <td colspan="5" style="text-align:center;">{% trans "No tienes requisiciones aún" %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+		</div>
+	</div>
+</div>
+
+{% include "compras/detalles_requisicion.html" with empleado="true" %}
+
+
+{% endblock contenido %}
+
+{% block js %}
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script>
+	jQuery(document).ready(function($) {
+		$("#data-table-command").bootgrid({
+            css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+                },
+            caseSensitive: false,
+            formatters: {
+                "commands" : function(column, row) {
+                    var alternative = "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" onClick=\"window.location.href='/requisiciones/pago_requisicion/" + row.id + "'\" data-row-id=\"" + row.id + "\"><span class=\"zmdi zmdi-card\"></span></button>";
+
+                    var button = "<button type=\"button\" class=\"btn btn-icon proceso command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\"><span class=\"zmdi zmdi-eye\"></span></button> ";
+                    
+                    var toprint = "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" onClick=\"window.location.href='{% url "compras:imprimir_requisicion" 0 %}'.replace('0', " + row.id + ")\" data-row-id=\"" + row.id + "\"><span class=\"zmdi zmdi-print\"></span></button> ";
+
+                    if (row.files == 4) {
+                        return button + alternative + toprint
+                    }
+                    return button
+                },
+            }
+        });
+    });
+</script>
+{% include "compras/_detalles_requisicion_js.html" with empleado="true" %}
+{% endblock js %}

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend>
+                    <h3 class="f-700 f-20">Registrar Reunion: Discipulado</h3>
+                </legend>
+            </h1>
+            {% if ok %}
+                <div class="row">
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Se ha registrado el reporte correctamente.</p>
+                    </div>
+                </div>
+            {% endif %}
+            {% if ya_reportada %}
+                <div class="row">
+                    <div class="alert alert-warning alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Ya ha sido reportada una reunion para esta predica.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% if miembro.discipulos %}
+        <form action="" method="POST" enctype="multipart/form-data" id="form">
+            {% csrf_token %}
+            <div class="card-body card-padding table-responsive">
+                <br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-thumb-up"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_predica" class="fg-label requerido">Pr&eacute;dica:</label>
+                                {{form.predica}}
+                            </div>
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-money-box"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_ofrenda" class="fg-label requerido">Ofrenda:</label>
+                                {{form.ofrenda}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-star"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_novedades" class="fg-label requerido">Novedades:</label>
+                                {{form.novedades}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend>
+                    <h3>Asistencia al Discipulado</h3>
+                </legend>
+            </h1>
+        </div>
+            <div class="table-responsive">
+                <table id="data-table-selection" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th data-column-id="id" data-identifier="true" data-visible="false"></th>
+                            <th data-column-id="nombre" data-identifier="true">Nombre</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mg in discipulos %}
+                            <tr>
+                                <td>{{mg.id}}</td>
+                                <td>{{mg.nombre|capfirst}} {{mg.primer_apellido|capfirst}} {% if mg.segundo_apellido %} {{mg.segundo_apellido|capfirst}} {% endif %}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td></td>
+                                <td>No Tiene Ningún grupo asignado</td>
+                            </tr>                        
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <br>
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4">
+                    <button type="submit" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                </div>
+            </div>
+        </form>
+        <br>
+        <br>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-header">
+            <p>No tiene ningun grupo de amistad asignado</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    jQuery(document).ready(function ($) {
+        $("#data-table-selection").bootgrid({
+            css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+            },
+            selection: true,
+            multiSelect: true,
+            rowSelect: true,
+            keepSelection: true
+        });
+
+        $seleccionados = [];
+        bootgrid_table_solution("#data-table-selection", $seleccionados);
+        var $predica = $('#id_predica'), $ofrenda = $('#id_ofrenda'), $novedades = $('#id_novedades');
+
+        $('button[name="aceptar"]').click(function (event) {
+            if ($predica.val() == '') {
+                swal("Alerta!", "Debes escoger una prédica!")
+                return false;
+            } else if ($predica.val() != '' && $ofrenda.val() == '') {
+                swal("Alerta!", "Debes especificar la ofrenda recogida");
+                return false;
+            } else if ($predica.val() != '' && $ofrenda.val() != '' && $novedades.val() == '') {
+                swal("Alerta!", "Debes especificar si ocurrió alguna novedad");
+                return false;
+            } else {
+                // return true;
+                if (!$('tr').hasClass('active')) {
+                    if ($seleccionados.length == 0) {
+                        swal("Alerta", "Debes escoger algun miembro asistente");
+                        event.preventDefault();
+                    } else {
+                        var $undef = [];
+                        var $str = [];
+                        for (var i = 0; i < $seleccionados.length; i++) {
+                            if ($seleccionados[i] === undefined) {
+                                $undef.push($seleccionados[i]);
+                            }
+                            if (typeof $seleccionados[i] === 'string') {
+                                $str.push($seleccionados[i]);
+                            }
+                        }
+                        if ($str.length > 0) {
+                            return true;
+                        } else if ($str.length == 0 && $undef.length >= 0) {
+                            swal("Alerta", "Debes escoger algun miembro asistente");
+                            return false;
+                        }
+                    }
+                } else {
+                    return true;
+                }
+            }
+        });
+
+        send_form("#form", $seleccionados);
+    });
+</script> 
+{% endblock %}
+

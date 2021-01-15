@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+	<div class="card">
+		<div class="card-body card-padding">
+			<div class="four-zero" style="margin-top: 35px; position: relative;">
+			    <h3 style="color:#fff; font-size:70px;">{% trans "Algo Ocurrió" %}!</h3>
+			    <hr>
+			    <small>{% trans "Parece que no tienes los permisos necesarios para acceder a esta página" %}</small>
+
+			    <footer>
+			        <a href="{% url 'inicio' %}"><i class="zmdi zmdi-arrow-back"></i></a>
+			        <a href="{% url 'inicio' %}"><i class="zmdi zmdi-home"></i></a>
+			    </footer>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

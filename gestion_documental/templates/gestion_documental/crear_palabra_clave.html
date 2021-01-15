@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<div class="container">
+	<div class="card">
+		<div class="card-header">
+			<h1><legend><h3>{{ accion }} Palabra Clave</h3></legend></h1>
+			{% if messages %}
+				{% for message in messages %}
+					<div class="row">
+		                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+		                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+		                    <p>{{ message }}</p>
+		                </div>
+		            </div>
+				{% endfor %}
+			{% endif %}	
+		</div>
+		<form action="" method="POST" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div class="card-body card-padding">
+				<div class="row">
+	                <div class="col-md-4 col-md-offset-4">
+	                    <div class="input-group fg-float {{form.nombre.css_classes}}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line requerido">
+	                            <label for="id_nombre" class="control-label requerido">{{ form.nombre.label }}:</label>
+	                            {{form.nombre}}
+	                        </div>
+	                        {% for error in form.nombre.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+	                    </div>
+	                </div>
+	            </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="Aceptar" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                    </div>
+                </div>
+			</div>
+        </form>
+	</div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block css %}
+	<link rel="stylesheet" href="{% static 'Scripts/tagsinput/bootstrap-tagsinput.css' %}">
+	<style>
+		.label-info {
+			background-color: #2196f3;
+		}
+
+		.bootstrap-tagsinput {
+			background-color: #fff;
+			border: 1px solid #e0e0e0;
+			border-left: 0;
+			border-right: 0;
+			border-top: 0;
+			box-shadow: inherit;
+			display: inherit;
+			padding: inherit;
+			color: #555;
+			vertical-align: inherit;
+			border-radius: inherit;
+			max-width: 100%;
+			line-height: inherit;
+			cursor: text;
+			width: 100%;
+		}
+
+		.bootstrap-tagsinput .tag {
+			margin-right: 2px;
+			margin-bottom: 2px;
+			color: white;
+			display: inline-block;
+			font-size: 12px;
+		}
+
+		.bootstrap-tagsinput .twitter-typeahead .tt-hint {
+			top: 8px !important;
+			left: -5px !important;
+		}
+	</style>
+{% endblock css %}
+
+{% block contenido %}
+	<div class="container">
+		<form action="" method="post" enctype="multipart/form-data">
+			<div class="card">
+				<div class="card-header">
+					<h2>
+						<legend><h3>{% trans "Eliminar Registro" %}</h3></legend>
+					</h2>
+					{% if messages %}
+						{% for message in messages %}
+							<div class="row">
+				                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+				                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+				                    <p>{{ message|safe }}</p>
+				                </div>
+				            </div>
+						{% endfor %}
+					{% endif %}
+				</div>
+				{% csrf_token %}
+				<div class="card-body card-padding">
+					<p class="f-15">Seguro que quiere eliminar el registro encontrado en <strong>{{ registro }}</strong> del área <strong>{{ registro.area.nombre|upper }}</strong></p>
+					{% if registro.documentos.all %}
+					<p class="f-15">Al eliminar el registro, se eliminaran los siguientes Documentos:</p>
+					<ul>
+						{% for documento in registro.documentos.all %}
+						<li class="f-14">{{ documento }}</li>
+						{% endfor %}
+					</ul>
+					{% endif %}
+					{% if registro.solicitudregistro_set.all %}
+					<p class="f-15">Al eliminar el registro, se eliminaran las siguientes Solicitudes:</p>
+					<ul>
+						{% for solicitud in registro.solicitudregistro_set.all %}
+						<li class="f-14">Solicitud por <strong>{{ solicitud.usuario_solicita }}</strong>: [ESTADO] {{ solicitud.get_estado_display|upper }}</li>
+						{% endfor %}
+					</ul>
+					{% endif %}
+				</div>
+				<div class="row">
+					<div class="col-md-4 col-md-offset-2">
+						<button class="btn btn-block btn-primary" type="submit" name="eliminar">
+							{% trans "Aceptar" %}
+						</button>
+					</div>
+					<div class="col-md-4">
+						<a class="btn btn-block btn-primary" href="{% if redirect %}{{redirect}}{% else %}{% url 'sgd:busqueda_registros' %}{% endif %}">
+							{% trans "Retroceder" %}
+						</a>
+					</div>
+				</div>
+				<br>
+				<br>
+			</div>
+	    </form>
+	</div>
+{% endblock contenido %}

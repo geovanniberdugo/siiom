@@ -1,0 +1,206 @@
+<script>
+    /*
+    
+    Este codigo, es el encargado de mostrar todo en la lista de detalles, hace las consultas correspondientes
+    al servidor, para mostrar cada detalles de el seguimiento de una requisicion,
+    las consultas son realizadas a travez de AJAX, bajo condicionales en Django, o que quiere decir que no todas
+    las consultas son cargadas al template
+    
+    */
+	jQuery(document).ready(function($) {
+        // se esconden los contenedores
+        $('.row.infor').fadeOut();
+        $('.to_hidden').fadeOut();
+
+        // cuando la tabla esta cargada
+        $("#data-table-command").on('loaded.rs.jquery.bootgrid', function(evento) {
+            // se agrega el evento a el boton de proceso
+            $('.proceso').click(function(event) {
+                // obtiene el id del cual se hizo click
+                var $id = $(this).attr('data-row-id');
+                // se setea el valor del input con el id
+                $('input[name="id_requisicion"]').val($id);
+
+                // se hace una peticion a ajax, para obtener los detalles de la requisicion
+                $.ajax({
+                    url: '{% url "compras:detalles_requisicion_api" 0 %}'.replace('0', $id),
+                    type: 'GET',
+                    success: function(data) {
+                        // array con el orden y campos iniciales
+                        var arr = ['cantidad', 'descripcion', 'referencia', 'marca', 'valor_aprobado', 'total_aprobado', 'forma_pago'];
+                        var to_append = '';  // variable temporal para agregar datos
+                        var suma_total = 0;  // variable temporal para sumar totales
+                        // se recorre data
+                        for (var i = 0; i < data[0].length; i++) {
+                            // data en su posicion 0 es igual a UN ARRAY CON LOS DETALLES DE LA REQUISICION
+                            var tr = '<tr class="!">0</tr>';
+                            var tds = '';
+                            var cls = '';
+                            for (var j = 0; j < arr.length; j++) {
+                                // se reemplaza por el valor de data[0][array][llave del detalle]
+                                tds += '<td>0</td>'.replace('0', data[0][i][arr[j]])
+                                if (arr[j] == 'total_aprobado') { // si es el total aprobado, hace la suma de totales
+                                    suma_total += data[0][i][arr[j]];
+                                }
+                                cls = data[0][i]['class'];  // si viene una clase
+                            }
+                            to_append += tr.replace('!', cls).replace('0', tds);  // reemplaza la clase
+
+                            if (i + 1 == data[0].length) { // antes que sea la ultima
+                                // se crea una fila adicional con los tamaños necesarios para la fila de total
+                                var tds = '';
+                                var tr = '<tr class="!">0</tr>';
+                                for (var x = 0; x < arr.length - 2; x++) {
+                                    tds += '<td></td>'
+                                }
+                                tds += '<td>0</td>'.replace('0', suma_total.toString())
+                                tds += '<td></td>'
+                                to_append += tr.replace('!', 'total').replace('0', tds)
+                            }
+                        }
+                        // se agrega al cuerpo de la tabla como html
+                        $("#table-body").html(to_append);
+
+                        // se agrega la justificacion de la requisicion
+                        $("#justificacion-req").html('<p>0</p>'.replace('0', data[1][0]['justificacion']));  // viene en la posicion 1 de data
+
+                        // si hay datos en la posicion 2 de data
+                        if (data[2].length) {
+                            // si viene incluida la fecha de pago en la primera posicion de data[2]
+                            if (data[2][0]['fecha_pago'] != undefined && data[2][0]['fecha_pago'] != '') {
+                                // muestra el contenedor de informacion
+                                $('.row.infor').fadeIn();
+                                var fecha = 'Fecha aprobada entrega de recurso: <strong>0</strong> ';
+                                var estado = ', Estado de pago: <strong>0</strong>';
+                                var string = '';
+                                // crea el string y lo reemplaza con los datos provenientes del servidor
+                                string += fecha.replace('0', data[2][0]['fecha_pago']);
+                                // si llego un estado de el pago, entonces este tambien es añadido
+                                if (data[2][0]['estado_pago'] != undefined && data[2][0]['estado_pago'] != '') {
+                                    string += estado.replace('0', data[2][0]['estado_pago'])
+                                }
+                                // se agrega a el contenedor designado para este caso
+                                $('.info-pago').html(string);
+                                // se agrega la clase correspondiente, eliminando las demas, con el fin de que no se acumulen las clases
+                                // esto devido a que se están reutilizando los elementos ya existentes
+                                if (data[2][0]['class'] == 'warning') {
+                                    if ($('.info-pago').parent().hasClass('alert-info')) {
+                                        $('.info-pago').parent().removeClass('alert-info');
+                                    }
+                                    $('.info-pago').parent().addClass('alert-warning');
+                                } else {
+                                    if ($('.info-pago').parent().hasClass('alert-warning')) {
+                                        $('.info-pago').parent().removeClass('alert-warning')
+                                    }
+                                    $('.info-pago').parent().addClass('alert-info')
+                                }
+                            } else {
+                                // si no encontró nada en la fecha de pago, entonces esconde el contenedor
+                                $('.row.infor').fadeOut();
+                            }
+                        }
+                    }
+                })
+                $.ajax({
+                    url: '{% url "compras:observaciones_requisicion" 0 %}'.replace('0', $id),  // se hace la peticion para obtener las observaciones
+                    type: 'GET',
+                    success: function(data) {
+                        var arr = ['observacion', 'usuario']; // se crea un array con los valores a sacar del JSON
+                        // se crean los elementos html a usar para cada observacion
+                        var div = '<div class="col-md-8">0</div>';
+                        var h5 = '<h5>0</h5>';
+                        var to_append = '';
+                        var br = '<br />';
+                        var quote = '<blockquote>0</blockquote>';
+                        var span = '<span style="text-align:right;display:inherit;font-style:italic;font-size:14px">0</span>';  // se definen estilos para el span
+
+                        // se busca l barra de progreso, y se reemplazan los valores necesarios para que funcione, de acuerdo a las especificaciones del serviror
+                        $('#progress-id').attr('style', 'width: 0%'.replace('0', data[0][0]['progreso'])).attr('aria-valuenow', '0'.replace('0', data[0][0]['progreso'])).attr('data-content', '0%'.replace('0', data[0][0]['progreso']));
+                        // si viene la clave 'clase' en el diccionario
+                        if (data[0][0]['clase'] != undefined && data[0][0]['clase'].length) {
+                            // se asegura de agregar la clase correctamente y no sobreescribir otras
+                            if (data[0][0]['clase'] != '') {
+                                if ($('#progress-id').hasClass('progress-bar-success') || $('#progress-id').hasClass('progress-bar-danger') || $('#progress-id').hasClass('progress-bar-warning') || $('#progress-id').hasClass('progress-bar-info')) {
+                                    $('#progress-id').removeClass('progress-bar-danger');
+                                    $('#progress-id').removeClass('progress-bar-warning');
+                                    $('#progress-id').removeClass('progress-bar-success');
+                                    $('#progress-id').removeClass('progress-bar-info');
+                                }
+                                $('#progress-id').addClass(data[0][0]['clase']);
+                            } else {
+                                $('#progress-id').removeClass('progress-bar-danger');
+                                $('#progress-id').removeClass('progress-bar-warning');
+                                $('#progress-id').removeClass('progress-bar-success');
+                                $('#progress-id').removeClass('progress-bar-info');
+                                $('#progress-id').addClass('progress-bar-warning');
+                            }
+                        } else {
+                            $('#progress-id').removeClass('progress-bar-danger');
+                            $('#progress-id').removeClass('progress-bar-warning');
+                            $('#progress-id').removeClass('progress-bar-success');
+                            $('#progress-id').removeClass('progress-bar-info');
+                            $('#progress-id').addClass('progress-bar-info');
+                        }
+
+                        // luego reemplaza el usuario
+                        for (var i = 0; i < data[1].length; i++) {
+                            str = h5.replace('0', data[1][i]['usuario']) + br + quote.replace('0', data[1][i]['observacion'] + span.replace('0', data[1][i]['fecha']));
+                            to_append += div.replace('0', str);
+                        }
+
+                        // agrega todo el html creado previamente a el contenedor de los blockquotes
+                        $('#contenido').html(to_append)
+
+                        // si hay algun dato mas en data, este sera de los archivos de la requisicion
+                        if (data.length > 2 && data[2].length) {
+                            // crea los archivos en listas no ordenadas
+                            var li = '<li><a href="0" _blank="true">!</a></li>';
+                            var append = '';
+                            for (var i = 0; i < data[2].length; i++){
+                                // reemplaza a ruta por la del servidor
+                                append += li.replace('0', data[2][i]['ruta']).replace('!', data[2][i]['archivo'])
+                            }
+                            $('#archivos').fadeIn();
+                            $('#archivos_list').html(append);
+                        } else {
+                            // si no, esconde el contenedor de los archivos
+                            $('#archivos').fadeOut();
+                        }
+                    },
+                });
+                {% if not empleado %}
+                $.ajax({
+                    {% if jefe %}
+                    url: '{% url "compras:requisicion_comentada_api" 0 %}'.replace('0', $id),
+                    {% elif compras %}
+                    url: '{% url "compras:requisicion_comentada_compras_api" 0 %}'.replace('0', $id),
+                    {% elif jefe_administrativo %}
+                    url: '{% url "compras:requisicion_comentada_jefe_administrativo_api" 0 %}'.replace('0', $id),
+                    {% elif presidencia %}
+                    url: '{% url "compras:requisicion_comentada_presidencia_api" 0 %}'.replace('0', $id),
+                    {% endif %}
+                    type: 'GET',
+                    success: function (data) {
+                        if (data.length) {
+                            if (eval(data)){
+                                $('.to_hidden').fadeOut();
+                            } else {
+                                $('.to_hidden').fadeIn();
+                            }
+                        }
+                    }
+                })
+                {% endif %}
+                // luego de todas las consultas, muestra el modal de las requisiciones
+                $('#toggleModalRequisicion').click();
+            })
+
+
+            {% if CLICK %}
+            // si hay un click por parte del servidor, quiere decir que hay un error, por lo que busca la requisicion con ese iD y lo muestra
+            var $id_to_error = '{{ CLICK }}';
+            $('tr[data-row-id="' + $id_to_error + '"]').find('button.proceso').click();
+            {% endif %}
+        });
+	});
+</script>

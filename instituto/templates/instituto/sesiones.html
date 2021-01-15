@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700 f-20">
+                <legend>
+                    <h3>{% trans "Sesiones del Módulo" %} {{ modulo }}</h3>
+                </legend>
+            </h1>
+            <h5>
+                <a alt="{% trans 'Agregar Sesión' %}" href="{% url 'instituto:crear-sesion' modulo.id %}">{% trans 'Agregar Sesión' %}</a> |
+                <a alt="{% trans 'Volver a Módulos' %}" href="{% url 'instituto:modulos' modulo.materia_id %}">{% trans 'Volver a Módulos' %}</a>
+            </h5>
+            {% include "_alert_messages.html" %} {% include "_alert_non_field_errors.html" %}
+        </div>
+        <div class="card-body card-padding table-responsive">
+            <br>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="data-table-command" class="table table-striped table-vmiddle">
+                        <thead>
+                            <tr>
+                                <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                                <th data-column-id="nombre" data-identifier="true">{% trans "Nombre" %}</th>
+                                <th data-column-id="commands" data-formatter="commands" data-sortable="false">{% trans "Comandos" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sesion in object_list %}
+                            <tr>
+                                <td>{{ sesion.id }}</td>
+                                <td>{{ sesion.nombre }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td></td>
+                                <td>{% trans "No hay sesiones creadas" %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <br />
+                </div>
+            </div>
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        $("#data-table-command").bootgrid({
+            css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+            },
+            caseSensitive: false,
+            formatters: {
+                "commands": function (column, row) {
+                    if (row.id) {
+                        let urlReplace = "{% url 'instituto:editar-sesion' 0 %}".replace('0', row.id);
+                        return '<button type="button" class="btn btn-icon command-edit waves-effect waves-circle"' +
+                            `data-row-id=${row.id} onClick="window.location.href='${urlReplace}'"><span class="zmdi zmdi-edit"></span></button>`;
+                    }
+                    return '';
+                }
+            }
+        });
+    })
+</script> {% endblock %}

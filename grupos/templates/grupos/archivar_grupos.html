@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block contenido %}
+    {% comment %}<div class="load_modal_archivar_grupo"></div>{% endcomment %}
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="f-700">
+                    <legend><h3>{% trans 'Eliminar Grupo' %}</h3></legend>
+                </h1>
+            </div>
+
+            <div class="card-body card-padding">
+                {% include '_alert_non_field_errors.html' %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="input-group {{ form.grupo.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-map"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.grupo.id_for_label }}">{{ form.grupo.label }}*:</label>
+                                {{ form.grupo }}
+                            </div>
+                            <small class="help-block">{{ form.grupo.help_text }}</small>
+                            {{ form.grupo.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                </div>
+                <br>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" name="archivar" class="btn btn-primary btn-block">{% trans 'Eliminar' %}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock contenido %}
+
+{% block js %}
+{% include "grupos/_modal_archivar_grupo.html" %}
+<script type="text/javascript">
+$(document).ready(function () {
+    {% if form.grupo_destino.errors %}
+        var seleccionados = new Array();
+        {% for miembro in form.seleccionados.value %}
+        seleccionados.push('{{ miembro }}');
+        {% endfor %}
+        $('.loaded_into').carga_miembros('add_error', seleccionados);
+    {% else %}
+    _notify(
+        "{% trans 'Recuerde que solo puede eliminar los grupos que no tienen descendientes' %}",
+        undefined, undefined, undefined,
+        'info', 'animated bounceIn', '', 150000
+    )
+    {% endif %}
+
+
+    var last_grupo = 0;
+    var $grupo = $('#{{ form.grupo.id_for_label }}');
+
+
+    $('button[name="archivar"]').click(function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var $grupo_nombre = $grupo.find(':selected').html();
+
+        if (parseInt($grupo.val()) > 0) {
+            swal({
+                title: "¿Estás seguro que deseas eliminar el grupo de 0?".replace('0', $grupo_nombre),
+                text: "Ten en cuenta que no podrás volver a recuperar la información de este grupo de amistad.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Confirmar",
+                cancelButtonText: "Cancelar",
+                closeOnConfirm: true,
+            }, function (isConfirm){
+                if (isConfirm) {
+                    if (last_grupo != $grupo.val()) {
+                        last_grupo = $grupo.val();
+                        $('.loaded_into').carga_miembros('update', {grupo_nombre: $grupo_nombre});
+                        $('.loaded_into').carga_miembros('reload');
+                    } else {
+                        $('#modal-eliminar-grupo').modal('show');
+                    }
+                }
+            });
+        }
+    });
+});
+
+</script>
+{% endblock %}

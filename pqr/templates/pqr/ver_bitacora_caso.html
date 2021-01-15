@@ -1,0 +1,604 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/css/lightGallery.css' %}">
+<link href="{% static 'dropzone/dist/min/dropzone.min.css' %}" rel="stylesheet">
+<link href="{% static 'dropzone/dist/app_2.min.css' %}" rel="stylesheet">
+<style>
+	#side {
+		height: 400px;
+	}
+</style>
+{% endblock css %}
+
+{% block contenido %}
+{% if mismo %}
+<div class="modal fade" id="modalAgregarParticipante" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans "Añadir un Participante" %}</h4>
+            </div>
+	        <form action="" method="POST" id="form-solicitud" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+	            	<div class="row">
+	            		<div class="input-group fg-float {{ form_integrante.integrante.css_classes }}">
+			                <p>Escoja un empleado para invitarlo a participar en este caso</p>
+			                {{ form_integrante.integrante }}
+			                {% for error in form_integrante.integrante.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+			            </div>
+	            	</div>
+	            	<div class="row">
+                        <div class="input-group {{ form_integrante.mensaje.css_classes }}">
+                            {{ form_integrante.mensaje }}
+                            {% for error in form_integrante.mensaje.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+	            	</div>
+	            </div>
+	            <div class="modal-footer">
+	            	{{ form_integrante.caso }}
+	            	{{ form_integrante.emisor }}
+	                <button type="submit" name="integrante" class="btn btn-link">Aceptar</button>
+	                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalEliminarParticipante" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans "Eliminar un Participante" %}</h4>
+            </div>
+	        <form action="" method="POST" id="form-solicitud" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+	            	<div class="row">
+	            		<div class="col-md-12">
+		            		<p>Escoja un Empleado para eliminar de el caso actual</p>
+		            		<div class="input-group fg-float {{ form_eliminar_integrante.integrante.css_classes }}">
+		            		<span class="input-group-addon"><i class="zmdi zmdi-"></i></span>
+                            <div class="fg-line">
+			               		{{ form_eliminar_integrante.integrante }}
+                            </div>
+			                {% for error in form_eliminar_integrante.integrante.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+				            </div>
+	            		</div>
+	            	</div>
+	            </div>
+	            <div class="modal-footer">
+	                <button type="submit" name="eliminar_integrante" class="btn btn-link">Aceptar</button>
+	                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalNarrower4" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans "Mensaje Para Cerrar El Caso" %}</h4>
+            </div>
+	        <form action="" method="POST" id="form_cerrar_caso" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+	            	<div class="row">
+	            		<div class="col-md-12">
+		            		<p>Generar una respuesta a este caso:</p>
+		            		<div class="input-group fg-float {{ form_cerrar_caso.mensaje.css_classes }}">
+		            		<span class="input-group-addon"><i class="zmdi zmdi-"></i></span>
+                        <div class="fg-line">
+	               					{{ form_cerrar_caso.mensaje }}
+                        </div>
+				                {% for error in form_cerrar_caso.mensaje.errors %}
+		                        <small class="help-block">{{error}}</small>
+		                    {% endfor %}
+				            </div>
+	            		</div>
+	            	</div>
+	            </div>
+	            <div class="modal-footer">
+									{{ form_cerrar_caso.caso }}
+									{{ form_cerrar_caso.empleado }}
+									{{ form_cerrar_caso.importante }}
+	                <button type="submit" name="cerrar_caso" class="btn btn-link">Aceptar</button>
+	                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="modal fade" id="modalNarrower3" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans "Datos de el caso" %}</h4>
+            </div>
+            <div class="modal-body">
+            	<div class="row">
+            		<div class="col-md-12">
+            			<h5>Nombre Solicitante:</h5>
+            			<p>{{ caso.nombre|upper }}</p>
+            			<h5>Email Solicitante:</h5>
+            			<p>{{ caso.email }}</p>
+            			<h5>Dirección Solicitante:</h5>
+            			<p>{{ caso.direccion }}</p>
+            			<h5>Telefono Solicitante:</h5>
+            			<p>{{ caso.telefono }}</p>
+            			<h5>Fecha Ingreso Caso:</h5>
+            			<p>{{ caso.fecha_registro }}</p>
+            			{% if caso.fecha_acontecimiento %}
+            			<h5>Fecha de hechos:</h5>
+            			<p>{{ caso.fecha_acontecimiento }}</p>
+            			{% endif %}
+            			<h5>Descripcion de el caso:</h5>
+            			<p>{{ caso.descripcion }}</p>
+
+            		</div>
+            	</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalNarrower5" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{% trans "Añadir archivos al caso" %}</h4>
+            </div>
+            <div class="modal-body">
+            	<div class="row">
+            		<div class="col-md-12">
+                        <form class="dropzone" id="dropzone-upload" enctype="multipart/form-data">
+                            {% csrf_token %}
+                        </form>
+            		</div>
+            	</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link" id="send-files">Aceptar</button>
+                <button type="button" class="btn btn-link" data-dismiss="modal" id="cancel-send-files">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+	<div class="block-header">
+        <h2>{{ caso.asunto }}</h2>
+    </div>
+
+    <div class="card m-b-0" id="messages-main">
+        <div class="ms-menu">
+            <div class="listview lv-user m-t-20">
+                <div class="lv-item media active">
+                    <div class="lv-avatar bgm-green pull-left" data-id-empleado="{{ caso.empleado_cargo.id }}" data-id-color="green">{{ caso.empleado_cargo.primer_nombre|first }}</div>
+                    <div class="media-body">
+                        <div class="lv-title">{{ caso.empleado_cargo.primer_nombre|upper }} {{ caso.empleado_cargo.primer_apellido|upper }}</div>
+                        <div class="lv-small" title="{% if caso.empleado_cargo.ultimo_mensaje %}{{ caso.empleado_cargo.ultimo_mensaje }}{% else %}Caso revisado en {{ caso.fecha_registro }}{% endif %}">{% if caso.empleado_cargo.ultimo_mensaje %}{{ caso.empleado_cargo.ultimo_mensaje|truncatewords:3 }}{% else %}Caso revisado en {{ caso.fecha_registro }}{% endif %}</div>
+                    </div>
+                </div>
+            	{% for integrante in integrantes %}
+                <div class="lv-item media active">
+                    <div class="lv-avatar bgm-{% cycle 'orange' 'red' 'blue' 'deeppurple' 'cyan' 'indigo' 'pink' 'lime' 'yellow' 'brown' 'gray' 'black' %} pull-left" data-id-color="{% cycle 'orange' 'red'  'blue' 'deeppurple' 'cyan' 'indigo' 'pink' 'lime' 'yellow' 'brown' 'gray' 'black' %}" data-id-empleado="{{ integrante.id }}">{{ integrante.primer_nombre|first }}</div>
+                    <div class="media-body">
+                        <div class="lv-title">{{ integrante.primer_nombre|upper }} {{ integrante.primer_apellido|upper }}</div>
+                        <div class="lv-small" title="{% if not integrante.mensaje %}Fecha Invitación {{ integrante.invitacion.fecha.date }}{% else %}{{ integrante.mensaje }}{% endif %}">{% if not integrante.mensaje %}Fecha Invitación {{ integrante.invitacion.fecha.date }}{% else %}{{ integrante.mensaje|truncatewords:3 }}{% endif %}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="ms-body">
+            <div class="listview lv-message">
+                <div class="lv-header-alt clearfix">
+                    <div id="ms-menu-trigger">
+                        <div class="line-wrap">
+                            <div class="line top"></div>
+                            <div class="line center"></div>
+                            <div class="line bottom"></div>
+                        </div>
+                    </div>
+
+                    <div class="lvh-label hidden-xs">
+                        <span class="c-black">{% trans "Caso No." %}{{ caso.id }}</span>
+                    </div>
+
+                    <ul class="lv-actions actions">
+                    	{% if mismo and not caso.cerrado %}
+                        <li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Esta opción te permitirá escribir un mensaje importante" title="" data-original-title="Importante">
+                        	<div class="checkbox">
+		                        <label>
+		                            <input type="checkbox" value="" name="checkbox_importante">
+		                            <i class="input-helper"></i>
+		                            <i class="zmdi zmdi-star"></i>
+		                        </label>
+		                    </div>
+                        </li>
+                        <li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Esta opción te permitirá agregar a un integrante nuevo a esta discusión" title="" data-original-title="Agregar Integrante">
+                            <a data-toggle="modal" id="toggleModalAgregarParticipante" href="#modalAgregarParticipante">
+								<i class="zmdi zmdi-plus"></i>
+                            </a>
+                        </li>
+                        <li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Esta opción te permitirá eliminar a un integrante perteneciente a esta discusión" title="" data-original-title="Eliminar Integrante">
+                            <a data-toggle="modal" id="toggleModalEliminarParticipante" href="#modalEliminarParticipante">
+								<i class="zmdi zmdi-minus"></i>
+                            </a>
+                        </li>
+                        <li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Enviar mensaje para finalizar el caso" title="" data-original-title="Cerrar">
+                            <a data-toggle="modal" id="toggleModal4" href="#modalNarrower4">
+								<i class="zmdi zmdi-tag-close"></i>
+                            </a>
+                        </li>
+                        <li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Editar los datos de el caso" title="" data-original-title="Editar">
+                            <a href="{% url 'pqr:editar_caso' caso.id %}">
+								<i class="zmdi zmdi-edit"></i>
+                            </a>
+                        </li>
+                    	{% endif %}
+                        {% if not caso.cerrado %}
+                        <li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Te permitirá agregar archivos a este caso" title="" data-original-title="Adjuntar">
+                            <a id="attachment" data-toggle="modal" id="toggleModal5" href="#modalNarrower5">
+								<i class="zmdi zmdi-attachment-alt"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    	<li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Previsualización de los archivos que pertenecen a este caso" title="" data-original-title="Ver archivos">
+                            <a class="thumbnai">
+								<i class="zmdi zmdi-file"></i>
+                            </a>
+                        </li>
+                    	<li data-trigger="hover" data-toggle="popover" data-placement="bottom" data-content="Te permitirá conocer los detalles del caso" title="" data-original-title="Detalle del caso">
+                            <a data-toggle="modal" id="toggleModal3" href="#modalNarrower3">
+								<i class="zmdi zmdi-eye"></i>
+                            </a>
+                        </li>
+                        <!--<li class="dropdown">
+                            <a href="" data-toggle="dropdown" aria-expanded="true">
+                                <i class="zmdi zmdi-sort"></i>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="">Latest</a>
+                                </li>
+                                <li>
+                                    <a href="">Oldest</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="" data-toggle="dropdown" aria-expanded="true">
+                                <i class="zmdi zmdi-more-vert"></i>
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li>
+                                    <a href="">Refresh</a>
+                                </li>
+                                <li>
+                                    <a href="">Message Settings</a>
+                                </li>
+                            </ul>
+                        </li>-->
+                    </ul>
+                </div>
+
+                <div class="lv-body mCustomScrollbar scrollbarcustom" id="side">
+                	<div class="lv-item media ">
+                        <div class="lv-avatar bgm-teal pull-left" data-trigger="hover" data-toggle="popover" data-placement="bottom right" data-content="{{ caso.nombre }}" title="" data-original-title="Nombre Solicitante">{{ caso.nombre|first }}</div>
+                        <div class="media-body">
+                            <div class="ms-item bgm-teal">
+                                {{ caso.descripcion }}
+                            </div>
+                            <small class="ms-date"><i class="zmdi zmdi-time"></i> {{ caso.fecha_registro }}</small>
+                        </div>
+                    </div>
+                    {% if caso.documentos.exists %}
+                    {% for documento in caso.get_documentos_iniciales %}
+                	{% comment %}<div class="lv-item media ">
+                        <div class="lv-avatar bgm-teal pull-left" data-trigger="hover" data-toggle="popover" data-placement="bottom right" data-content="{{ caso.nombre }}" title="" data-original-title="Nombre Solicitante"><span><i class="zmdi {% if documento.is_image %}zmdi-image{% else %}zmdi-file{% endif %}"></i></span></div>
+                        <div class="media-body">
+                            <div class="ms-item bgm-teal">
+                                <strong><a href="{{ documento.get_absolute_url }}" class="c-white"><u>{{ documento.get_name }}</u></a></strong>
+                            </div>
+                        </div>
+                    </div>{% endcomment %}
+                	<div class="lv-item media ">
+                        <div class="lv-avatar bgm-teal pull-left" data-trigger="hover" data-toggle="popover" data-placement="bottom right" data-content="{{ caso.nombre }}" title="" data-original-title="Nombre Solicitante"><span><i class="zmdi {% if documento.is_image %}zmdi-image{% else %}zmdi-file{% endif %}"></i></span></div>
+                        <div class="media-body">
+                            <div class="ms-item bgm-teal">
+                                <strong><a href="{{ documento.get_absolute_url }}" class="c-white"><img src="{{ documento.get_url }}" alt="{{ documento.get_name }}" width="150px"></a></strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                	{% for mensaje in caso.comentario_set.all %}
+                    {% if mensaje.empleado == empleado %}
+                        {% if mensaje.documento %}
+                        <div class="lv-item media right" title="{{ mensaje.empleado.primer_nombre }} {{ mensaje.empleado.primer_apellido }}">
+                            <div class="lv-avatar pull-right change_color" data-id-empleado="{{ mensaje.empleado.id }}">{{ mensaje.empleado.primer_nombre|first }}</div>
+                            <div class="media-body">
+                                <div class="ms-item bgm-blue c-white">
+                                    {{ mensaje.mensaje|safe }}
+                                </div>
+                                <small class="ms-date"><i class="zmdi zmdi-time"></i> {{ mensaje.fecha }}</small>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="lv-item media right" title="{{ mensaje.empleado.primer_nombre }} {{ mensaje.empleado.primer_apellido }}">
+                            <div class="lv-avatar pull-right change_color" data-id-empleado="{{ mensaje.empleado.id }}">{{ mensaje.empleado.primer_nombre|first }}</div>
+                            <div class="media-body">
+                                <div class="ms-item {% if mensaje.importante %}bgm-blue c-white{% endif %}">
+                                    {{ mensaje.mensaje }}
+                                </div>
+                                <small class="ms-date"><i class="zmdi zmdi-time"></i> {{ mensaje.fecha }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        {% if mensaje.documento %}
+                        <div class="lv-item media" title="{{ mensaje.empleado.primer_nombre }} {{ mensaje.empleado.primer_apellido }}">
+                            <div class="lv-avatar pull-left change_color" data-id-empleado="{{ mensaje.empleado.id }}">{{ mensaje.empleado.primer_nombre|first }}</div>
+                            <div class="media-body">
+                                <div class="ms-item {% if mensaje.importante %}bgm-blue c-white{% endif %}">
+                                    {{ mensaje.mensaje|safe }}
+                                </div>
+                                <small class="ms-date"><i class="zmdi zmdi-time"></i> {{ mensaje.fecha }}</small>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="lv-item media" title="{{ mensaje.empleado.primer_nombre }} {{ mensaje.empleado.primer_apellido }}">
+                            <div class="lv-avatar pull-left change_color" data-id-empleado="{{ mensaje.empleado.id }}">{{ mensaje.empleado.primer_nombre|first }}</div>
+                            <div class="media-body">
+                                <div class="ms-item {% if mensaje.importante %}bgm-blue c-white{% endif %}">
+                                    {{ mensaje.mensaje }}
+                                </div>
+                                <small class="ms-date"><i class="zmdi zmdi-time"></i> {{ mensaje.fecha }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="lv-footer ms-reply">
+                    <!--<textarea placeholder="What's on your mind..."></textarea>-->
+                    <form id="send_mensaje" action="" method="POST" enctype="multipart/form-data">
+                    	{% csrf_token %}
+	                    {{ form.mensaje }}
+	                    <button type="submit" {% if caso.cerrado %}disabled{% endif %} data-trigger="hover" data-toggle="popover" data-placement="top" data-content="{% if caso.get_semaforo == 'green' %}{% trans "Esta solicitud tiene menos de 3 dias de ingreso" %}{% elif caso.get_semaforo == 'yellow' %}{% trans "Esta solicitud ha superado un limite de 72 Horas" %}{% else %}{% trans "Se ha superado el limite de 96 Horas" %}{% endif %}" title="" data-original-title="Ayuda"><i class="zmdi zmdi-mail-send c-{{ caso.get_semaforo }}"></i></button>
+	                    {{ form.caso }}
+	                    {{ form.empleado }}
+	                    {{ form.importante }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% comment %}<button class="btn btn-float bgm-red m-btn thumbnai"><i class="zmdi zmdi-file"></i></button>{% endcomment %}
+
+
+{% endblock contenido %}
+
+{% block js %}
+<!--<script src='{% static "Scripts/typeahead.bundle.js" %}'></script>-->
+<script src="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/js/lightGallery.min.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bower_components/typeahead.js/dist/typeahead.bundle.min.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bower_components/typeahead.js/dist/bloodhound.min.js' %}"></script>
+<script src="{% static 'dropzone/dist/min/dropzone.min.js' %}"></script>
+<script>
+	$(window).load(function (e) {
+		window.localStorage.removeItem('__/pqr/api/empleados/__data')
+		window.localStorage.removeItem('__/pqr/api/empleados/2__data')
+	});
+	{% if caso.cerrado %}
+	$(window).load(function() {
+			swal({
+					title: "Este Caso está Cerrado",
+					text: "Recuerda que ya hay una respuesta generada en este caso y no puedes hacer nada con el",
+					type: "warning",
+					confirmButtonColor: "#DD6B55",
+					confirmButtonText: "Aceptar",
+					closeOnConfirm: false
+			});
+	});
+	{% endif %}
+	jQuery(document).ready(function($) {
+        {% if messages %}
+            {% for message in messages %}
+                notify('{{ message }}', undefined, undefined, undefined, {% if message.tags == "success" %}'success'{% else %}'warning'{% endif %}, undefined);
+            {% endfor %}
+        {% endif %}
+		$(".scrollbarcustom").mCustomScrollbar({
+		    axis:"y",
+		    theme: "dark"
+		});
+
+		{% if click %}
+		$('#toggleModalAgregarParticipante').click();
+		{% elif click2 %}
+		$('#toggleModalEliminarParticipante').click();
+		{% elif click4 %}
+		$('#toggleModal4').click();
+		{% endif %}
+
+		$('#toggleModalAgregarParticipante').click(function(event) {
+			$('.autocompletar').focus();
+		});
+
+		var states = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            // local: statesArray
+            prefetch: '{% url "pqr:empleados_nombres_views_api" caso.id %}',
+            // remote: {
+            //     url: '{}',// + '?q="%QUERY"',
+            //     // wildcard: '%QUERY',
+            // },
+        });
+
+        states.initialize();
+
+        $('.autocompletar').typeahead(null,{
+            name: 'states',
+            displayKey: 'name',
+            valueKey: 'name',
+            source: states.ttAdapter(),
+            templates: {
+                empty: [
+                    '<div class="empty-message p-15">',
+                    'No se ha podido encontrar lo que busca',
+                    '</div>'
+                ].join('\n'),
+                suggestion: function(data) {
+                    // console.log(data);
+                    // str = "<div><a href='" + data.url + "'>" + data.name + "</a></div>"
+                    str = "<div>" + data.name + "</div>"
+                    return str//$("<div>").text(data.name + data.url).addClass('tt-suggest-page')||$(this).val();
+                }
+            },
+        })
+
+        // $('.autocompletar').bind('typeahead:select', function(ev, suggestion) {
+        //   // console.log(suggestion);
+        // });
+
+        // $('.autocompletar').keydown(function(event) {
+        //     if (event.keyCode == 13) {
+        //         window.location.href = '/' + '?q=' + $(this).val();
+        //     }
+        // });
+
+        $('.thumbnai').click(function () {
+            $(this).lightGallery({
+                thumbnail: true,
+                dynamic: true,
+                dynamicEl: [
+                    {% for documento in caso.documentos.all %}
+                    {% if documento.is_image %}
+                    {
+                        "src": '{{ documento.get_url }}',
+                        "thumb": '{{ documento.get_url }}',
+                        "subHtml": '<h1>{{ documento.get_name }}</h1>'
+                    },
+                    {% endif %}
+                    {% endfor %}
+                ]
+            });
+
+        })
+
+        $('.change_color').each(function (index, obj) {
+        	$aux = $('div[data-id-empleado=' + $(obj).attr('data-id-empleado') + ']').attr('data-id-color')
+
+        	if ($aux === undefined) {
+        		$(obj).addClass('bgm-gray')
+        	} else {
+        		$(obj).addClass('bgm-' + $aux);
+        	}
+        })
+
+        $('.scrollbarcustom').mCustomScrollbar('scrollTo',['bottom',]);
+
+        $('#send_mensaje').submit(function(event) {
+        	$('#{{ form.importante.id_for_label }}').prop('checked', $('input[name="checkbox_importante"]').prop('checked'));
+        });
+
+
+        if($('.dropzone')[0]) {
+            Dropzone.autoDiscover = false;
+            var myDrop = new Dropzone('#dropzone-upload', {
+                url: "{% url 'pqr:subir_archivo_como_bitacora' caso.id %}",
+                addRemoveLinks: true,
+                paramName: 'archivo',
+                autoProcessQueue:false,
+                uploadMultiple: true,
+                maxFiles: 3,
+                parallelUploads: 10,
+                acceptedFiles: 'image/*, application/pdf, application/msword, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            })
+
+            $('#send-files').click(function(event) {
+                if (myDrop.files.length > 0) {
+                    $('.page-loader').fadeIn();
+                    myDrop.processQueue();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                } else {
+                    $('#cancel-send-files').click();
+                }
+            });
+
+            myDrop.on("successmultiple", function (file, response){
+                $('.page-loader').fadeOut();
+                var tag;
+
+                if (response['response_code'] == 400) {
+                    tag = 'danger';
+                    if ('error_fields' in response) {
+                        for (field of response['error_fields']) {
+                            if (!$('#form-pqr input[name="' + field + '"]').parent().parent().hasClass('has-error')) {
+                                $('#form-pqr input[name="' + field + '"]').parent().parent().addClass('has-error');
+                            }
+                            if (field == 'descripcion') {
+                                if (!$('#form-pqr textarea[name="' + field + '"]').parent().parent().hasClass('has-error')) {
+                                    $('#form-pqr textarea[name="' + field + '"]').parent().parent().addClass('has-error');
+                                }
+                            }
+                        }
+                    }
+                    for (file of myDrop.getRejectedFiles()) {
+                        myDrop.removeFile(file);
+                    }
+                    for (file of myDrop.files) {
+                        file.status = Dropzone.QUEUED
+                    }
+                    notify(response['message'], undefined, undefined, undefined, tag, undefined);
+                } else if (response['response_code'] == 200) {
+                    tag = 'success';
+                    notify(response['message'], undefined, undefined, undefined, tag, undefined);
+                    location.reload();
+                } else {
+                    {% comment %}console.log(response);
+                    console.log(typeof response){% endcomment %}
+                    notify("ERROR", undefined, undefined, undefined, tag, undefined);
+                }
+            })
+
+            myDrop.on("error", function(file, response) {
+                $('.page-loader').fadeOut();
+                console.log(response);
+                if (response == "You can't upload files of this type.") {
+                    notify("No puedes subir archivos de este tipo, Asegurate que sea una imagen, PDF, archivo de Word o  Excel", undefined, undefined, undefined, 'danger', undefined);
+                }
+                for (file of myDrop.getRejectedFiles()) {
+                        myDrop.removeFile(file);
+                    }
+                for (file of myDrop.files) {
+                    file.status = Dropzone.QUEUED
+                }
+            })
+        }
+	});
+</script>
+{% endblock js %}

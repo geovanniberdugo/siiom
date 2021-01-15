@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block js %}
+    <script>
+    jQuery(document).ready(function($) {
+        $('#form').submit(function(event) {
+            /* Act on the event */
+            if ($('#id_grupo').val() == '') {
+                swal("Alerta", "Debes escoger un grupo");
+                return false;
+            } else {
+                return true;
+            }
+        });
+    });
+    </script>
+{% endblock js %}
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-20">
+                <legend><h3>Asignar Grupo a {{ miembroEditar }}</h3></legend>
+            </h1> 
+            {% if ok %}
+            <div class="row">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                    <p>Se ha asignado correctamente. <a class="alert-link" href="{% url 'miembros:editar_grupo' miembroEditar.id %}">Volver al perfil.</a></p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data" id="form">
+            {% csrf_token %}
+            <div class="card-body card-padding">
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <p class="f-500 m-b-15 c-black"></p>
+                        {{form.as_p}}
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="aceptar" class="btn btn-primary btn-block" name ="aceptar">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

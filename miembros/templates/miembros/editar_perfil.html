@@ -1,0 +1,370 @@
+{% extends "perfil_base.html" %}
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/estilos_foto_perfil.css' %}">
+<link href="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/css/lightGallery.css' %}" rel="stylesheet">
+<link href="{% static 'Template/jquery/vendors/bower_components/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+    <style>
+        @media screen and (min-width: 767px) {
+            br.space {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 767px){
+            br.space-down{
+                display: none;
+            }
+        }
+
+        .has-error .input-group-addon{
+            border-color: #fff;
+            background-color: initial;
+        }
+
+        .has-success .input-group-addon{
+            border-color: #fff;
+            background-color: initial;
+        }
+
+        .has-warning .input-group-addon{
+            border-color: #fff;
+            background-color: initial;
+        }
+    </style>
+{% endblock css %}
+
+{% block card %}
+<div class="pmb-block">
+    <div class="pmbb-header">
+        <h2><i class="zmdi zmdi-account m-r-5"></i> Información Básica</h2>
+        {% if mismo or perms.miembros.es_administrador %}
+        <ul class="actions">
+            <li class="dropdown">
+                <a href="" data-toggle="dropdown">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </a>
+                
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a data-pmb-action="edit" href="" class="edit-error">Editar</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+    <div class="pmbb-body p-l-30">
+        <div class="pmbb-view">
+            <dl class="dl-horizontal">
+                <dt>Nombre</dt>
+                <dd>{{ miembro.nombre|upper }}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Primer Apellido</dt>
+                <dd>{{ miembro.primer_apellido|upper }}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Segundo Apellido</dt>
+                <dd>{% if miembro.segundo_apellido %}{{ miembro.segundo_apellido|upper }}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Cedula</dt>
+                <dd>{{ miembro.cedula }}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Género</dt>
+                <dd>{{ miembro.get_genero_display|upper }}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Fecha de Nacimiento</dt>
+                <dd>{% if miembro.fecha_nacimiento %}{{ miembro.fecha_nacimiento }}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Estado Civil</dt>
+                <dd>{% if miembro.estado_civil %}{{ miembro.get_estado_civil_display|upper }}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            {% if miembro.estado_civil == 'C' %}
+            <dl class="dl-horizontal">
+                <dt>Casado con</dt>
+                <dd><a href="{% url 'miembros:editar_perfil' miembro.conyugue.id %}" alt="Ver perfil de '{{miembro.conyugue.nombre}}'">{{ miembro.conyugue.nombre|upper }} {{ miembro.conyugue.primer_apellido|upper }}</a></dd>
+            </dl>
+            {% endif %}
+        </div>
+        
+    <form action="" id="form-perfil" method="post" enctype="multpart/form-data">
+        {% csrf_token %}
+        <div class="pmbb-edit">
+            <div class="input-group {{form.nombre.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_nombre" class="requerido control-label">Nombre*:</label>
+                    </dt>
+                    <dd>
+                        <div class="fg-line">
+                            {{form.nombre}}
+                        </div>
+                        {% for error in form.nombre.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="input-group {{form.primer_apellido.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_primer_apellido" class="requerido control-label">Primer Apellido*:</label>
+                    </dt>
+                    <dd>
+                        <div class="fg-line">
+                           {{form.primer_apellido}}
+                        </div>
+                        {% for error in form.primer_apellido.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="input-group {{form.segundo_apellido.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_segundo_apellido" class="control-label">Segundo Apellido:</label>
+                    </dt>
+                    <dd>
+                        <div class="dtp-container dropdown fg-line">
+                            {{form.segundo_apellido}}
+                        </div>
+                        {% for error in form.segundo_apellido.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="input-group {{form.cedula.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_cedula" class="control-label">Cedula*:</label>
+                    </dt>
+                    <dd>
+                        <div class="dtp-container dropdown fg-line">
+                            {{form.cedula}}
+                        </div>
+                        {% for error in form.cedula.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="input-group {{form.genero.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_genero" class="requerido control-label">Género*:</label>
+                    </dt>
+                    <dd>
+                        <div class="fg-line">
+                            {{form.genero}}
+                            {% for error in form.genero.errors %}
+                            <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </dd>
+                </dl>
+            </div>
+            <div class="input-group {{form.fecha_nacimiento.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_fecha_nacimiento" class="control-label">Fecha de Nacimiento:</label>
+                    </dt>
+                    <dd>
+                        {{form.fecha_nacimiento}}
+                        {% for error in form.fecha_nacimiento.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            <div class="input-group {{form.estado_civil.css_classes}} col-xs-12">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_estado_civil" class="control-label">Estado Civil:</label>
+                    </dt>
+                    <dd>
+                        <div class="fg-line">
+                            {{form.estado_civil}}
+                        </div>
+                        {% for error in form.estado_civil.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            {% if admin %}
+            <div class="input-group {{form.conyugue.css_classes}} col-xs-12" id="cpm1">
+                <dl class="dl-horizontal">
+                    <dt class="p-t-10">
+                        <label for="id_conyugue" class="control-label" id="label_conyugue">Casado Con:</label>
+                    </dt>
+                    <dd>
+                        <div class="fg-line">
+                            {{form.conyugue}}
+                        </div>
+                        {% for error in form.conyugue.errors %}
+                        <small class="help-block">{{error}}</small>
+                        {% endfor %}
+                    </dd>
+                </dl>
+            </div>
+            {% endif %}
+            <div class="m-t-30">
+                <button type="submit" name="aceptar" class="btn btn-primary btn-sm">Guardar</button>
+                <button data-pmb-action="reset" class="btn btn-link btn-sm">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="pmb-block">
+    <div class="pmbb-header">
+        <h2><i class="zmdi zmdi-phone m-r-5"></i> Infomación de Contacto</h2>
+        
+        {% if mismo or perms.miembros.es_administrador %}
+        <ul class="actions">
+            <li class="dropdown">
+                <a href="" data-toggle="dropdown">
+                    <i class="zmdi zmdi-more-vert"></i>
+                </a>
+                
+                <ul class="dropdown-menu dropdown-menu-right">
+                    <li>
+                        <a data-pmb-action="edit" href="" class="edit-error">Editar</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        {% endif %}
+    </div>
+    <div class="pmbb-body p-l-30">
+        <div class="pmbb-view">
+            <dl class="dl-horizontal">
+                <dt>Telefono</dt>
+                <dd>{% if miembro.telefono %}{{miembro.telefono}}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Celular</dt>
+                <dd>{% if miembro.celular %}{{miembro.celular}}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Barrio</dt>
+                <dd>{% if miembro.barrio %}{{miembro.barrio}}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Dirección</dt>
+                <dd>{% if miembro.direccion %}{{miembro.direccion|upper}}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>E-mail</dt>
+                <dd>{% if miembro.email %}{{miembro.email}}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+            <dl class="dl-horizontal">
+                <dt>Profesión</dt>
+                <dd>{% if miembro.profesion %}{{miembro.profesion|upper}}{% else %}SIN DATOS{% endif %}</dd>
+            </dl>
+        </div>
+        <div class="pmbb-edit">
+            <div class="input-group {{form.telefono.css_classes}} col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">
+                    <label for="id_telefono" class="requerido control-label">Telefono:</label>
+                </dt>
+                <dd>
+                    <div class="fg-line">
+                        {{form.telefono}}
+                    </div>
+                    {% for error in form.telefono.errors %}
+                    <small class="help-block">{{error}}</small>
+                    {% endfor %}
+                </dd>
+            </dl>
+            </div>
+            <div class="input-group {{form.celular.css_classes}} col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">
+                    <label for="id_celular" class="requerido control-label">Celular:</label>
+                </dt>
+                <dd>
+                    <div class="fg-line">
+                        {{form.celular}}
+                    </div>
+                    {% for error in form.celular.errors %}
+                    <small class="help-block">{{error}}</small>
+                    {% endfor %}
+                </dd>
+            </dl>
+            </div>
+            <div class="input-group {{form.barrio.css_classes}} col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">
+                    <label for="id_barrio" class="requerido control-label">Barrio:</label>
+                </dt>
+                <dd>
+                    <div class="fg-line">
+                        {{form.barrio}}
+                    </div>
+                    {% for error in form.barrio.errors %}
+                    <small class="help-block">{{error}}</small>
+                    {% endfor %}
+                </dd>
+            </dl>
+            </div>
+            <div class="input-group {{form.direccion.css_classes}} col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">
+                    <label for="id_direccion" class="requerido control-label">Dirección:</label>
+                </dt>
+                <dd>
+                    <div class="fg-line">
+                        {{form.direccion}}
+                    </div>
+                    {% for error in form.direccion.errors %}
+                    <small class="help-block">{{error}}</small>
+                    {% endfor %}
+                </dd>
+            </dl>
+            </div>
+            <div class="input-group {{form.email.css_classes}} col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">
+                    <label for="id_email" class="requerido control-label">E-mail:</label>
+                </dt>
+                <dd>
+                    <div class="fg-line">
+                        {{form.email}}
+                    </div>
+                    {% for error in form.email.errors %}
+                    <small class="help-block">{{error}}</small>
+                    {% endfor %}
+                </dd>
+            </dl>
+            </div>
+            <div class="input-group {{form.profesion.css_classes}} col-xs-12">
+            <dl class="dl-horizontal">
+                <dt class="p-t-10">
+                    <label for="id_profesion" class="requerido control-label">Profesión:</label>
+                </dt>
+                <dd>
+                    <div class="fg-line">
+                        {{form.profesion}}
+                    </div>
+                    {% for error in form.profesion.errors %}
+                    <small class="help-block">{{error}}</small>
+                    {% endfor %}
+                </dd>
+            </dl>
+            </div>
+            <div class="m-t-30">
+                <button type="submit" name="aceptar" class="btn btn-primary btn-sm">Guardar</button>
+                <button data-pmb-action="reset" class="btn btn-link btn-sm">Cancelar</button>
+            </div>
+        </div>
+    </form>
+    </div>
+{% endblock %}

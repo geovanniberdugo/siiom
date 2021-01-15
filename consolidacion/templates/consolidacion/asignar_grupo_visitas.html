@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block css %}
+<style>
+    #mapa2 {
+        height: 500px;
+    }
+</style>
+{% endblock css %}
+
+
+{% block contenido %}
+<div class="modal fade" id="modalNarrower3" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Asignar Visitante A Grupo</h4>
+            </div>
+	        <form action="" method="POST" id="" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+                    <div id="mapa2"></div>
+	            </div>
+	            <div class="modal-footer">
+	                {% comment %}<button type="submit" name="aceptar" class="btn btn-link">Aceptar</button>{% endcomment %}
+	                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<a data-toggle="modal" id="toggleModal3" href="#modalNarrower3"></a>
+<div class="modal fade" id="modalNarrower4" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">¿Seguro de asignar Visita a Grupo?</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="acepta-asignar" class="btn btn-link">Aceptar</button>
+                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<a data-toggle="modal" id="toggleModal4" href="#modalNarrower4"></a>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend>
+                    <h3 class="f-700 f-20">Asignar A Grupo</h3>
+                </legend>
+                {% if messages %}
+					{% for message in messages %}
+						<div class="row">
+			                <div class="alert {% if message.tags == "success" %}alert-success {% elif message.tags == "warning" %}alert-warning {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+			                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+			                    <p>{{ message|safe }}</p>
+			                </div>
+			            </div>
+					{% endfor %}
+				{% endif %}
+            </h1>
+        </div>
+        <div class="card-body card-padding">
+            <br>
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{ form.fecha_final.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_inicial.id_for_label }}" class="fg-label requerido control-label">{{ form.fecha_inicial.label }}:</label>
+                                {{ form.fecha_inicial }}
+                            </div>
+                            {% for error in form.fecha_inicial.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.fecha_final.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-money-box"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_final.id_for_label }}" class="fg-label requerido control-label">{{ form.fecha_final.label }}:</label>
+                                {{ form.fecha_final }}
+                            </div>
+                            {% for error in form.fecha_final.errors %}
+	                        	<small class="help-block">{{error}}</small>
+	                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                    </div>
+                </div>
+            </form>
+            {% if visitas %}
+            <div class="card-header">
+                <h1>
+                    <legend>
+                        <h3>Visitas</h3>
+                    </legend>
+                </h1>
+            </div>
+            <div class="table-responsive">
+                <input type="hidden" name="visita" id="visita_id">
+                <table id="data-table-selection" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th data-column-id="id" data-identifier="true" data-visible="false"></th>
+                            <th data-column-id="nombre" data-identifier="true">Nombre</th>
+                            <th data-column-id="predica" data-identifier="true">Telefono</th>
+                            <th data-column-id="asistencia" data-identifier="true">Dirección</th>
+                            <th data-column-id="edad" data-identifier="true">Edad</th>
+                            <th data-column-id="estado_civil" data-identifier="true">Estado Civil</th>
+                            <th data-column-id="commands" data-formatter="commands" data-sortable="false">Comandos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for visita in visitas %}
+                            <tr id="visita_id_{{visita.id}}">
+                                <td>{{ visita.id }}</td>
+                                <td>{{ visita.get_nombre|upper }}</td>
+                                <td>{{ visita.telefono }}</td>
+                                <td class="direccion">{{ visita.direccion }}</td>
+                                <td>{{ visita.edad }}</td>
+                                <td>{{ visita.get_estado_civil_display }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <br>
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4">
+                    <button class="btn btn-block btn-warning" type="button" name="eliminar-visita">Eliminar Visitas</button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Template/jquery/vendors/bower_components/chosen/chosen.jquery.min.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script src="{% static 'Scripts/utils_for_maps.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    var _row;
+
+    $(document).ready(function () {
+        $("#data-table-selection").bootgrid({
+            css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+            },
+            selection: true,
+            multiSelect: true,
+            rowSelect: true,
+            keepSelection: true,
+            caseSensitive: false,
+            formatters: {
+                "commands": function(column, row) {
+                    return "<button type=\"button\" id=\"visita_" + row.id + "\" class=\"btn btn-icon command-edit waves-effect waves-circle boolean\" data-row-id=\"" + row.id + "\" onClick=\"\"><span class=\"zmdi zmdi-pin\"></span></button> ";
+                }
+            }
+        });
+
+        var $seleccion = [];
+        bootgrid_table_solution("#data-table-selection", $seleccion);
+
+         $("button[name='eliminar-visita']").click(function(event) {
+            if (!$('tr').hasClass('active') || $seleccion.length == 0) {
+                swal("Nadie para Eliminar");
+                event.preventDefault();
+            } else {
+                $.ajax({
+                    url: '{% url "consolidacion:asignar_grupo_visitas" %}',
+                    type: 'POST',
+                    data: {visita: $seleccion, csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()},
+                    success: function(data) {
+                        if (data['response_code'] == 200) {
+                            notify('Se han removido las visitas exitosamente', undefined, undefined, undefined, 'success', 'animated bounceIn', 5000);
+                            for (var _id of data['removed_ids']) {
+                                $("#data-table-selection").bootgrid('remove', _id.toString());
+                            }
+                        } else if (data['response_code'] == 401) {
+                            console.log(data)
+                        } else {
+                            console.log(data)
+                        }
+                    },
+                })
+            }
+        });
+
+
+        $('#{{ form.fecha_inicial.id_for_label }}').datetimepicker({
+            format: 'DD/MM/YY',
+            // daysOfWeekDisabled: [0,2,3,4,5,6],
+            maxDate: moment(),
+        });
+
+        $('#{{ form.fecha_final.id_for_label }}').datetimepicker({
+            useCurrent: false,
+            format: 'DD/MM/YY',
+            // daysOfWeekDisabled: [1,2,3,4,5,6],
+            maxDate: moment(),
+        });
+
+        $('#{{ form.fecha_inicial.id_for_label }}').on("dp.change",function(e){
+            $('#{{ form.fecha_final.id_for_label }}').data("DateTimePicker").minDate(e.date);
+        });
+
+        $('#{{ form.fecha_final.id_for_label }}').on("dp.change",function(e){
+            $('#{{ form.fecha_inicial.id_for_label }}').data("DateTimePicker").maxDate(e.date);
+        });
+
+        $("#data-table-selection").bootgrid().on("loaded.rs.jquery.bootgrid", function(e) {
+            $('.boolean').click(function(event) {
+                $('#toggleModal3').click();
+                $(window).trigger('invalidateSize');
+                $.event.trigger({
+                    type: 'triggered_search_direccion',
+                    direccion: $(this).parent().parent().children()[3].innerHTML
+                });
+                _row = $(this).parent().parent();
+                $('input[name="visita"]').val($(this).parent().parent().attr('data-row-id').toString());
+                {% comment %}return false;{% endcomment %}
+            });
+
+            $(document).on('deleterow', function(event) {
+                _id = event._id_to_delete
+                if (_row[0]) {
+                    _row.remove();
+                    $('tr[data-row-id="' + _id.toString() + '"]').remove();
+                    $("#data-table-selection").bootgrid('remove', _id.toString());
+                    {% comment %}$("#data-table-selection").bootgrid('reload');{% endcomment %}
+                } else {
+                    console.log(_id);
+                    console.log("No existe");
+                }
+            })
+        });
+
+        {% if click %}
+        $('#toggleModal3').click();
+        {% endif %}
+    })
+</script>
+<script>
+    var geocoder = L.Control.Geocoder.nominatim();
+	var control = L.Control.geocoder({
+	    geocoder: geocoder
+	});
+	var marker;
+    var latLng;
+
+    var _redes_json = {};
+    var _redes_array = new Array();
+
+    var yellowIcon = new L.Icon({
+        iconUrl: '{% static "leaflet/icons/img/marker-icon-2x-yellow.png" %}',
+        shadowUrl: '{% static "leaflet/icons/img/marker-shadow.png" %}',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    {% for red in redes %}
+        _redes_json['{{ red.nombre }}'] = new Array();
+    {% endfor %}
+        {% for grupo in grupos %}
+            {% if grupo.get_position %}
+                {% if grupo.red %}
+                _redes_json['{{ grupo.red.nombre }}'].push(
+                    L.marker({{ grupo.get_position }}, {icon: yellowIcon}).bindPopup("<b>{{ grupo.get_nombre }} ({{ grupo.red.nombre|upper}})</b><br />{{ grupo.direccion }}</ br><button type='button' val='{{ grupo.id }}' class='asignar-grupo btn btn-block btn-primary'>Asignar A este grupo</button>") //.openPopup();
+                )
+                {% else %}
+                for (let red in _redes_json) {
+                    _redes_json[red].push(
+                        L.marker({{ grupo.get_position }}, { icon: yellowIcon }).bindPopup("<b>{{ grupo.get_nombre }} ({{ grupo.red.nombre|upper}})</b><br />{{ grupo.direccion }}</ br><button type='button' val='{{ grupo.id }}' class='asignar-grupo btn btn-block btn-primary'>Asignar A este grupo</button>") //.openPopup();
+                    )
+                }
+                {% endif %}
+            {% endif %}
+    {% endfor %}
+
+    for (var red in _redes_json) {
+        _redes_json[red] = L.layerGroup(_redes_json[red]);
+        _redes_array.push(_redes_json[red])
+    }
+
+    {% if request.tenant.schema_name == 'gng' %}
+        var mapa = L.map('mapa2').setView([11.2009692, -74.227405], 15);
+    {%  else %}
+        var mapa = L.map('mapa2').setView([10.999236, -74.805117], 15);
+    {% endif %}
+
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        maxZoom: 18,
+        layers: _redes_array,
+    }).addTo(mapa);
+
+    var _aux_to_fix_error_ = false;
+    mapa.on('mouseover', function(event){
+        if (!_aux_to_fix_error_) {
+            mapa.invalidateSize();
+            _aux_to_fix_error_ = true;
+        }
+    })
+
+    var greenIcon = new L.Icon({
+        iconUrl: '{% static "leaflet/icons/img/marker-icon-2x-green.png" %}',
+        shadowUrl: '{% static "leaflet/icons/img/marker-shadow.png" %}',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    var marker_;
+
+    $(window).on('triggered_search_direccion', function(event) {
+        direccion = clean_direccion(event.direccion);
+        if (marker_) {
+            mapa.removeLayer(marker_);
+        }
+        geocoder.geocode(direccion, function(results){
+            {% comment %}console.log(results);{% endcomment %}
+            try {
+                latLng = new L.LatLng(results[0].center.lat, results[0].center.lng);
+                marker_ = new L.Marker(latLng, {icon: greenIcon});
+                marker_.bindPopup("<b>Ubicación Actual</b>").addTo(mapa).openPopup(); // .addTo(mymap)
+                mapa.setView(latLng, 16);
+            } catch (error) {
+
+            }
+        });
+    });
+
+    {% comment %}
+    // codigo que sirve
+    {% for grupo in grupos %}
+    {% if grupo.latitud %}
+    L.marker({{ grupo.get_position }}).addTo(mapa).bindPopup("<b>{{ grupo.get_nombre }} ({{ grupo.red.nombre|upper}})</b><br />{{ grupo.direccion }}") //.openPopup();
+    {% endif %}
+    {% endfor %}
+    {% endcomment %}
+
+    var id_grupo;
+    var id_visita;
+
+    mapa.on('layeradd', function(evento) {
+        $('.asignar-grupo').click(function (event){
+            id_grupo = event.currentTarget.attributes.val.value;
+            id_visita = $('input[name="visita"]').val();
+            $('#toggleModal4').click();
+        });
+    });
+
+    $('button[name="acepta-asignar"]').click(function (event) {
+        $.ajax({
+            url: '{% url "consolidacion:asignar_grupo_visitas_ajax" %}',
+            type: 'POST',
+            data: {
+                csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+                visita: id_visita,
+                grupo: id_grupo
+            },
+            success: function (data) {
+                if (data['response_code'] == 200) {
+                    _visita = data['id_visita'];
+                    {% comment %}$remove = $("tr[data-row-id='0']".replace('0', _visita.toString())){% endcomment %}
+                    {% comment %}$remove = $('#visita_' + _visita.toString()).parent().parent();{% endcomment %}
+                    {% comment %}console.log($remove);{% endcomment %}
+                    {% comment %}$remove.remove();{% endcomment %}
+                    $.event.trigger({
+                        type: 'deleterow',
+                        _id_to_delete: _visita
+                    })
+                    $('input[name="visita"]').val('');
+                    $('#data-table-selection').bootgrid('reload');
+                    $('#modalNarrower3').modal('toggle');
+                    $('#modalNarrower4').modal('toggle');
+                    swal("Buen Trabajo", "Se ha asignado exitosamente la visita a el grupo", "success");
+                    var id_grupo;
+                    var id_visita;
+                } else if (data['response_code'] == 401) {
+                    console.log(data);
+                    $('#modalNarrower4').modal('toggle');
+                    swal("Error", "No se pudo asignar la visita a el grupo", "error");
+                } else {
+                    console.log(data);
+                }
+            }
+        })
+    });
+
+    control.addTo(mapa);
+    L.control.layers(_redes_json).addTo(mapa);
+
+</script>
+{% endblock js %}

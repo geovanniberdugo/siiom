@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block css %}
+	<link rel="stylesheet" href="{% static 'Scripts/tagsinput/bootstrap-tagsinput.css' %}">
+	<link rel="stylesheet" href="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/css/lightGallery.css' %}">
+	<style>
+		.label-info {
+			background-color: #2196f3;
+		}
+
+		.bootstrap-tagsinput {
+			background-color: #fff;
+			border: 1px solid #e0e0e0;
+			border-left: 0;
+			border-right: 0;
+			border-top: 0;
+			box-shadow: inherit;
+			display: inherit;
+			padding: inherit;
+			color: #555;
+			vertical-align: inherit;
+			border-radius: inherit;
+			max-width: 100%;
+			line-height: inherit;
+			cursor: text;
+			width: 100%;
+		}
+
+		.bootstrap-tagsinput .tag {
+			margin-right: 2px;
+			margin-bottom: 2px;
+			color: white;
+			display: inline-block;
+			font-size: 12px;
+		}
+
+		.bootstrap-tagsinput .twitter-typeahead .tt-hint {
+			top: 8px !important;
+			left: -5px !important;
+		}
+
+		.waves-button, .waves-circle {
+			-webkit-mask-image: inherit;
+		}
+
+		.thumbnai.btn {
+			box-shadow: inherit;
+		}
+	</style>
+{% endblock css %}
+
+{% block contenido %}
+<div class="container">
+	<div class="card">
+		<div class="card-header">
+			<h1><legend><h3>Historial de Registros</h3></legend></h1>
+		</div>
+		<div class="card-body card-padding">
+			<div class="row table-responsive">
+                <div class="col-md-12">
+                    <table id="data-table-command" class="table table-striped table-vmiddle">
+                        <thead>
+                            <tr>
+                                <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                                <th data-visible="false" data-identifier="true" data-column-id="docs"></th>
+                                <th data-identifier="true" data-column-id="nombre">{% trans "Departamento" %}</th>
+                                <th data-identifier="true" data-column-id="area">{% trans "Área" %}</th>
+                                <th data-identifier="true" data-column-id="des">{% trans "Descripción" %}</th>
+                                <th data-identifier="true" data-column-id="fecha">{% trans "Fecha" %}</th>
+                                <th data-identifier="true" data-column-id="estante">{% trans "Estante" %}</th>
+                                <th data-identifier="true" data-column-id="caja">{% trans "Caja" %}</th>
+                                <th data-column-id="commands" data-formatter="commands" data-sortable="false">Ver</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registro in registros %}
+                                <tr>
+                                    <td>{{ registro.id }}</td>
+                                    <td>{% for documento in registro.documentos.all %}{% if forloop.first %}{% if documento.is_image %}{{ documento.get_absolute_url }}{% else %}{% for ruta in documento.get_absolute_url %}{% if forloop.first %}{{ ruta }}{% else %}, {{ ruta }} {% endif %}{% endfor %}{% endif %}{% else %},{% if documento.is_image %}{{ documento.get_absolute_url }}{% else %}{% for ruta in documento.get_absolute_url %}{% if forloop.first %}{{ ruta }}{% else %}, {{ ruta }}{% endif %}{% endfor %}{% endif %}{% endif %}{% endfor %}</td>
+                                    <td>{{ registro.area.departamento.nombre|upper }}</td>
+                                    <td>{{ registro.area.nombre|upper }}</td>
+                                    <td>{{ registro.descripcion|upper }}</td>
+                                    <td>{{ registro.fecha|upper }}</td>
+                                    <td>{{ registro.estante }}</td>
+                                    <td>{{ registro.caja }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td colspan="5" style="text-align:center;">{% trans "No se encontraron registros con estas caracteristicas" %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+		</div>
+	</div>
+</div>
+
+
+{% endblock contenido %}
+
+{% block js %}
+	<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+	<script src="{% static 'Template/jquery/vendors/bower_components/lightgallery/light-gallery/js/lightGallery.min.js' %}"></script>
+	<script src="{% static 'Scripts/tagsinput/bootstrap-tagsinput.js' %}"></script>
+	<script>
+		$(window).load(function (e) {
+			window.localStorage.removeItem('__/sgd/palabras_claves_json/__data')
+		})
+		jQuery(document).ready(function($) {
+
+
+			$("#data-table-command").bootgrid({
+                css: {
+                    icon: 'zmdi icon',
+                    iconColumns: 'zmdi-view-module',
+                    iconDown: 'zmdi-expand-more',
+                    iconRefresh: 'zmdi-refresh',
+                    iconUp: 'zmdi-expand-less'
+                    },
+                caseSensitive: false,
+                formatters: {
+                    "commands" : function(column, row) {
+                        
+                        var urls = row.docs.split(',');
+                        var base = "<div class=\"thumbnai btn\">0</div>";
+
+                        var data = "";
+
+                        var display_none = "style=\"display: none !important;\"";
+
+                        for (var i = 0; i < urls.length; i++) {
+                        	if (i == 0) {
+                        		var display = "id=\"\"";
+                        	} else {
+                        		var display = display_none;
+                        	}
+                        	if (urls[i].endsWith('.pdf')) {
+                        		data += "<div class=\"\" data-iframe=\"true\" " + display + " data-src=\"" + urls[i] + "\"><div class=\"lightbox-item p-item\"><button class=\"btn btn-icon command-delete waves-effect waves-circle\"><span class=\"zmdi zmdi-eye\"></span></button></div><div>"
+                        	} else {	
+                        		data += "<div class=\"\" " + display + " data-src=\"" + urls[i] + "\"><div class=\"lightbox-item p-item\"><img src=\"" + urls[i] + "\" style=\"display: none !important;\"><button class=\"btn btn-icon command-delete waves-effect waves-circle\"><span class=\"zmdi zmdi-eye\"></span></button></div></div>"
+                        	}
+                        }
+                    	return base.replace('0', data);
+                    },
+                }
+            });
+
+            $("#data-table-command").on('loaded.rs.jquery.bootgrid', function (event) {
+				$('.open-website').lightGallery({
+				    selector: 'this'
+				});
+
+				$('.thumbnai').lightGallery({
+					enableTouch: true,
+					// thumbnail: true
+				});
+            });
+
+			$('#id_fecha_inicial').datetimepicker({
+				format: 'DD/MM/YYYY',
+			})
+
+			$('#id_fecha_final').datetimepicker({
+				format: 'DD/MM/YYYY',
+			})
+
+	        var citynames = new Bloodhound({
+			  	datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+			  	queryTokenizer: Bloodhound.tokenizers.whitespace,
+			  	prefetch: {
+			    	url: '{% url "sgd:palabras_claves_json" %}',
+			    	filter: function(list) {
+			      		return $.map(list, function(cityname) {
+			        		return { name: cityname };
+			        	});
+			    	}
+			  	}
+			});
+
+			citynames.initialize();
+
+			$('#id_palabras_claves').tagsinput({
+			  	typeaheadjs: {
+			    	name: 'citynames',
+			    	displayKey: 'name',
+			    	valueKey: 'name',
+			    	source: citynames.ttAdapter()
+			  	},
+			  	freeInput: false,
+			});
+
+			$('.tt-input').addClass('form-control')
+
+        	$('#id_palabras_claves').keypress(function(e) {
+        		if (e.keyCode == 13) {
+        			// e.preventDefault();
+        			// $('#id_palabras_claves').tagsinput('add', $(this).val());
+        			return true;
+        		}
+        	})
+
+
+        	$('form').keypress(function(e) {
+        		if (e.keyCode == 13) {
+        			// e.preventDefault();
+        			return false;
+        		}
+        	})
+
+        	// area_tipo_documento_json
+        	function agregarOpciones(data, idCombo){
+				var opciones = '<option value="-1" selected="selected">------</option>';
+				data.forEach(function(item){
+					opciones += '<option value="' + item['id'] + '">' + item['tipo'] + '</option>';
+				});
+				//$("#"+idCombo).empty();
+			    $("#"+idCombo).html(opciones);
+			    $("#"+idCombo).trigger('chosen:updated');
+			}
+
+        	$('#id_area').change(function(event) {
+        		$.ajax({
+        			url: '{% url "sgd:area_tipo_documento_json" %}',
+        			type: 'POST',
+        			data: {'id_area': $(this).val()},
+        			success: function(data) {
+        				agregarOpciones(data, 'id_tipo_documento');
+        				$('#id_tipo_documento').selectpicker('refresh');
+        			}
+        		})
+        	});
+
+
+        	//$("#data-table-command").on('loaded.rs.jquery.bootgrid', function(evento) {
+	        //	$('.tomodal').click(function(event) {
+	        //		var $id = $(this).attr('data-row-id');
+	        //		$('#toggleModal').click();
+	        //		$('input[name="solicitud"]').val($id)
+	        //	});
+        	//})
+		});
+	</script>
+{% endblock js %}

@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+	<form action="" method="post" enctype="multipart/form-data">
+		<div class="card">
+			<div class="card-header">
+				<h2>
+					<legend><h3>{% if requisicion %}{% trans "Editar " %}{% endif %}{% trans "Requisición de Bienes y Servicios" %}{% if requisicion %}{% trans " NO. " %}{{ requisicion.id }}{% endif %}</h3></legend>
+				</h2>
+				{% if messages %}
+					{% for message in messages %}
+						<div class="row">
+			                <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+			                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+			                    <p>{{ message|safe }}</p>
+			                </div>
+			            </div>
+					{% endfor %}
+				{% endif %}
+			</div>
+			{% csrf_token %}
+			<div class="card-body card-padding">
+				<div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>{% trans "Cantidad" %}</th>
+                                <th>{% trans "Descripción" %}</th>
+                                <th>{% trans "Referencia" %}</th>
+                                <th>{% trans "Marca" %}</th>
+                                <th>{% trans "Valor Unitario" %}</th>
+                                <th>{% trans "Forma Pago" %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        	{% for form_detalle in formset_detalles %}
+                        	{% for hidden in form_detalle.hidden_fields %}
+							    {{ hidden }}
+							{% endfor %}
+                            <tr class="form_detalles">
+                        		{% if requisicion %}{{ form_detalle.id }}{% endif %}
+                                <td class="{{ form_detalle.cantidad.css_classes }}">{{ form_detalle.cantidad }}</td>
+                                <td class="{{ form_detalle.descripcion.css_classes }}">{{ form_detalle.descripcion }}</td>
+                                <td class="{{ form_detalle.referencia.css_classes }}">{{ form_detalle.referencia }}</td>
+                                <td class="{{ form_detalle.marca.css_classes }}">{{ form_detalle.marca }}</td>
+                                <td class="{{ form_detalle.valor_aprobado.css_classes }}">{{ form_detalle.valor_aprobado }}</td>
+                                <td class="{{ form_detalle.forma_pago.css_classes }}">{{ form_detalle.forma_pago }}</td>
+                                {% if formset_detalles.can_delete %}
+                                	<td>{{ form_detalle.DELETE }}</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {{ formset_detalles.management_form }}
+                <br>
+                <br class="space">
+                <div class="row">
+                	<div class="col-md-4">
+	                	<div class="input-group {{ form.asunto.css_classes }}">
+					        <span class="input-group-addon">
+					            <i class="zmdi zmdi-tag"></i>
+					        </span>
+					        <div class="fg-line requerido">
+					            <label for="{{ form.asunto.id_for_label }}" class="fg-label requerido control-label">{{ form.asunto.label|title }}:</label>
+					            {{ form.asunto }}
+					        </div>
+					        {% for error in form.asunto.errors %}
+					            <small class="help-block">{{ error }}</small>
+					        {% endfor %}
+					    </div>
+                	</div>
+                	<br class="space">
+                	<div class="col-md-4">
+	                	<div class="input-group {{ form.prioridad.css_classes }}">
+					        <span class="input-group-addon">
+					            <i class="zmdi zmdi-alert-polygon"></i>
+					        </span>
+					        <div class="fg-line requerido">
+					            <label for="{{ form.prioridad.id_for_label }}" class="fg-label requerido control-label">{{ form.prioridad.label|title }}:</label>
+					            {{ form.prioridad }}
+					        </div>
+					        {% for error in form.prioridad.errors %}
+					            <small class="help-block">{{ error }}</small>
+					        {% endfor %}
+					    </div>
+                	</div>
+                	<br class="space">
+                	<div class="col-md-4">
+	                	<div class="input-group {{ form.fecha_solicitud.css_classes }}">
+					        <span class="input-group-addon">
+					            <i class="zmdi zmdi-calendar"></i>
+					        </span>
+					        <div class="fg-line requerido">
+					            <label for="{{ form.fecha_solicitud.id_for_label }}" class="fg-label requerido control-label">{{ form.fecha_solicitud.label|title }}:</label>
+					            {{ form.fecha_solicitud }}
+					        </div>
+					        {% for error in form.fecha_solicitud.errors %}
+					            <small class="help-block">{{ error }}</small>
+					        {% endfor %}
+					    </div>
+                	</div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                	<div class="col-md-12">
+	                	<div class="input-group {{ form.observaciones.css_classes }}">
+					        <span class="input-group-addon">
+					            <i class="zmdi zmdi-comment-alt-text"></i>
+					        </span>
+					        <div class="fg-line requerido">
+					            <label for="{{ form.observaciones.id_for_label }}" class="fg-label requerido control-label">{{ form.observaciones.label|title }}:</label>
+					            {{ form.observaciones }}
+					        </div>
+					        {% for error in form.observaciones.errors %}
+					            <small class="help-block">{{ error }}</small>
+					        {% endfor %}
+					    </div>
+                	</div>
+                </div>
+			</div>
+		</div>
+
+
+        {% for form_adjunto in formset_adjunto %}
+        {% if requisicion %}{{ form_adjunto.id }}{% endif %}
+		<div class="form-adjuntos">
+			<div class="block-header">
+				<h2>{% trans "Adjuntos" %}</h2>
+				<ul class="actions">
+		            <li>
+		                <a href="">
+		                    <i class="zmdi zmdi-minus"></i>
+		                </a>
+		            </li>
+		        </ul>
+			</div>
+
+			<div class="card">
+				<div class="card-body card-padding">
+					<div class="row">
+						{% if not requisicion %}
+						<div class="col-md-6">
+							<div class="input-group {{ form_adjunto.archivo.css_classes }}">
+	                            <span class="input-group-addon">
+	                                <i class="zmdi zmdi-file"></i>
+	                            </span>
+	                            <label for="{{ form_adjunto.archivo.id_for_label }}" class="fg-label requerido control-label">{{ form_adjunto.archivo.label|title }}:</label>
+	                            <br>
+	                            <div class="fileinput fileinput-new" data-provides="fileinput">
+					                <span class="btn btn-primary btn-file m-r-10">
+					                    <span class="fileinput-new">Seleccionar Archivo</span>
+					                    <span class="fileinput-exists">Cambiar</span>
+					                    {{ form_adjunto.archivo }}
+					                </span>
+					                <span class="fileinput-filename"></span>
+					                <a href="#" class="close fileinput-exists" data-dismiss="fileinput">&times;</a>
+					            </div>
+	                            {% for error in form_adjunto.archivo.errors %}
+	                                <small class="help-block">{{ error }}</small>
+	                            {% endfor %}
+	                        </div>
+						</div>
+						{% else %}
+						<div class="col-md-6">
+		                	<div class="input-group {{ form_adjunto.archivo.css_classes }}">
+						        <span class="input-group-addon">
+						            <i class="zmdi zmdi-stack-overflow"></i>
+						        </span>
+						        <div class="fg-line requerido">
+						            <label for="{{ form_adjunto.archivo.id_for_label }}" class="fg-label requerido control-label">{{ form_adjunto.archivo.label|title }}:</label>
+						            {{ form_adjunto.archivo }}
+						        </div>
+						        {% for error in form_adjunto.archivo.errors %}
+						            <small class="help-block">{{ error }}</small>
+						        {% endfor %}
+						    </div>
+	                	</div>
+						{% endif %}
+						<br class="space">
+					</div>
+				</div>
+			</div>
+			{% if formset_adjunto.can_delete %}
+		        {{ form_adjunto.DELETE }}
+		    {% endif %}
+		</div>
+		{% endfor %}
+		{{ formset_adjunto.management_form }}
+		<br>
+		<br>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-4">
+				<button class="btn btn-block btn-primary" type="submit">
+					{% trans "Aceptar" %}
+				</button>
+			</div>
+		</div>
+    </form>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+	<script src="{% static 'Scripts/jquery.formset.js' %}"></script>
+	<script src="{% static 'Scripts/tagsinput/bootstrap-tagsinput.js' %}"></script>
+	<script>
+		jQuery(document).ready(function($) {
+			// $('input[id $="-DELETE"]').each(function(ind, obj) {
+			// 	$(this).addClass('hidden');
+			// })
+			$('#{{ form.fecha_solicitud.id_for_label }}').datetimepicker({
+				format: 'DD/MM/YY',
+				minDate: moment(),
+			})
+
+			$('.form_detalles').formset({
+	            addText: 'Agregar Item',
+	            deleteText: 'Quitar',
+	            prefix: 'detallerequisicion_set',
+	            especial: true,
+	            added: function (row) {
+	            	// var $tipo = row.find('.tipo_doc');
+	            	// var $viejo_select = row.prev(".form-documentos").find(".tipo_doc");
+	            	// $tipo.html($viejo_select.html());
+	            	// $tipo.selectpicker();
+	            }
+	            {% if requisicion %}
+	            // ,removed: function (row) {
+	            // 	console.log(row.children().first().val());
+	            // 	var $id = row.children().first().val()
+	            // 	$('input[name="detallerequisicion_set-' + $id.toString() + '-DELETE"]').prop('checked', true)
+	            // }
+	            {% endif %}
+	        });
+
+	        $('.form-adjuntos').formset({
+	            addText: 'Agregar Item',
+	            deleteText: 'Quitar',
+	            prefix: 'adjunto_set',
+	            especial: true,
+	            added: function (row) {
+	            	// var $tipo = row.find('.tipo_doc');
+	            	// var $viejo_select = row.prev(".form-documentos").find(".tipo_doc");
+	            	// $tipo.html($viejo_select.html());
+	            	// $tipo.selectpicker();
+	            }
+	        });
+		});
+	</script>
+{% endblock js %}

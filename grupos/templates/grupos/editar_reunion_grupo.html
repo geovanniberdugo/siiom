@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% load static %}
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+{% include "grupos/_reportes_js.html" %}
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#{{ form.fecha.id_for_label }}").datetimepicker({
+            format: 'DD/MM/YYYY',
+            maxDate: moment(),
+        });
+
+        {% if not reunion.realizada %}
+        $("#{{ form.no_realizo_grupo.id_for_label }}").attr('checked', true).trigger('change');
+        {% endif %}
+	});
+</script>
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend>
+                    <h3 class="f-700 f-20">Reporte Reunion: Grupo de Amistad ({{ reunion.grupo.nombre|upper }})</h3>
+                </legend>
+            </h1>
+            {% if messages %}
+				{% for message in messages %}
+					<div class="row">
+		                <div class="alert {% if message.tags == "success" %}alert-success {% elif message.tags == "error" %}alert-danger {% else %}alert-warning{% endif %} alert-dismissible" role="alert">
+		                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+		                    <p>{{ message|safe }}</p>
+		                </div>
+		            </div>
+				{% endfor %}
+			{% endif %}
+        </div>
+
+        <form action="" method="POST" id="form-reporte" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card-body card-padding">
+                <br>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.fecha.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha.id_for_label }}" class="fg-label control-label requerido">Fecha en que se realiz&oacute; el grupo:</label>
+                                {{ form.fecha }}
+                            </div>
+                            {% for err in form.fecha.errors %}
+                                <small class="help-block">{{ err }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.predica.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-book"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.predica.id_for_label }}" class="fg-label control-label requerido">Pr&eacute;dica:</label>
+                                {{ form.predica }}
+                            </div>
+                            {% for err in form.predica.errors %}
+                                <small class="help-block">{{ err }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.ofrenda.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-money-box"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.ofrenda.id_for_label }}" class="fg-label control-label requerido">Ofrenda:</label>
+                                {{ form.ofrenda }}
+                            </div>
+                            {% for err in form.ofrenda.errors %}
+                                <small class="help-block">{{ err }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.numeroTotalAsistentes.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-star"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.numeroTotalAsistentes.id_for_label }}" class="fg-label control-label">¿Cu&aacute;l fue la asistencia total de tu grupo incluyendo {{ request.tenant.termino_visitas }} y l&iacute;deres?:</label>
+                                {{ form.numeroTotalAsistentes }}
+                            </div>
+                            {% for err in form.numeroTotalAsistentes.errors %}
+                                <small class="help-block">{{ err }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.numeroVisitas.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-star"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.numeroVisitas.id_for_label }}" class="fg-label control-label requerido">¿Cu&aacute;ntos de ese total de asistentes eran {{ request.tenant.termino_visitas }}?:</label>
+                                {{ form.numeroVisitas }}
+                            </div>
+                            {% for err in form.numeroVisitas.errors %}
+                                <small class="help-block">{{ err }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.numeroLideresAsistentes.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-star"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.numeroLideresAsistentes.id_for_label }}" class="fg-label control-label requerido">¿Cu&aacute;ntos de ese total de asistentes eran los l&iacute;deres del grupo?:</label>
+                                {{ form.numeroLideresAsistentes }}
+                            </div>
+                            {% for err in form.numeroLideresAsistentes.errors %}
+                                <small class="help-block">{{ err }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br class="space-down">
+                <br class="space">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-1">
+                        <div class="input-group {{ form.no_realizo_grupo.css_classes }}">
+                            <div class="fg-line">
+                                <label for="{{ form.no_realizo_grupo.id_for_label }}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Si no realizaste grupo, asegurate de indicar una fecha y checkear este botón" title="" data-original-title="Ayuda" class="checkbox m-r-20">
+                                    {{ form.no_realizo_grupo }}
+                                    <i class="input-helper m-r-20"></i>
+                                    NO Realicé Grupo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" class="btn btn-primary btn-block" name ="aceptar">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

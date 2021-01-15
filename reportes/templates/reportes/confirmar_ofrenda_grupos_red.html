@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    jQuery(document).ready(function($) {
+        $("#data-table-selection").bootgrid({
+            css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+            },
+            caseSensitive: false,
+            formatters: {
+                "confirmar": function(column, row) {
+                    if (row.confirmada == 0) {
+                        return "<div class=\"toggle-switch boolean\"><input type=\"checkbox\" id=\"ts-" + row.id + "\" hidden=\"hidden\"><label id=\"lb-" + row.id + "\" for=\"ts-" + row.id + "\" class=\"ts-helper\"></label></div>"
+                    } else {
+                        return "<div class=\"toggle-switch boolean\"><input type=\"checkbox\" checked=\"checked\" id=\"ts-" + row.id + "\" hidden=\"hidden\"><label id=\"lb-" + row.id + "\" for=\"ts-" + row.id + "\" class=\"ts-helper\"></label></div>"
+                    }
+                }
+            }
+        });
+
+        $("#data-table-selection").bootgrid().on("loaded.rs.jquery.bootgrid", function(e) {
+            $('.boolean').click(function(event) {
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    return false;
+                }
+                $('#toggleModalConfirmarOfrenda').click();
+                $('input[name="reporte"]').val($(this).parent().parent().attr('data-row-id').toString());
+                return false;
+            });
+        });
+
+
+        $('#{{ form.fecha_inicial.id_for_label }}').datetimepicker({
+            format: 'DD/MM/YY',
+            maxDate: moment(),
+        });
+
+        $('#{{ form.fecha_final.id_for_label }}').datetimepicker({
+            useCurrent: false,
+            format: 'DD/MM/YY',
+            maxDate: moment(),
+        });
+
+        $('#{{ form.fecha_inicial.id_for_label }}').keypress(function(event) {
+            event.preventDefault();
+            return false;
+        });
+
+        $('#{{ form.fecha_inicial.id_for_label }}').on("dp.change",function(e){
+            $('#{{ form.fecha_final.id_for_label }}').data("DateTimePicker").minDate(e.date);
+        });
+
+        $('#{{ form.fecha_final.id_for_label }}').on("dp.change",function(e){
+            $('#{{ form.fecha_inicial.id_for_label }}').data("DateTimePicker").maxDate(e.date);
+        });
+
+        {% if vacio %}
+        $(window).load(function() {
+            swal({
+                title: "Lo Sentimos",
+                text: "Parece que no hay reportes en este rango de fecha",
+                type: "warning",
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Aceptar",
+                closeOnConfirm: false
+            });
+        });
+        {% endif %}
+
+        $('button[name="confirmar"]').click(function (event) {
+            var id_reporte = $('input[name="reporte"]').val();
+            $.ajax({
+                url: '{% url "reportes:confirmar_ofrenda_grupos_red" %}',
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+                    confirmar: id_reporte,
+                },
+                success: function (data) {
+                    if (data['response_code'] == 200) {
+                        notify(data['message'], undefined, undefined, undefined, 'success', undefined, 5000);
+                        $('tr[data-row-id="' + id_reporte.toString() + '"]').find('.boolean').find('input[type="checkbox"]').prop('checked', true);
+                        $('button[name="cerrar_modal"]').click();
+                    } else {
+                        notify(data['message'], undefined, undefined, undefined, 'danger', undefined, 5000);
+                    }
+                }
+            })
+        });
+
+    });
+</script>
+
+{% endblock %}
+
+{% block contenido %}
+<div class="modal fade" id="modalNarrowerConfirmarOfrenda" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Verificación</h4>
+            </div>
+	        <form action="" method="POST" id="form-solicitud" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+		            <p>¿Seguro que desea confirmar este sobre?</p>
+	            </div>
+	            <div class="modal-footer">
+                    <input type="hidden" name="reporte" />
+	                <button type="button" name="confirmar" class="btn btn-link">Aceptar</button>
+	                <button type="button" name="cerrar_modal" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<a data-toggle="modal" id="toggleModalConfirmarOfrenda" href="#modalNarrowerConfirmarOfrenda"></a>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend>
+                    <h3 class="f-700 f-20">Confirmar Ofrenda Grupo Por Red</h3>
+                </legend>
+                {% if reuniones %}
+                {% if reuniones.first.grupo.id %}
+                {% endif %}
+                {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="row">
+                            <div class="alert {% if message.tags == "success" %}alert-success {% elif message.tags == "error" %}alert-danger {% else %}alert-warning{% endif %} alert-dismissible" role="alert">
+                                <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                                <p>{{ message }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </h1>
+            {% if ok %}
+                <div class="row">
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Se ha registrado el reporte correctamente.</p>
+                    </div>
+                </div>
+            {% endif %}
+            {% if ya_reportada %}
+                <div class="row">
+                    <div class="alert alert-warning alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Ya ha sido reportada una reunion para esta predica.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-body card-padding">
+            <br>
+            <form action="" method="POST" enctype="multipart/form-data" id="form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-3 grupo">
+                        <div class="input-group fg-line">
+                            <label for="{{ form.grupo.id_for_label }}" class="fg-label requerido">Grupo:</label>
+                            {{ form.grupo }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-3">
+                        <div class="input-group {{ form.descendientes.css_classes }}">
+                            <label for="{{ form.descendientes.id_for_label }}" class="checkbox control-label">
+                                {{ form.descendientes }}
+                                <i class="input-helper m-r-20"></i>
+                                {{ form.descendientes.label }}
+                            </label>
+                            {% for err in form.descendientes.errors %}
+                            <small class="help-block">{{err}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_inicial.id_for_label }}" class="fg-label requerido">Fecha Incial:</label>
+                                {{ form.fecha_inicial }}
+                            </div>
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-money-box"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_final.id_for_label }}" class="fg-label requerido">Fecha Final:</label>
+                                {{ form.fecha_final }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                    </div>
+                </div>
+            </form>
+            {% if reuniones %}
+            <div class="card-header">
+                <h1>
+                    <legend>
+                        <h3>Reportes</h3>
+                    </legend>
+                </h1>
+            </div>
+            <div class="table-responsive">
+                <table id="data-table-selection" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th data-column-id="id" data-identifier="true" data-visible="false"></th>
+                            <th data-column-id="confirmada" data-identifier="false" data-visible="false"></th>
+                            <th data-column-id="nombre" data-identifier="true">Nombre</th>
+                            <th data-column-id="fecha" data-identifier="true">Fecha</th>
+                            <th data-column-id="asistencia" data-identifier="true">Asistentes</th>
+                            <th data-column-id="asisencia" data-identifier="true">Líderes Asistentes</th>
+                            <th data-column-id="visitas" data-identifier="true">Visitas</th>
+                            <th data-column-id="ofrenda" data-identifier="true">Ofrenda</th>
+                            <th data-column-id="confirmar" data-formatter="confirmar" data-sortable="false">Confirmar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mg in reuniones %}
+                            <tr>
+                                <td>{{ mg.id }}</td>
+                                <td>{% if mg.confirmacionEntregaOfrenda %}1{% else %}0{% endif %}</td>
+                                <td>{{ mg.grupo }}</td>
+                                <td>{{ mg.fecha }}</td>
+                                <td>{{ mg.numeroTotalAsistentes }}</td>
+                                <td>{{ mg.numeroLideresAsistentes }}</td>
+                                <td>{{ mg.numeroVisitas }}</td>
+                                <td>${{ mg.ofrenda }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <br>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

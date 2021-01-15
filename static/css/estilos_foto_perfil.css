@@ -1,0 +1,96 @@
+
+/*
+ * Estilos de las fotos, perfil y portada
+ * Hecho por: German Alzate
+ *
+ */
+
+#content-profile {
+	overflow: hidden;
+	border-radius: 50%;
+	background-color: #F2F2F0;;
+	height: 150px;
+	width: 150px;
+}
+
+#profile {
+	background-color:#F2F2F0;
+	border-radius:50%;
+	width:150px;
+	height:150px; 
+	/*background-image:url('{{miembro.foto_perfil.url}}'); */
+	border: 1px solid #A0A09C;
+	margin-left: -12%;
+}
+
+
+#change {
+	/*z-index: 10;*/
+}
+
+#content-profile:hover #change {
+	margin-top: -60px;
+	background-color: #F2F2F0;
+	opacity: .5;
+	z-index: 999999999;
+	position: relative;
+	height: 45%;
+	width: 120%;
+	margin-left: -12px;
+}
+
+#id_foto_perfil {
+	height: 1px;
+	width: 1px;
+	background: transparent;
+	opacity: 0;
+	display: none;
+}
+
+#id_foto_perfil:after{
+	box-shadow: none;
+	display: none;
+}
+
+#id_foto_perfil:before{
+	display: none;
+}
+
+.change>i.btn:not(.btn-link){
+	box-shadow: none;
+}
+
+.change>i.btn{
+	height: 39px;
+}
+
+.lightbox-item:hover:before{
+	background-color: rgba(0,0,0,0);
+}
+
+.pmo-pic:hover #id_foto_perfil{
+	padding: 0px;
+	margin-left: -12px;
+	width: 260px;
+	height: inherit;
+	margin-top: -6px;
+}
+
+.loader-fotop{
+	display: inherit;
+	position: absolute;
+	top: 25%;
+	right: 50%;
+	left: 30%;
+}
+
+@media (max-width: 768px){
+
+	.pmo-stat{
+		background-color: rgba(0,0,0,0) !important;
+	}
+	
+	.loader-fotop{
+		display: none;
+	}
+}

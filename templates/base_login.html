@@ -1,0 +1,39 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html class="login-content">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#0277BD" />
+        <meta name="author" content="Ingeniarte Soft">
+
+        {% include "_pwa_tags.html" %}
+
+        <title>SIIOM: {{ request.tenant.nombre|upper }}</title>
+
+        <!-- Vendor CSS -->
+        <link href="{% static 'Template/jquery/vendors/bower_components/animate.css/animate.min.css' %}" rel="stylesheet">
+        <link href="{% static 'Template/jquery/vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet">
+        <link href="{% static 'Template/jquery/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.css' %}" rel="stylesheet">
+
+        <!-- CSS -->
+        <link href="{% static 'Template/jquery/css/app.min.1.css' %}" rel="stylesheet">
+        <link href="{% static 'Template/jquery/css/app.min.2.css' %}" rel="stylesheet">
+
+        {% block css %}{% endblock %}
+
+        {% include "_analytics.html" %}
+    </head>
+    <body class="login-content">
+
+        {% block content %}{% endblock %}
+
+        <script src="{% static 'Template/jquery/vendors/bower_components/jquery/dist/jquery.min.js' %}"></script>
+        <script src="{% static 'Template/jquery/vendors/bower_components/bootstrap/dist/js/bootstrap.min.js' %}"></script>
+        <script src="{% static 'Template/jquery/vendors/bower_components/Waves/dist/waves.min.js' %}"></script>
+        <script src="{% static 'Template/jquery/vendors/bower_components/bootstrap-sweetalert/lib/sweet-alert.min.js' %}"></script>
+
+        {% block js %}{% endblock %}
+    </body>
+</html>

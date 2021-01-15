@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% load static %}
+{% block js %}
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    jQuery(document).ready(function($) {
+        $("#data-table-command").bootgrid({
+            css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+                },
+            caseSensitive: false,
+            formatters: {
+                "commands" : function(column, row) {
+                    if (row.class == 'c-green' || row.class == 'c-red' || row.class == 'c-blue') {
+                        {% if perms.miembros.es_administrador or perms.miembros.es_tesorero %}
+                        var $link = '/encuentro/asistencia_encuentro/' + row.id + '/';
+                        {% else %}
+                        var $link = '#';
+                        {% endif %}
+                    } else {
+                        var $link = '#';
+                    }
+                    return {% if perms.miembros.es_tesorero or perms.miembros.es_administrador %}"<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/encuentro/agregar_encontrista/" + row.id + "'\"><span class=\"zmdi zmdi-plus\"></span></button> " + {% endif %}{% if perms.miembros.es_administrador %}"<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/encuentro/editar_encuentro/" + row.id + "'\"><span class=\"zmdi zmdi-edit\"></span></button> " + {% endif %} "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/encuentro/listar_encontristas/" + row.id + "'\"><span class=\"zmdi zmdi-eye\"></span></button> " + "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle " + row.class + "\" data-row-id=\"" + row.id + "\"><span class=\"zmdi zmdi-album\" onClick=\"window.location.href='"+$link+"'\"></span></button> "
+                },
+            }
+        });
+
+        // setTimeout(f, 1000);
+        // function f() {
+        //     {% for encuentro in encuentros %}
+        //         {% if encuentro.en_curso %}
+        //             $('tr[data-row-id="' + {{encuentro.id}} + '"]').addClass('success');
+        //         {% endif %}
+        //     {% endfor %}
+        // }
+        setTimeout(ver_encuentros_realizados, 1000);
+        function ver_encuentros_realizados() {
+            // $('button.c-red, button.c-green').click(function(event) {
+            //     var val = $(this).parent().parent().attr('data-row-id')
+            //     window.location.href = "{% url 'encuentros:asistencia_encuentro' 0 %}".replace(0, val);
+            // });
+
+            $('button.c-green').attr('title', 'Estado Activo');
+            $('button.c-red').attr('title', 'Estado Completado');
+        }
+    });
+</script>
+
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700 f-20">
+            	<legend>
+            		<h3>Encuentros</h3>
+                </legend>
+                {% if perms.miembros.es_administrador %}<small><a href="{% url 'encuentros:crear_encuetro' %}">Agregar un nuevo encuentro</a></small>{% endif %}
+            </h1>
+        </div>
+        <div class="card-body card-padding table-responsive">
+            <br>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="data-table-command" class="table table-striped table-vmiddle">
+                        <thead>
+					       	<tr>
+                                <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                                <th data-visible="false" data-identifier="true" data-column-id="class"></th>
+					            <th data-identifier="true" data-column-id="estudiante">Fecha Inicio</th>
+					            <th data-identifier="true" data-column-id="fecha">Fecha Fin</th>
+					            <th data-identifier="true" data-column-id="modulo">Coordinador</th>
+                                <th data-identifier="true" data-column-id="pago">Tesorero</th>
+                                <th data-identifier="true" data-column-id="hotel">Hotel</th>
+                                <th data-identifier="true" data-column-id="grupos">Grupos</th>
+					            <th data-identifier="true" data-column-id="gns">N. Encontristas</th>
+                                {% if encuentros %}
+                                <th data-column-id="commands" data-formatter="commands" data-sortable="false">Comandos</th>
+                                {% endif %}
+					       	</tr>
+				    	</thead>
+				    	<tbody>
+						{% for encuentro in encuentros %}
+							<tr>
+                                <td>{{ encuentro.id}}</td>
+                                <td>{% if encuentro.en_curso and not encuentro.acabado %}c-green{% elif encuentro.tiene_asistencia %}c-blue{% elif encuentro.acabado %}c-red{% else %}c-gray{% endif %}</td>
+                                <td>{{ encuentro.fecha_inicial }}</td>
+								<td>{{ encuentro.fecha_final }}</td>
+								<td>{{ encuentro.coordinador|upper }}</td>
+                                <td>{{ encuentro.tesorero|upper }}</td>
+                                <td>{{ encuentro.hotel }}</td>
+								<td>{% for grupo in encuentro.grupos.all %}{% if forloop.first %}{{ grupo }}{% else %}, {{ grupo }}{% endif %}{% endfor %}</td>
+                                <td>{{ encuentro.num_encontristas }}</td>
+							</tr>
+		                {% empty %}
+		                	<tr>
+                                <td></td>
+                                <td></td>
+		                    	<td colspan="4" class="centrarTexto">No existen Encuentros aún</td>
+		                    </tr>
+						{% endfor %}
+						</tbody>
+                    </table>
+                    <br/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

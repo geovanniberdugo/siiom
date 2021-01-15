@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load static %}
+{% block contenido %}
+<div class="container">
+    <div class="block-header">
+        <h2>Informes</h2>
+    </div>
+    <div class="card">
+        <div class="card-header">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="row">
+                        <div class="alert {% if message.tags == "success" %}alert-success {% elif message.tags == "warning" %}alert-warning {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+                            <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                            <p>{{ message|safe }}</p>
+                        </div>
+                    </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+        <div class="card-body card-padding">
+            <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-2">
+                        <div class="input-group {{form.fecha_inicial.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_inicial.id_for_label }}" class="fg-label requerido control-label">{{ form.fecha_inicial.label }}:</label>
+                                {{ form.fecha_inicial }}
+                            </div>
+                            {% for error in form.fecha_inicial.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group {{form.fecha_final.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar-alt"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_final.id_for_label }}" class="fg-label control-label requerido">{{ form.fecha_final.label }}:</label>
+                                {{ form.fecha_final }}
+                            </div>
+                            {% for error in form.fecha_final.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br class="space">
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button class="btn btn-block btn-primary" type="submit">
+                            Aceptar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% if requisiciones %}
+    <div class="row">
+        <div class="col-sm-12 col-sm-offset-">
+        <!-- Recent Items -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Resultados de la Consulta Por Departamento<small>Datos recolectados de requisiciones entre las fechas {{ form.cleaned_data.fecha_inicial }} - {{ form.cleaned_data.fecha_final }}</small></h2>
+                </div>
+                <div class="card-body m-t-0">
+                    <table class="table table-inner table-vmiddle">
+                        <thead>
+                            <tr>
+                                <th>Departamento</th>
+                                <th style="width: 60px">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for departamento, total in requisiciones.items %}
+                            <tr>
+                                <td class="f-500 c-cyan">{{ departamento|upper }}</td>
+                                <td class="f-500 c-cyan">{{ total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div id="recent-items-chart" class="flot-chart"></div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+
+<!-- Page-Level Plugin Scripts - Morris -->
+<script type="text/javascript">
+  $(document).ready(function(){
+       $('#{{ form.fecha_inicial.id_for_label }}').datetimepicker({
+            format: 'DD/MM/YY',
+            maxDate: moment(),
+        });
+
+        $('#{{ form.fecha_final.id_for_label }}').datetimepicker({
+            useCurrent: false,
+            format: 'DD/MM/YY',
+            maxDate: moment(),
+        });
+
+        $('#{{ form.fecha_inicial.id_for_label }}').on("dp.change",function(e){
+            $('#{{ form.fecha_final.id_for_label }}').data("DateTimePicker").minDate(e.date);
+        });
+
+        $('#{{ form.fecha_final.id_for_label }}').on("dp.change",function(e){
+            $('#{{ form.fecha_inicial.id_for_label }}').data("DateTimePicker").maxDate(e.date);
+        });
+  });
+</script>
+
+{% endblock %}

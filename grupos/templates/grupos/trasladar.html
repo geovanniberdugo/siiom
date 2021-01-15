@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{% trans 'Trasladar Grupo' %} {{ grupo.nombre|upper }}</h3></legend>
+            </h1>
+            
+            {% if messages %}
+            <div class="row">
+                {% for message in messages %}
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                    <p>{{ message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if form.errors %}
+                <div class="row">
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>{% trans 'Ha Ocurrido un error. Por favor valida los campos' %}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card-body card-padding">
+            	<div class="row">
+                    <div class="col-md-12 col-md-offset-">
+                        <div class="input-group {{ form.nuevo.css_classes }}">
+                            <div class="fg-line requerido">
+                               {% trans 'Grupo Actual' %}: <em>{{ grupo.get_parent|lower }}</em><br>
+                               {% trans 'Red' %}: <em>{{ grupo.red.nombre|upper }}</em>
+                            </div>
+                        </div>
+                    </div>
+                    <br class="space">
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <div class="input-group {{form.nuevo.css_classes}}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-account"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="id_grupo" class="control-label requerido">{% trans 'Grupo a trasladar' %}*:</label>
+                                {{ form.nuevo }}
+                            </div>
+                            {{ form.nuevo.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="" class="btn btn-warning btn-block">{% trans 'Trasladar' %}</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1><legend><h3>{% trans "Grupo" %}: {{ grupo.nombre }} ({{ grupo.red.nombre }})</h3></legend></h1>
+        </div>
+
+        <div class="card-body card-padding">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="fg-line">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-portable-wifi c-purple"></i>
+                                </span>
+                                <h5>{% trans "Zona" %}:</h5>
+                                <small>{{ grupo.barrio.zona.nombre }}</small>
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-flag c-pink"></i>
+                                </span>
+                                <h5>{% trans "Barrio" %}:</h5>
+                                <small>{{ grupo.barrio.nombre }}</small>
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-pin c-red"></i>
+                                </span>
+                                <h5>{% trans "Dirección" %}:</h5>
+                                <small>{{ grupo.direccion }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <br class="space-down">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="fg-line">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-calendar c-yellow"></i>
+                                </span>
+                                <h5>{% trans "Día" %} {{ request.tenant.termino_gar }}:</h5>
+                                <small>{{ grupo.get_diaGAR_display|upper }}</small>
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-watch c-gray"></i>
+                                </span>
+                                <h5>{% trans "Hora" %} {{ request.tenant.termino_gar }}:</h5>
+                                <small>{{ grupo.horaGAR }}</small>
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-view-day c-brown"></i>
+                                </span>
+                                <h5>{% trans "Día Discipulado" %}:</h5>
+                                <small>{{ grupo.get_diaDiscipulado_display|upper }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <br class="space-down">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="fg-line">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-time c-green"></i>
+                                </span>
+                                <h5>{% trans "Hora Discipulado" %}:</h5>
+                                <small>{{ grupo.horaDiscipulado }}</small>
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-calendar-note c-orange"></i>
+                                </span>
+                                <h5>{% trans "Fecha de Apertura" %}:</h5>
+                                <small>{{ grupo.fechaApertura }}</small>
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-accounts c-blue"></i>
+                                </span>
+                                <h5>{% trans "Líderes" %}:</h5>
+                                <small>{{ grupo }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock contenido %}

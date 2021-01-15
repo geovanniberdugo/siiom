@@ -1,0 +1,583 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block js %}
+<script src="{% static 'Scripts/funciones.js' %}" type="text/javascript"></script>
+<script src="{% static 'Scripts/IGSearch/IGSearch.js' %}" type="text/javascript"></script>
+    <script>
+        jQuery(document).ready(function($) {
+            $('#{{ form.fecha_inicial.id_for_label }}').datetimepicker({
+                format: 'DD/MM/YY H:m',
+                // minDate: moment(),
+            });
+
+            $('#{{ form.fecha_final.id_for_label }}').datetimepicker({
+                useCurrent: false,
+                format: 'DD/MM/YY',
+                // minDate: moment(),
+            });
+
+            var selected_before = new Array();
+
+            {% if form.errors and not form.red.errors %}
+                {% for value in grupo_errors %}
+                    selected_before.push(['{{ value.0 }}', '{{ value.1 }}']);
+                {% endfor %}
+            {% elif form.instance.id %}
+                {% for value in form.instance.grupos.all %}
+                    selected_before.push(['{{ value.id }}', '{{ value }}']);
+                {% endfor %}
+            {% endif %}
+
+            $('#{{ form.grupos.id_for_label }}').IGSearch({
+                url: "{% url 'encuentros:obtener_grupos' %}",
+                key: 'grupos',
+                items: selected_before,
+                messageError: 'Asegurate de escoger una red',
+                prerequest: function (options) {
+                    options.data.red = $('#{{ form.red.id_for_label }}').val();
+                    return true;
+                }
+            });
+
+            $('#{{ form.coordinador.id_for_label }}').IGSearch({
+                url: "{% url 'encuentros:obtener_coordinadores_tesoreros' %}",
+                key: 'miembros',
+                messageError: 'Asegurate de escoger un grupo primero',
+                prerequest: function (options) {
+                    grupos = $('#{{ form.grupos.id_for_label}}').val();
+                    if (grupos != -1 && grupos != null) {
+                        options.data.grupos = grupos;
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            $('#{{ form.tesorero.id_for_label }}').IGSearch({
+                url: "{% url 'encuentros:obtener_coordinadores_tesoreros' %}",
+                key: 'miembros',
+                messageError: 'Asegurate de escoger un grupo primero',
+                prerequest: function (options) {
+                    grupos = $('#{{ form.grupos.id_for_label}}').val();
+                    if (grupos != -1 && grupos != null) {
+                        options.data.grupos = grupos;
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            {% comment %}var $csrftoken = $("input[name='csrfmiddlewaretoken']").val();  // guarda el nombre del token
+            var selected_before = new Array();
+            var _option_tag = '<option value="{0}">{1}</option>';
+
+
+            {% if form.errors and not form.red.errors %}
+                {% for value in grupo_errors %}
+                    selected_before.push(['{{ value.0 }}', '{{ value.1 }}']);
+                {% endfor %}
+            {% elif form.instance.id %}
+                {% for value in form.instance.grupos.all %}
+                    selected_before.push(['{{ value.id }}', '{{ value }}']);
+                {% endfor %}
+            {% endif %}
+
+
+            function get_in(array, value) {
+                /*
+                Funcion que retorna un indice del array en el caso que el valor pasado como segundo parametro exista
+                trabaja con dos tipos de arrays:
+                - Array de una dimension
+                - Array de dos dimensiones con el valor a buscar en la posicion 0
+                */
+                for (var i = 0; i < array.length; i++) {
+                    // recorre el array por indices de tamano
+                    if (array[i] instanceof Array) {
+                        // si es indice sub[i] es un array
+                        if (array[i][0].toString() == value.toString()) {
+                            // busca en la posicion sub[0] del indice sub[i]
+                            return i;
+                        }
+                    } else {
+                        // de lo contrario
+                        if (array[i].toString() == value.toString()) {
+                            // busca normal
+                            return i;
+                        }
+                    }
+                }
+                // si no encuetra nada, retorna falso
+                return false;
+            }
+
+            function get_different(array, list) {
+                /*
+                Funcion que retorna la diferencia entre dos arrays
+                funciona de fos maneras:
+                -con arrays de una dimension y
+                -arrays de dos dimensiones con el valor a buscar en indice sub[0]
+                */
+                for (var ind of array) {
+                    // recorre el array con of
+                    if (ind instanceof Array) {
+                        // si el indice es un array
+                        if (get_in(list, ind[0]) === false) {
+                            // busca en la otra lista con el indice sub[0]
+                            return array.indexOf(ind);  // retorna el indice de el array primero
+                        }
+                    } else {
+                        // de lo contrario
+                        if (get_in(list, ind) === false) {  // busca en el array segundo
+                            return array.indexOf(ind);  // retirna el indice de el array primero
+                        }
+                    }
+                }
+                // retorna falso de no encontrar nada
+                return false;
+            }
+
+            function get_text_by_option(element, value) {
+                /*
+                Funcion que retorna el html de un elemento option
+                */
+                // si el elemento es jquery
+                if (element instanceof jQuery) {
+                    var $element = element
+                } else {
+                    // de lo contrario, crea un elemento jquery con el id
+                    var $element = $('#' + element);
+                }
+                // hace la busqueda
+                return $element.find('option[value="' + value.toString() + '"]').html();  // retorna el html
+            }
+
+            function get_text_options(element) {
+                if (element instanceof jQuery) {
+                    var $element = element
+                } else {
+                    var $element = $('#' + element);
+                }
+                if ($element.val() instanceof Array) {
+                    var _list = new Array();
+                    for (var id of $element.val()) {
+                        aux = get_text_by_option($element, id);
+                        _list.push(aux);
+                    }
+                    return _list;
+                } else {
+                    id = $element.val();
+                    aux = get_text_by_option($element, id);
+                    return aux;
+                }
+            }
+
+            function add_selectpicker_options (data, id) {
+                /*
+                Funcion para agregar las opciones que vienen de ajax a un selectpicker
+                */
+
+                var options = '';  // opciones que seran pasadas como html
+                var vals = new Array();  // valores que escogera selectpicker para seleccionar opciones
+                var $element = $('#' + id);  // elemento jQuery para trabajar
+
+                if ($element.attr('multiple')) {  // si es un select multiple
+                    // global selected_before;
+                    for (var dict of data) {
+                        // recorre los datos
+                        option = _option_tag.format(dict['id'], dict['nombre']);  // agrega la opcion con el formato
+                        options += option;  // concatena para html
+                    }
+                    // selected_before.push([dict['id'], option]);
+                    if (selected_before.length) {
+                        // si existe algo en las selecciones
+                        for (_option of selected_before) {
+                            // agrega los valores que va a seleccionar
+                            vals.push(_option[0].toString());  // todos en string
+                            if (!$element.find('option[value="' + _option[0].toString() + '"]').length) {
+                                // si no existe ya el elemento option, entonces lo crea (SingleTON)
+                                options += _option_tag.format(_option[0], _option[1]);
+                            }
+                        }
+                    }
+                } else {
+                    // si no es un select multiple
+                    for (var dict of data) {
+                        // agrega los datos
+                        options += _option_tag.format(dict['id'], dict['nombre']);
+                    }
+                }
+                // al final, agrega todas las opciones
+                $element.html(options).selectpicker('refresh');
+                if (vals.length) {
+                    // si hay algo en vals, lo asigna
+                    $element.selectpicker('val', vals);
+                }
+            }
+
+            setTimeout(auxiliar, 2000);
+
+            function auxiliar() {
+                $(".grupos .bs-searchbox input").on('keyup', function(event){
+                    if($('#{{ form.red.id_for_label }}').val() != '') {
+                        // siempre y cuando haya red
+                        if ($(this).val() != '' && $(this).val() != null) {
+                            // si hay un valor en el input
+                            $.ajax({
+                                url: "{% url 'encuentros:obtener_grupos' %}",
+                                data: {
+                                    red: $('#{{ form.red.id_for_label }}').val(),
+                                    value: $(this).val(),
+                                    csrfmiddlewaretoken: $csrftoken
+                                },
+                                type: 'POST',
+                                success: function(data){
+                                    if (data['response_code'] == 200) {
+                                        add_selectpicker_options(
+                                            data['grupos'], '{{ form.grupos.id_for_label }}'
+                                        );
+                                    } else {
+                                        // ocurrio un error, se envia el error
+                                        danger('Parece que ocurrió un error, ¿te aseguraste de escoger la red?');
+                                    }
+                                }
+                            });
+                        } else {
+                            if (!selected_before.length) {
+                                // no existen seleccionados
+                                console.log("entre con selected_before_vacio")
+                                // limpia el selectpicker
+                                $("#{{ form.grupos.id_for_label }}")
+                                    .html('<option selected value="">NOTHING SELECTED</option>')  // agrega opcion por defecto
+                                    .selectpicker('refresh');
+                            } else {
+                                // de lo contrario
+                                options = '';
+                                vals = new Array();
+                                // crea nuevas etiquetas html
+                                for (var id of selected_before) {
+                                    options += _option_tag.format(id[0], id[1]);
+                                    vals.push(id[0].toString());  // inserta los valores
+                                }
+                                $("#{{ form.grupos.id_for_label }}")
+                                    .html(options)  // agrega las opciones
+                                    .selectpicker('refresh');
+                                $('#{{ form.grupos.id_for_label }}').selectpicker(
+                                    'val', vals  // agrega los valores
+                                )
+                            }
+                        }
+                    } else {
+                        swal("Alerta", "Asegurate de escoger primero una red");
+                    }
+                });
+
+                $(".tesorero .bs-searchbox input").on('keyup', function(event){
+                    if ($('#{{ form.grupos.id_for_label }}').val() != -1 && $('#{{ form.grupos.id_for_label }}').val() != null) {
+                        if($(this).val() != ''){
+                            $.ajax({
+                                url: "{% url 'encuentros:obtener_coordinadores_tesoreros' %}",
+                                data: {
+                                    value: $(this).val(),
+                                    grupos: $('#{{ form.grupos.id_for_label}}').val(),
+                                    csrfmiddlewaretoken: $csrftoken
+                                },
+                                type: 'POST',
+                                success: function(data){
+                                    add_selectpicker_options(data['miembros'], '{{ form.tesorero.id_for_label }}');
+                                }
+                            });
+                        }
+                        else{
+                            $("#{{ form.tesorero.id_for_label }}").html('');
+                        }
+                    } else {
+                        swal("Alerta", "Asegurate de escoger primero un grupo");
+                    }
+                });
+
+                $(".coordinador .bs-searchbox input").on('keyup', function(event){
+                    if ($('#{{ form.grupos.id_for_label }}').val() != -1 && $('#{{ form.grupos.id_for_label }}').val() != null) {
+                        if($(this).val() != ''){
+                            $.ajax({
+                                url: "{% url 'encuentros:obtener_coordinadores_tesoreros' %}",
+                                data: {
+                                    value: $(this).val(),
+                                    grupos: $('#{{ form.grupos.id_for_label}}').val(),
+                                    csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val()
+                                },
+                                type: 'POST',
+                                success: function(data){
+                                    add_selectpicker_options(data['miembros'], '{{ form.coordinador.id_for_label }}');
+                                }
+                            });
+                        }
+                        else{
+                            $("#{{ form.coordinador.id_for_label }}").html('');
+                        }
+                    } else {
+                        swal("Alerta", "Asegurate de escoger primero un grupo");
+                    }
+                });
+            }
+
+            $('#{{ form.grupos.id_for_label }}').on('loaded.bs.select', function (e) {
+                $(this).on('changed.bs.select', function (event, index, new_value, old_value) {
+                    // si es un nuevo valor
+                    if (new_value) {
+                        // busca los datos diferentes para agregar el nuevo
+                        difference = get_different($(this).val(), selected_before);
+                        if (difference !== false) {
+                            // si no existe la diferencia
+                            id = $(this).val()[difference];
+                            if (get_in(selected_before, id) === false) {
+                                // console.log("agrego a {0}".format(get_text_by_option($(this), id)))
+                                // agrega la diferencia al arreglo de selecciones
+                                selected_before.push([id, get_text_by_option($(this), id)])
+                            } else {
+                                // pass
+                            }
+                        } else {
+                            // no encuetra diferencias
+                            console.error('No está encontrando diferencias')
+                        }
+                    } else {
+                        // busca el diferente
+                        values = $(this).val();
+                        // siempre y cuando hayan valores
+                        if (values != null || selected_before.length) {
+                            if (values == null) {
+                                // si los valores estan vacios, se cambia al valor de las selecciones
+                                values = selected_before.slice();
+                            }
+                            // se obtiene el indice del elemento diferente
+                            index = get_different(selected_before, values);
+                            if (index[0] !== false) {
+                                //selected_before.splice(index, 1);
+                                // se elimina el elemento que no se usara mas
+                                selected_before.splice(index, 1)[0]
+                                // console.log("saco a {0}".format(get_text_by_option($(this), selected_before.splice(index, 1)[0])))
+                            }
+                        }
+                    }
+                });
+            });
+
+            $('#{{ form.grupos.id_for_label }}').on('hide.bs.select', function (event) {
+                // cuando se esconda el selectpicker
+                options_ = '';
+                vals = new Array();
+                for (var array of selected_before) {
+                    //  if (!$(this).find('option[value="' + array[0].toString() + '"]').length) {
+                    // agrega todas las opciones
+                    options_ += _option_tag.format(array[0], array[1]);
+                    // agrega los valores de las opciones para el val de selecpicker
+                    vals.push(array[0].toString());
+                }
+                $(this)
+                    .html(options_)  // agrega el html
+                    .selectpicker('refresh')
+                    .selectpicker('val', vals);  // agrega los valores
+            });
+
+            $('#{{ form.red.id_for_label }}').on('loaded.bs.select', function (e) {
+                $(this).on('changed.bs.select', function (event) {
+                    // cuando cambie el select de red
+                    if (selected_before.length) {
+                        // siempre y cuando exista algo seleccionado anteriormente
+                        $('#{{ form.grupos.id_for_label }}')
+                            .selectpicker('val', [])  // limpia selectpicker
+                            .html('')  // limpia html
+                            .selectpicker('refresh');
+                        // limpia el selectpicker y la variable con los datos
+                        selected_before.splice(0, selected_before.length);
+                    }
+                });
+            });{% endcomment %}
+        });
+    </script>
+{% endblock js %}
+
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{{accion}} Encuentro</h3></legend>
+            </h1>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="row">
+                        <div class="alert {% if message.tags == "success" %}alert-success {% else %}alert-danger{% endif %} alert-dismissible" role="alert">
+                            <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                            <p>{{ message|safe }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card-body card-padding">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="input-group {{ form.fecha_inicial.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_inicial.id_for_label }}" class="fg-label requerido control-label">Fecha Inicial:</label>
+                                {{ form.fecha_inicial }}
+                            </div>
+                            {% for error in form.fecha_inicial.errors %}
+                                <small class="help-block">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-3">
+                        <div class="input-group {{ form.fecha_final.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fecha_final.id_for_label }}" class="fg-label control-label requerido">Fecha Final:</label>
+                                {{ form.fecha_final }}
+                            </div>
+                            {% for error in form.fecha_final.errors %}
+                                <small class="help-block">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-6">
+                        <div class="input-group {{ form.hotel.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-hotel"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.hotel.id_for_label }}" class="fg-label requerido control-label">Hotel:</label>
+                                {{ form.hotel }}
+                            </div>
+                            {% for error in form.hotel.errors %}
+                                <small class="help-block">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-group {{ form.direccion.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-pin"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.direccion.id_for_label }}" class="fg-label requerido control-label">Dirección:</label>
+                                {{ form.direccion }}
+                            </div>
+                            {% for error in form.direccion.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-6">
+                        <div class="input-group {{ form.red.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-share"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.red.id_for_label }}" class="fg-label control-label requerido">Red:</label>
+                                {{ form.red }}
+                            </div>
+                            {% for error in form.red.errors %}
+                                <small class="help-block">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-12 grupos">
+                        <div class="input-group {{ form.grupos.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts-alt"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.grupos.id_for_label }}" class="fg-label control-label requerido">Grupos:</label>
+                                {{ form.grupos }}
+                            </div>
+                            {% for error in form.grupos.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-5 col-md-offset-1 coordinador">
+                        <div class="input-group {{ form.coordinador.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-male"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.coordinador.id_for_label }}" class="fg-label requerido control-label">Coordinador:</label>
+                                {{ form.coordinador }}
+                            </div>
+                            {% for error in form.coordinador.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-5 tesorero">
+                        <div class="input-group {{ form.tesorero.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-money"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.tesorero.id_for_label }}" class="fg-label control-label requerido">Tesorero:</label>
+                                {{ form.tesorero }}
+                            </div>
+                            {% for error in form.tesorero.errors %}
+                                <small class="help-block">{{error}}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="input-group {{ form.observaciones.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-calendar-note"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.observaciones.id_for_label }}" class="fg-label control-label requerido">Observaciones:</label>
+                                {{ form.observaciones }}
+                            </div>
+                            {% for error in form.observaciones.errors %}
+                                <small class="help-block">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="aceptar" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

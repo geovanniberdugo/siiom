@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static i18n %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend>
+                    <h3 class="f-700 f-20">{% trans 'Confirmar Ofrenda Grupo de Amistad' %}</h3>
+                </legend>
+            </h1>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="row">
+                    <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>{{ message }} {% trans 'Volver a lista ' %}<a href="{% url 'grupos:sin_confirmar_ofrenda_GAR' %}">{% trans 'grupos sin confirmar ofrenda.' %}</a></p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="card-body card-padding table-responsive">
+            <br>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="data-table-command" class="table table-striped table-vmiddle">
+                        <thead>
+                            <tr>
+                                <th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                                <th data-identifier="true" data-column-id="grupo">{% trans 'Grupo' %}</th>
+                                <th data-identifier="true" data-column-id="fecha">{% trans 'Fecha Reunion' %}</th>
+                                <th data-identifier="true" data-column-id="monto">{% trans 'Monto Ofrenda' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reunion in reuniones %}
+                            <tr>
+                                <td>{{ reunion.id }}</td>
+                                <td>{{ reunion.grupo.nombre|capfirst }}</td>
+                                <td>{{ reunion.fecha }}</td>
+                                <td>{{ reunion.ofrenda }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <br>
+            <br>
+            <form id="form" action="" method="POST">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" name="confirmar" class="btn btn-primary btn-block">{% trans 'Confirmar' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        $("#data-table-command").bootgrid({
+                    css: {
+                        icon: 'zmdi icon',
+                        iconColumns: 'zmdi-view-module',
+                        iconDown: 'zmdi-expand-more',
+                        iconRefresh: 'zmdi-refresh',
+                        iconUp: 'zmdi-expand-less'
+                        },
+                    selection: true,
+                    multiSelect: true,
+                    rowSelect: true,
+                    caseSensitive: false,
+                    keepSelection: true
+                });
+
+        $seleccionados = [];
+
+        bootgrid_table_solution("#data-table-command", $seleccionados, true, "button[name='confirmar']", "Ninguno elegido para confirmar");
+
+        send_form("#form", $seleccionados);
+    })
+</script>
+{% endblock js %}

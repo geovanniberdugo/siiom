@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script>
+    $(document).ready(function(){
+        $("#data-table-command").bootgrid({
+	        		css: {
+                        icon: 'zmdi icon',
+                        iconColumns: 'zmdi-view-module',
+                        iconDown: 'zmdi-expand-more',
+                        iconRefresh: 'zmdi-refresh',
+                        iconUp: 'zmdi-expand-less'
+	                    },
+                    selection: true,
+                    multiSelect: true,
+                    rowSelect: true,
+                    caseSensitive: false,
+                    keepSelection: true,
+                    formatters: {
+                        "commands": function(column, row) {
+                            return "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/miembro/editar_barrio/{{ zona.id }}/" + row.id + "'\"><span class=\"zmdi zmdi-edit\"></span></button> "
+                        }
+                    }
+                });
+        $("button[name='eliminar']").click(function(event) {
+            if (!$('tr').hasClass('active')) {
+                swal("Nada que Eliminar")
+                event.preventDefault();
+            } else {
+                return true;
+            }
+        });
+    })
+</script>
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+			<h1 class="f-700 f-20">
+				<legend><h3>Barrios de la zona {{zona}}</h3></legend>
+			</h1>
+			<h5><a alt="Agregar Barrio" href="{% url 'miembros:crear_barrio' zona.id %}">Agregar Barrio</a></h5>
+			{% if okElim == 1 %}
+            <div class="row">
+                <div class="alert alert-success alert-dismissible" role="alert">
+                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                    <p>Se eliminaron los barrios seleccionadas</p>
+                </div>
+            </div>
+			{% else %}
+				{% if okElim == 2%}
+	            <div class="row">
+	                <div class="alert alert-danger alert-dismissible" role="alert">
+	                    <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+	                    <p>Hubo un error al eliminar los barrios</p>
+	                </div>
+	            </div>
+				{% endif %}
+			{% endif %}
+        </div>
+        <form action="" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card-body card-padding table-responsive">
+                <br>
+                <div class="row">
+                    <div class="col-md-12">
+                        {% if barrios %}
+						<table id="data-table-command" class="table table-striped table-vmiddle">
+							<thead>
+						       	<tr>
+						       		<th data-visible="false" data-identifier="true" data-column-id="id"></th>
+                        			<th data-column-id="nombre" data-identifier="true">Nombre</th>
+                        			<th data-column-id="commands" data-formatter="commands" data-sortable="false">Comandos</th>   
+						       	</tr>
+						    </thead>
+						    <tbody>
+								{% for barrio in barrios %}
+									<tr>
+										<td>{{ barrio.id }}</td>
+										<td>{{ barrio }}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+						<br/>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="Eliminar" class="btn btn-danger btn-block" name ="eliminar">Eliminar</button>
+                    </div>
+                </div>
+				{% else %}
+				<p>A&uacute;n no se han agregado barrios a esta zona.</p>
+				{% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

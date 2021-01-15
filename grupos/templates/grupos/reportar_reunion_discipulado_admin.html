@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block css %}
+{% include "_datatable_css.html" %}
+{% endblock css %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{% trans 'Reporte Reunión Discipulado' %}</h3></legend>
+            </h1>
+        </div>
+
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+            <form action="" method="POST">
+                {% csrf_token %}
+
+                {% include "_alert_non_field_errors.html" %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-group {{ form.grupo.css_classes }}">
+                            <span class="input-group-addon"><i class="zmdi zmdi-map"></i></span>
+                            <div class="fg-line">
+                                <label for="{{ form.grupo.id_for_label }}" class="fg-label control-label">{{ form.grupo.label }}*:</label>
+                                {{ form.grupo }}
+                            </div>
+                            {{ form.grupo.errors }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.predica.css_classes }}">
+                            <span class="input-group-addon"><i class="zmdi zmdi-map"></i></span>
+                            <div class="fg-line">
+                                <label for="{{ form.predica.id_for_label }}" class="fg-label control-label">{{ form.predica.label }}*:</label>
+                                {{ form.predica }}
+                            </div>
+                            {{ form.predica.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br class="space-down">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.ofrenda.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-map"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.ofrenda.id_for_label }}" class="fg-label control-label">{{ form.ofrenda.label }}*:</label>
+                                {{ form.ofrenda }}
+                            </div>
+                            {{ form.ofrenda.errors }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group {{ form.novedades.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-map"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.novedades.id_for_label }}" class="fg-label control-label">{{ form.novedades.label }}*:</label>
+                                {{ form.novedades }}
+                            </div>
+                            {{ form.novedades.errors }}
+                        </div>
+                    </div>
+                </div>
+                <h2>Asistencia</h2>
+
+                {{ form.asistencia.errors }}
+                <div class="table-responsive">
+                    <table id="data-table-selection" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Nombre' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button id="send-form" name="aceptar" class="btn btn-primary btn-block">{% trans 'Crear' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+{% include "_datatable_js.html" %}
+
+<script>
+    $(document).ready(function() {
+        asistenciaTable = $("#data-table-selection").DataTable({
+            rowId: 'id',
+            select: {
+                style: 'multi'
+            },
+            columns: [
+                {data: 'nombre'}
+            ],
+            language: {
+                url: 'http://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
+            }
+        });
+
+        let grupoId = null;
+        let predicaId = null;
+        $("#id_grupo").change(function() {
+            grupoId = $(this).val();
+            if (grupoId) {
+                getDiscipulos(grupoId, predicaId);
+            }
+            else {
+                clearAsistencia()
+                getReunion(grupoId, predicaId);
+            }
+        });
+
+        $("#id_predica").change(function() {
+            predicaId = $(this).val();
+            getReunion(grupoId, predicaId);
+        });
+
+        $('button[name="aceptar"]').click(function(e) {
+            if (!$('#id_grupo').val()) {
+                swal("Alerta", "Debes escoger un grupo.");
+                return false;
+            }
+
+            if (!$('#id_predica').val()) {
+                swal("Alerta", "Debes escoger una predica.");
+                return false;
+            }
+
+            let seleccionados = getAsistentesSeleccionados();
+            if (seleccionados.length > 0) {
+                addSelectedAsistentesToForm(seleccionados);
+                return true;
+            }
+            else {
+                swal("Alerta", "Debes escoger algun miembro asistente");
+                return false;
+            }
+
+            return false;
+        });
+
+        {% if form.is_bound %}
+        if ($("#id_grupo").val()) {
+            $("#id_grupo").trigger('change');
+        }
+        {% endif %}
+    });
+
+    function getDiscipulos(grupo, predica) {
+        $.get(
+            "{% url 'grupos:discipulos_api' 0 %}".replace(0, grupo),
+            function (data) {
+                fillAsistenciaTable(data);
+                selectAsistentesForm(getAsistenciaFromDjango());
+                getReunion(grupo, predica);
+            },
+            "json"
+        );
+    }
+
+    function getReunion(grupo, predica) {
+        if (grupo && predica) {
+            $.get(
+                "{% url 'grupos:reunion_discipulado_api' 0 1 %}".replace(1, predica).replace(0, grupo),
+                function (data) {
+                    llenarDatosReunion(data);
+                },
+                "json"
+            )
+            .fail(limpiarFormulario);
+        }
+        else {
+            limpiarFormulario()
+        }
+    }
+
+    function clearAsistencia() {
+        asistenciaTable
+            .clear()
+            .draw()
+    }
+
+    function fillAsistenciaTable(discipulos) {
+        asistenciaTable
+            .clear()
+            .rows.add(discipulos)
+            .draw();
+    }
+
+    function getAsistentesSeleccionados() {
+        return asistenciaTable
+                .rows({ selected: true })
+                .ids()
+                .toArray();
+    }
+
+    function selectAsistentesForm(asistentes) {
+        const ids = asistentes.map(e => `#${e}`);
+        asistenciaTable
+            .rows(ids)
+            .select();
+    }
+
+    function deselectAsistentesForm() {
+        asistenciaTable
+            .rows()
+            .deselect();
+    }
+
+    function addSelectedAsistentesToForm(asistentes) {        
+        const form = $('form');
+        asistentes.forEach(asistente => {
+            form.append(`<input type="hidden" name="asistencia" value="${asistente}">`);
+        });
+    }
+
+    function llenarDatosReunion(reunion) {
+        $('#id_novedades').val(reunion.novedades);
+        $('#id_ofrenda').val(reunion.ofrenda);
+
+        let asistentes = reunion.asistencia
+            .filter(asistente => !!asistente.asistencia)
+            .map(asistente => asistente.miembro);
+        
+        selectAsistentesForm(asistentes);
+        cambiarTextoBoton(reunion);
+    }
+
+    function cambiarTextoBoton(reunion) {
+        const text = reunion ? 'Editar': 'Crear';
+        document.getElementById('send-form').innerHTML = text;
+    }
+
+    function limpiarFormulario() {
+        $('#id_novedades').val('');
+        $('#id_ofrenda').val('');
+
+        cambiarTextoBoton(null);
+        deselectAsistentesForm();
+    }
+
+    function getAsistenciaFromDjango() {
+        let asistencia = [];
+        {% for asistente in form.asistencia.value %}
+        asistencia.push({{ asistente }});
+        {% endfor %}
+        return asistencia;
+    }
+</script>
+{% endblock %} 

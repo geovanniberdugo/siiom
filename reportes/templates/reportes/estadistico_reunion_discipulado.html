@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/print.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+    <div class="card hidden-print">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{% trans 'Estadístico de reuniones D12' %}</h3></legend>
+            </h1>
+        </div>
+
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+            <form action="" method="POST">
+                {% csrf_token %}
+                {% include "_alert_non_field_errors.html" %}
+
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-1">
+                        <div class="input-group {{ form.predica.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-book"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.predica.id_for_label }}" class="fg-label control-label">{{ form.predica.label }}*:</label>
+                                {{ form.predica }}
+                            </div>
+                            {{ form.predica.errors }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group {{ form.grupo.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.grupo.id_for_label }}" class="fg-label control-label">{{ form.grupo.label }}*:</label>
+                                {{ form.grupo }}
+                            </div>
+                            {{ form.grupo.errors }}
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" name="verReporte" class="btn btn-success btn-block">Ver</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if is_post %}
+    <div class="block-header">
+        <h2>Estadístico de reuniones D12 de la red <strong>{{ form.cleaned_data.grupo.nombre|upper }}</strong></h2>
+    </div>
+
+    <div class="visible-print">
+        <h5>PREDICA: {{ form.cleaned_data.predica.nombre|upper }}</h5>
+    </div>
+
+    <div class="card chart-g">
+        <div class="card-body card-padding">
+            <div id="faltantes-chart"></div>
+        </div>
+    </div>
+
+    <div class="card chart-g">
+        <div class="card-body card-padding">
+            <div id="chart"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Tabla Estadísticos</h3>
+        </div>
+        <div class="card-body card-padding">
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'subred' %}</th>
+                            <th>{% trans 'líderes subred' %}</th>
+                            <th>{% trans 'líderes que recibieron predica' %}</th>
+                            <th>{% trans 'Porcentaje líderes' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grupo in data_estadistico %}
+                        <tr>
+                            <td>{{ grupo.nombre_corto }}</td>
+                            <td class="text-center">{{ grupo.total_lideres_subred }}</td>
+                            <td class="text-center">{{ grupo.numero_lideres_asistentes_predica }}</td>
+                            <td class="text-center">{{ grupo.porcentaje }}%</td>
+                        </tr>
+                        {% if forloop.last %}
+                        <tr>
+                            <td><span class="f-700">{% trans 'TOTAL' %}</span></td>
+                            <td class="f-700 text-center">{{ total_lideres }}</td>
+                            <td class="f-700 text-center">{{ total_lideres_predica }}</td>
+                            <td class="f-700 text-center">{{ total_porcentaje }}%</td>
+                        </tr>
+                        {% endif %}
+                        {% empty %}
+                            <tr><td colspan="4">{% trans 'No hay datos para mostrar' %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Grupos Faltantes por Registrar Discipulado</h3>
+        </div>
+        <div class="card-body card-padding">
+            <div class="table-responsive">
+                <table id="data-table" class="table table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th data-column-id="lideres">{% trans 'Líderes' %}</th>
+                            <th data-column-id="discipulos">{% trans 'Discípulos de' %}</th>
+                            <th data-column-id="cabeza">{% trans 'Cabeza de red' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for faltante in faltantes %}
+                        <tr>
+                            <td>{{ faltante }}</td>
+                            <td>{{ faltante.get_parent }}</td>
+                            <td>{% firstof faltante.cabeza_red "" %}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">{% trans 'No hay faltantes' %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if is_post %}
+<button class="btn btn-float bgm-red m-btn" data-action="print">
+    <i class="zmdi zmdi-print"></i>
+</button>
+{% endif %}
+{% endblock contenido %}
+
+{% block js %}
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    {% if data_estadistico %}
+    google.charts.load('current', { packages: ['corechart'] });
+    google.charts.setOnLoadCallback(drawEstadisticoPredicasRecibidasChart);
+    google.charts.setOnLoadCallback(drawEstadisticoFaltantesChart);
+
+    window.addEventListener('resize', function() {
+        drawEstadisticoFaltantesChart(),
+        drawEstadisticoPredicasRecibidasChart()
+    });
+    
+    function drawEstadisticoPredicasRecibidasChart() {
+        const data = google.visualization.arrayToDataTable([
+            ['Subred', 'Porcentaje', { 'role': 'annotation' }],
+            {% for grupo in data_estadistico %}['{{ grupo.nombre_corto|safe }}', {{ grupo.porcentaje|safe }}, '{{ grupo.porcentaje|safe }}%'],
+            {% endfor %}
+        ]);
+
+        const options = {
+            title: 'Porcentaje de discipulos que han recibido la predica por subred',
+            width: '100%',
+            height: 500,
+            hAxis: {
+                title: 'Subredes'
+            },
+            vAxis: {
+                title: 'Porcentaje de discipulos',
+                minValue: 0
+            },
+            legend: {
+                position: 'bottom'
+            }
+        };
+
+        const chart = new google.visualization.ColumnChart(document.getElementById('chart'));
+        chart.draw(data, options);
+    }
+
+    function drawEstadisticoFaltantesChart() {
+        const data = google.visualization.arrayToDataTable([
+            ['Subred', 'SI', { 'role': 'annotation' }, 'NO', { 'role': 'annotation' }],
+            {% for grupo in data_estadistico %} ['{{ grupo.nombre_corto|safe }}', {{ grupo.numero_grupos_reportaron|safe }}, '{{ grupo.numero_grupos_reportaron|safe }}', {{ grupo.numero_grupos_no_reportaron|safe }}, '{{ grupo.numero_grupos_no_reportaron|safe }}'],
+            {% endfor %}
+        ]);
+
+        const options = {
+            title: 'Cantidad de grupos reportando reunión por subred',
+            width: '100%',
+            height: 500,
+            hAxis: {
+                title: 'Subredes'
+            },
+            vAxis: {
+                title: 'Número de grupos reportando'
+            },
+            legend: {
+                position: 'bottom'
+            }
+        }
+
+        const chart = new google.visualization.ColumnChart(document.getElementById('faltantes-chart'));
+        chart.draw(data, options);
+    }
+    {% endif %}
+
+
+    {% if is_post %}
+    $("#data-table").bootgrid({
+        css: {
+            icon: 'zmdi icon',
+            iconColumns: 'zmdi-view-module',
+            iconDown: 'zmdi-expand-more',
+            iconRefresh: 'zmdi-refresh',
+            iconUp: 'zmdi-expand-less'
+        },
+        rowCount: -1,
+        caseSensitive: false,
+    });
+    {% endif %}
+</script>
+{% endblock js %}

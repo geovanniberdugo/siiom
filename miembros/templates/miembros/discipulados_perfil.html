@@ -1,0 +1,24 @@
+{% extends "perfil_base.html" %}
+{% load i18n %}
+
+{% block card %}
+<div class="pmb-block">
+    <div class="pmbb-header">
+        <h2>
+            <i class="zmdi zmdi-chart m-r-5"></i> {% trans 'Predicas' %}
+        </h2>
+    </div>
+    <div class="pmbb-body p-l-30">
+        <div class="pmbb-view">
+            <dl class="dl-horizontal">
+                <dt>{% trans 'Recibidas' %}</dt>
+                {% for predica in miembro.predicas_recibidas %}
+                <dd>{{ predica.nombre }}</dd>
+                {% empty %}
+                <dd>{% trans 'No ha recibido ninguna predica' %}</dd>
+                {% endfor %}
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock card %}

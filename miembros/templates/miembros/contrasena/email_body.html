@@ -1,0 +1,14 @@
+{% load i18n %}{% autoescape off %}
+{% blocktrans %}Has olvidado tu contraseña en {{ site_name }}.{% endblocktrans %}
+
+{% trans "Por favor ingresa al link de abajo para ingresar una nueva contraseña:" %}
+{% block reset_link %}
+{{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+{% endblock %}
+{% trans "Recuerda que este es el email con el cual te encuentras registrado." %}
+
+{% trans "Gracias por usar nuestro sitio!" %}
+
+{% blocktrans %}El equipo de SIIOM{% endblocktrans %}
+
+{% endautoescape %}

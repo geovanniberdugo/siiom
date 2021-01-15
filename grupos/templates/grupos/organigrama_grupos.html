@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static i18n reportes_filters %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'jsTree3.3.3/dist/themes/default/style.css' %}">
+<link rel="stylesheet" href="{% static 'Scripts/IGFABSpeedDial/IGFABSpeedDial.css' %}">
+{% endblock css %}
+
+{% block contenido %}
+<div class="container">
+    {% if perms.miembros.es_administrador %}
+        <div id="fab-div">
+            <a href="{% url 'grupos:archivar' %}" class="btn btn-float btn-danger m-btn child" data-subfab="2" data-toggle="tooltip" data-placement="left" data-original-title="{% trans 'Eliminar grupo' %}" id="archivar_grupo">
+                <i class="zmdi zmdi-delete"></i>
+            </a>
+            <a href="{% url 'grupos:trasladar_lideres' %}" class="btn btn-float btn-warning m-btn child" data-subfab="1" data-toggle="tooltip" data-placement="left" data-original-title="{% trans 'Trasladar lideres' %}">
+                <i class="zmdi zmdi-account"></i>
+            </a>
+            <button class="btn btn-float btn-danger m-btn" id="fab-principal">
+                <i class="zmdi zmdi-plus"></i>
+            </button>
+        </div>
+    {% endif %}
+    <div class="card">
+        <div class="card-header">
+            <h1 class="f-700">
+                <legend><h3>{% trans 'Organigrama de mi Red' %}</h3></legend>
+            </h1>
+        </div>
+        <div class="card-body card-padding">
+            {% include '_alert_messages.html' %}
+
+            <div class="row">
+                <div class="col-md-4 col-md-offset-1">
+                    <div class="input-group fg-float">
+                        <input type="text" id="arbol_q" value="" class="input" placeholder="Inicia una busqueda aqu&iacute;" style="margin:0em auto 1em auto; display:block; padding:4px; border-radius:4px; border:1px solid silver;" />
+
+                        <div class="fg-line requerido">
+                            <div id="arbol"><ul>{{ arbol|unordered_list_grupos }}</ul></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'jsTree3.3.3/dist/jstree.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'Scripts/IGFABSpeedDial/IGFABSpeedDial.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#arbol").jstree({
+            "plugins": ["themes", "search", "types", "wholerow"],
+            "types" : {
+                "default" : {
+                    "icon" : "glyphicon glyphicon-hand-right",
+                },
+            },
+        });
+
+        var to = false;
+        $('#arbol_q').keyup(function () {
+            if(to) { clearTimeout(to); }
+            to = setTimeout(function () {
+                var v = $('#arbol_q').val();
+                $('#arbol').jstree(true).search(v);
+            }, 250);
+        });
+
+        $('#arbol').on('select_node.jstree', function (event, data) {
+            //console.log(data.node.li_attr['data-id']);
+            $('#archivar_grupo').prop('href', '{% url "grupos:archivar" %}?grupo=0'.replace('0', data.node.li_attr['data-id']));
+
+        });
+
+
+        $("#fab-div").IGFABSpeedDial();
+    });
+</script>
+{% endblock %}

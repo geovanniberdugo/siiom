@@ -1,0 +1,17 @@
+-r base.txt
+
+factory-boy
+django-test-plus
+freezegun
+django-debug-toolbar
+django-extensions
+
+pytest
+pytest-django
+pytest-mock
+pytest-cov
+django-dynamic-fixture
+
+# Docs
+Sphinx
+sphinx-rtd-theme

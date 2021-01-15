@@ -1,0 +1,455 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+    <style>
+        .table-responsive {
+            overflow-x: inherit;
+        }
+    </style>
+{% endblock css %}
+
+{% block contenido %}
+<div class="modal fade" id="modalNarrowerCrearReporte" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Reportar Reunion {{ request.tenant.termino_gar }}</h4>
+            </div>
+	        <form action="" method="POST" id="form-reporte" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group {{ form_reporte.fecha.css_classes }}">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-calendar"></i>
+                                </span>
+                                <div class="fg-line requerido">
+                                    <label for="{{form_reporte.fecha.id_for_label}}" class="fg-label control-label requerido">{{ form_reporte.fecha.label }}:</label>
+                                    {{ form_reporte.fecha }}
+                                </div>
+                                {% for err in form_reporte.fecha.errors %}
+                                    <small class="help-block">{{ err }}</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-6">
+                            <div class="input-group {{ form_reporte.predica.css_classes }}">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-book"></i>
+                                </span>
+                                <div class="fg-line requerido">
+                                    <label for="{{form_reporte.predica.id_for_label}}" class="fg-label control-label requerido">{{ form_reporte.predica.label }}:</label>
+                                    {{ form_reporte.predica }}
+                                </div>
+                                {% for err in form_reporte.predica.errors %}
+                                    <small class="help-block">{{err}}</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <br class="space-down">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group {{ form_reporte.ofrenda.css_classes }}">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-money-box"></i>
+                                </span>
+                                <div class="fg-line requerido">
+                                    <label for="{{form_reporte.ofrenda.id_for_label}}" class="fg-label control-label requerido">{{ form_reporte.ofrenda.label }}:</label>
+                                    {{ form_reporte.ofrenda }}
+                                </div>
+                                {% for err in form_reporte.ofrenda.errors %}
+                                    <small class="help-block">{{err}}</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-6">
+                            <div class="input-group {{ form_reporte.numeroTotalAsistentes.css_classes }}">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-star"></i>
+                                </span>
+                                <div class="fg-line requerido">
+                                    <label for="{{form_reporte.numeroTotalAsistentes.id_for_label}}" class="fg-label control-label requerido">{{ form_reporte.numeroTotalAsistentes.label }}:</label>
+                                    {{ form_reporte.numeroTotalAsistentes }}
+                                </div>
+                                {% for err in form_reporte.numeroTotalAsistentes.errors %}
+                                    <small class="help-block">{{err}}</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <br class="space-down">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group {{ form_reporte.numeroVisitas.css_classes }}">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-star"></i>
+                                </span>
+                                <div class="fg-line requerido">
+                                    <label for="{{form_reporte.numeroVisitas.id_for_label}}" class="fg-label control-label requerido">{{ form_reporte.numeroVisitas.label }}</label>
+                                    {{ form_reporte.numeroVisitas }}
+                                </div>
+                                {% for err in form_reporte.numeroVisitas.errors %}
+                                    <small class="help-block">{{err}}</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <br class="space">
+                        <div class="col-md-6">
+                            <div class="input-group {{ form_reporte.numeroLideresAsistentes.css_classes }}">
+                                <span class="input-group-addon">
+                                    <i class="zmdi zmdi-star"></i>
+                                </span>
+                                <div class="fg-line requerido">
+                                    <label for="{{form_reporte.numeroLideresAsistentes.id_for_label}}" class="fg-label control-label requerido">{{ form_reporte.numeroLideresAsistentes.label }}:</label>
+                                    {{ form_reporte.numeroLideresAsistentes }}
+                                </div>
+                                {% for err in form_reporte.numeroLideresAsistentes.errors %}
+                                    <small class="help-block">{{err}}</small>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <br class="space">
+                        <br class="space-down">
+                        <div class="row">
+                            <div class="col-md-4 col-md-offset-1">
+                                <div class="input-group {{ form_reporte.no_realizo_grupo.css_classes }}">
+                                    <div class="fg-line">
+                                        <label for="{{ form_reporte.no_realizo_grupo.id_for_label }}" data-trigger="hover" data-toggle="popover" data-placement="top" data-content="Si no realizo grupo, asegurate de indicar una fecha y checkear este botón" title="" data-original-title="Ayuda" class="checkbox m-r-20">
+                                            {{ form_reporte.no_realizo_grupo }}
+                                            <i class="input-helper m-r-20"></i>
+                                            {{ form_reporte.no_realizo_grupo.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+	            </div>
+	            <div class="modal-footer">
+                    <input type="hidden" name="grupo" value="{{ form.cleaned_data.grupo.id }}" />
+	                <button type="submit" name="reportar" class="btn btn-link">Aceptar</button>
+	                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalNarrowerConfirmarOfrenda" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Verificación</h4>
+            </div>
+	        <form action="" method="POST" id="form-solicitud" enctype="multipart/form-data">
+	        	{% csrf_token %}
+	            <div class="modal-body">
+		            <p>¿Seguro que desea confirmar este sobre?</p>
+	            </div>
+	            <div class="modal-footer">
+                    <input type="hidden" name="reporte" />
+	                <button type="submit" name="confirmar" class="btn btn-link">Aceptar</button>
+	                <button type="button" class="btn btn-link" data-dismiss="modal">Cerrar</button>
+	            </div>
+            </form>
+        </div>
+    </div>
+</div>
+<a data-toggle="modal" id="toggleModalConfirmarOfrenda" href="#modalNarrowerConfirmarOfrenda"></a>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h1>
+                <legend>
+                    <h3 class="f-700 f-20">Ver Reportes Enviados Por Grupo Especifico</h3>
+                </legend>
+                {% if form.grupo.value %}
+                <small><a data-toggle="modal" id="toggleModalCrearReporte" href="#modalNarrowerCrearReporte">Crear Reporte Para Este Grupo</a></small>
+                {% endif %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="row">
+                            <div class="alert {% if message.tags == "success" %}alert-success {% elif message.tags == "error" %}alert-danger {% else %}alert-warning{% endif %} alert-dismissible" role="alert">
+                                <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                                <p>{{ message }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </h1>
+            {% if ok %}
+                <div class="row">
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Se ha registrado el reporte correctamente.</p>
+                    </div>
+                </div>
+            {% endif %}
+            {% if ya_reportada %}
+                <div class="row">
+                    <div class="alert alert-warning alert-dismissible" role="alert">
+                        <button class="close" aria-label="close" data-dismiss="alert" type="button"><span aria-hidden="true">x</span></button>
+                        <p>Ya ha sido reportada una reunion para esta predica.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-body card-padding table-responsive">
+            <br>
+            <form action="" method="POST" enctype="multipart/form-data" id="form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-4 grupo">
+                        <div class="input-group fg-line">
+                            <label for="{{ form.grupo.id_for_label }}" class="fg-label requerido">Grupo:</label>
+                            {{ form.grupo }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-3 col-md-offset-2">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-accounts"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fechai.id_for_label }}" class="fg-label requerido">Fecha Incial:</label>
+                                {{ form.fechai }}
+                            </div>
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-money-box"></i>
+                            </span>
+                            <div class="fg-line requerido">
+                                <label for="{{ form.fechaf.id_for_label }}" class="fg-label requerido">Fecha Final:</label>
+                                {{ form.fechaf }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" name="aceptar" class="btn btn-primary btn-block">Aceptar</button>
+                    </div>
+                </div>
+            </form>
+            {% if reuniones %}
+            <div class="card-header">
+                <h1>
+                    <legend>
+                        <h3>Reportes</h3>
+                    </legend>
+                </h1>
+            </div>
+            <div class="table-responsive">
+                <table id="data-table-selection" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th data-column-id="id" data-identifier="true" data-visible="false"></th>
+                            <th data-column-id="confirmada" data-identifier="false" data-visible="false"></th>
+                            <th data-column-id="nombre" data-identifier="true">Fecha</th>
+                            <th data-column-id="predica" data-identifier="true">Prédica</th>
+                            <th data-column-id="asistencia" data-identifier="true">Asistentes</th>
+                            <th data-column-id="asisencia" data-identifier="true">Líderes Asistentes</th>
+                            <th data-column-id="visitas" data-identifier="true">Visitas</th>
+                            <th data-column-id="ofrenda" data-identifier="true">Ofrenda</th>
+                            <th data-column-id="digita" data-identifier="true">Digitada por</th>
+                            <th data-column-id="commands" data-formatter="commands" data-sortable="false">Comandos</th>
+                            <th data-column-id="confirmar" data-formatter="confirmar" data-sortable="false">Confirmar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mg in reuniones %}
+                            <tr>
+                                <td>{{ mg.id }}</td>
+                                <td>{% if mg.confirmacionEntregaOfrenda %}1{% else %}0{% endif %}</td>
+                                <td>{{ mg.fecha }}</td>
+                                <td>{{ mg.predica }}</td>
+                                <td>{{ mg.numeroTotalAsistentes }}</td>
+                                <td>{{ mg.numeroLideresAsistentes }}</td>
+                                <td>{{ mg.numeroVisitas }}</td>
+                                <td>${{ mg.ofrenda }}</td>
+                                <td>{{ mg.digitada_por_miembro|yesno:"Miembro,Administrador" }}</td>
+                                {% comment %}<td>{% if mf.digitada_por_miembro %}Miembro{% else %}Administrador{% endif %}</td>{% endcomment %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <br>
+            <br>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{% static 'Scripts/funciones.js' %}"></script>
+<script src="{% static 'Template/jquery/vendors/bootgrid/jquery.bootgrid.updated.js' %}"></script>
+<script src="{% static 'Scripts/funciones_bootgrid.js' %}"></script>
+<script>
+    jQuery(document).ready(function($) {
+        $("#data-table-selection").bootgrid({
+            css: {
+                icon: 'zmdi icon',
+                iconColumns: 'zmdi-view-module',
+                iconDown: 'zmdi-expand-more',
+                iconRefresh: 'zmdi-refresh',
+                iconUp: 'zmdi-expand-less'
+            },
+            caseSensitive: false,
+            formatters: {
+                "commands": function(column, row) {
+                    return "<button type=\"button\" class=\"btn btn-icon command-edit waves-effect waves-circle\" data-row-id=\"" + row.id + "\" onClick=\"window.location.href='/grupo/editar_reporte/" + row.id + "'\"><span class=\"zmdi zmdi-edit\"></span></button> ";
+                },
+                "confirmar": function(column, row) {
+                    if (row.confirmada == 0) {
+                        return "<div class=\"toggle-switch boolean\"><input type=\"checkbox\" id=\"ts-" + row.id + "\" hidden=\"hidden\"><label id=\"lb-" + row.id + "\" for=\"ts-" + row.id + "\" class=\"ts-helper\"></label></div>"
+                    } else {
+                        return "<div class=\"toggle-switch boolean\"><input type=\"checkbox\" checked=\"checked\" id=\"ts-" + row.id + "\" hidden=\"hidden\"><label id=\"lb-" + row.id + "\" for=\"ts-" + row.id + "\" class=\"ts-helper\"></label></div>"
+                    }
+                }
+            }
+        });
+
+        $("#data-table-selection").bootgrid().on("loaded.rs.jquery.bootgrid", function(e) {
+            $('.boolean').click(function(event) {
+                if ($(this).find('input[type="checkbox"]').is(':checked')) {
+                    return false;
+                }
+                $('#toggleModalConfirmarOfrenda').click();
+                $('input[name="reporte"]').val($(this).parent().parent().attr('data-row-id').toString());
+                return false;
+            });
+        });
+
+
+        $('#id_fechai, #{{form_reporte.fecha.id_for_label}}').datetimepicker({
+            format: 'DD/MM/YY',
+            // daysOfWeekDisabled: [0,2,3,4,5,6],
+            maxDate: moment(),
+        });
+
+        $('#id_fechaf').datetimepicker({
+            useCurrent: false,
+            format: 'DD/MM/YY',
+            // daysOfWeekDisabled: [1,2,3,4,5,6],
+            maxDate: moment(),
+        });
+
+        $('#id_fechai').keypress(function(event) {
+            event.preventDefault();
+            return false;
+        });
+
+        $('#id_fechai').on("dp.change",function(e){
+            $('#id_fechaf').data("DateTimePicker").minDate(e.date);
+        });
+
+        $('#id_fechaf').on("dp.change",function(e){
+            $('#id_fechai').data("DateTimePicker").maxDate(e.date);
+        });
+
+        function agregar_opciones(data, id){
+            var opciones = '<option value="-1" selected="selected">------</option>';
+            // data.forEach(function(item){
+            //  opciones += '<option value="' + item['pk'] + '">' + item['fields']['nombre'] + '</option>';
+            // });
+            // datos = eval(data);
+            // console.log(data)
+            for (var i = 0; i < data.length; i++) {
+                opciones += '<option value="' + data[i]['pk'] + '">' + data[i]['nombre'] + '</option>';
+            }
+            //$("#"+idCombo).empty();
+            $("#"+id).html(opciones);
+            $("#"+id).trigger('chosen:updated');
+        }
+
+        setTimeout(auxiliar, 2000);
+        function auxiliar(){
+            $(".grupo .bs-searchbox input").on('keydown change keyup', function(event){
+                if($(this).val() != ''){
+                    $.ajax({
+                        url: "{% url 'grupos:reportes_grupo' %}",
+                        data: {
+                            combo: $(this).val(),
+                            value: $(this).val(),
+                            csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val()
+                        },
+                        type: 'POST',
+                        success: function(data){
+                            agregar_opciones(data, 'id_grupo');
+                            $('#id_grupo').selectpicker('refresh');
+                        }
+                    });
+                }
+                else{
+                    $("#id_grupo").html('');
+                    $("#id_grupo").trigger('chosen:updated');
+                    $('#id_grupo').selectpicker('refresh');
+                }
+            });
+        }
+
+        {% if vacio %}
+        $(window).load(function() {
+            swal({
+                title: "Lo Sentimos",
+                text: "Parece que no hay reportes en este rango de fecha",
+                type: "warning",
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Aceptar",
+                closeOnConfirm: false
+            });
+        });
+        {% endif %}
+
+        {% if click %}
+        $('#toggleModalCrearReporte').click();
+        {% endif %}
+        // $seleccionados = [];
+        // bootgrid_table_solution("#data-table-selection", $seleccionados);
+        //
+        var $fechai = $('#id_fechai'), $fechaf = $('#id_fechaf'), $grupo = $('#id_grupo');
+
+        $('button[name="aceptar"]').click(function(event) {
+            if ($fechai.val() == '') {
+                swal("Alerta!", "Debes escoger una Fecha Inicial!")
+                return false;
+            } else if ($fechai.val() != '' && $fechaf.val() == '') {
+                swal("Alerta!", "Debes escoger una Fecha Final!");
+                return false;
+            } else if ($fechai.val() != '' && $fechaf.val() != '' && $grupo.val() == '') {
+                swal("Alerta!", "Debes escoger un grupo");
+                return false;
+            } else {
+               return true;
+            }
+        });
+
+        $('#form-reporte').submit(function() {
+            try {
+			    ga('set', 'dimension1', 'Admin');
+			    ga('send', 'event', 'Reuniones', 'Reportar GAR', 'Reportar reunion GAR');
+            }
+            catch (err) {
+                //
+            }
+        });
+    });
+</script>
+
+{% include "grupos/_reportes_js.html" with form=form_reporte %}
+
+{% endblock %}

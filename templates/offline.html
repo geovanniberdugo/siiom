@@ -1,0 +1,39 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="Ingeniarte Soft">
+
+    {% include "_pwa_tags.html" %}
+
+    <title>SIIOM</title>
+
+    <link href="{% static 'Template/jquery/vendors/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/css/app.min.1.css' %}" rel="stylesheet">
+    <link href="{% static 'Template/jquery/css/app.min.2.css' %}" rel="stylesheet">
+
+    <style>
+        .four-zero h2 {
+            font-size: 50px;
+        }
+
+        .four-zero small {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body class="four-zero-content">
+    <div class="four-zero">
+        <h2>{% trans "ESTAS DESCONECTADO" %}</h2>
+        <small>{% trans "Oops! Al parecer estas desconectado de internet, intenta conectarte para seguir usando la aplicación" %}.</small>
+        <footer>
+            <a href="/">
+                <i class="zmdi zmdi-home"></i>
+            </a>
+        </footer>
+    </div>
+</body>
+</html>

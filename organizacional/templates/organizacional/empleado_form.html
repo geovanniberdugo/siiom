@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block contenido %}
+<div class="container">
+	<div class="card">
+		<div class="card-header">
+			<h1><legend><h3>{{ VERBO }} {% trans "Empleado" %}</h3></legend></h1>
+		</div>
+        <div class="card-body card-padding">
+            {% include "_alert_messages.html" %}
+
+    		<form action="" method="POST" id="formulario-empleado">
+    			{% csrf_token %}
+
+                {% include "_alert_non_field_errors.html" %}
+
+    			<div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.email.css_classes }}">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-email"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.email.id_for_label }}" class="control-label">{{ form.email.label }}:</label>
+                                {{ form.email }}
+                            </div>
+                            {{ form.email.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.contrasena1.css_classes }}" id="contrasena">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-key"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.contrasena1.id_for_label }}" class="control-label">{{ form.contrasena1.label }}:</label>
+                                {{ form.contrasena1 }}
+                            </div>
+                            {{ form.contrasena1.errors }}
+                        </div>
+                    </div>
+                    <br class="space">
+                    <div class="col-md-4">
+                        <div class="input-group {{ form.contrasena2.css_classes }}" id="contrasena_confirmacion">
+                            <span class="input-group-addon">
+                                <i class="zmdi zmdi-key"></i>
+                            </span>
+                            <div class="fg-line">
+                                <label for="{{ form.contrasena2.id_for_label }}" class="control-label">{{ form.contrasena2.label }}:</label>
+                                {{ form.contrasena2 }}
+                            </div>
+                            {{ form.contrasena2.errors }}
+                        </div>
+                    </div>
+                </div>
+	            <br>
+	            <br class="space-down">
+	            <div class="row">
+                  <div class="col-md-4">
+                      <div class="input-group {{ form.cedula.css_classes }}">
+                          <span class="input-group-addon">
+                              <i class="zmdi zmdi-card"></i>
+                          </span>
+                          <div class="fg-line">
+                              <label for="{{ form.cedula.id_for_label }}" class="control-label">{{ form.cedula.label }}:</label>
+                              {{ form.cedula }}
+                          </div>
+                          {{ form.cedula.errors }}
+                      </div>
+                  </div>
+                  <br class="space">
+	                <div class="col-md-4">
+	                    <div class="input-group {{ form.perfil.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-accounts"></i>
+	                        </span>
+	                        <div class="fg-line">
+	                            <label for="{{ form.perfil.id_for_label }}" class="control-label">{{ form.perfil.label }}:</label>
+	                            {{ form.perfil }}
+	                        </div>
+	                        {{ form.perfil.errors }}
+	                    </div>
+	                </div>
+	                <br class="space">
+	                <div class="col-md-4">
+	                    <div class="input-group {{ form.departamento.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-accounts"></i>
+	                        </span>
+	                        <div class="fg-line">
+	                            <label for="{{ form.departamento.id_for_label }}" class="control-label">{{ form.departamento.label }}:</label>
+	                            {{ form.departamento }}
+	                        </div>
+	                        {{ form.departamento.errors }}
+	                    </div>
+	                </div>
+                </div>
+                <br >
+                <br class="space-down">
+                <div class="row">
+	                <div class="col-md-4">
+	                    <div class="input-group {{ form.areas.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-share"></i>
+	                        </span>
+	                        <div class="fg-line">
+	                            <label for="{{ form.areas.id_for_label }}" class="control-label">{{ form.areas.label }}:</label>
+	                            {{ form.areas }}
+	                        </div>
+	                        {{ form.areas.errors }}
+	                    </div>
+	                </div>
+	                <br class="space">
+                    <div class="col-md-4">
+	                    <div class="input-group {{ form.primer_nombre.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line">
+	                            <label for="{{ form.primer_nombre.id_for_label }}" class="control-label">{{ form.primer_nombre.label }}:</label>
+	                            {{ form.primer_nombre }}
+	                        </div>
+	                        {{ form.primer_nombre.errors }}
+	                    </div>
+	                </div>
+	                <br class="space">
+                    <div class="col-md-4">
+	                    <div class="input-group {{ form.segundo_nombre.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line">
+	                            <label for="{{ form.segundo_nombre.id_for_label }}" class="control-label">{{ form.segundo_nombre.label }}:</label>
+	                            {{ form.segundo_nombre }}
+	                        </div>
+	                        {{ form.segundo_nombre.errors }}
+	                    </div>
+	                </div>
+	            </div>
+	            <br>
+	            <br class="space-down">
+	            <div class="row">
+	                <div class="col-md-4">
+	                    <div class="input-group {{ form.primer_apellido.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line">
+	                            <label for="{{ form.primer_apellido.id_for_label }}" class="control-label">{{ form.primer_apellido.label }}:</label>
+	                            {{ form.primer_apellido }}
+	                        </div>
+	                        {{ form.primer_apellido.errors }}
+	                    </div>
+	                </div>
+                    <br class="space">
+                    <div class="col-md-4">
+	                    <div class="input-group {{ form.segundo_apellido.css_classes }}">
+	                        <span class="input-group-addon">
+	                            <i class="zmdi zmdi-account"></i>
+	                        </span>
+	                        <div class="fg-line">
+	                            <label for="{{ form.segundo_apellido.id_for_label }}" class="control-label">{{ form.segundo_apellido.label }}:</label>
+	                            {{ form.segundo_apellido }}
+	                        </div>
+	                        {{ form.segundo_apellido.errors }}
+	                    </div>
+	                </div>
+                    <br class="space">
+                    <div class="col-md-4">
+	                    <div class="input-group {{ form.jefe_departamento.css_classes }}">
+                            <label for="{{ form.jefe_departamento.id_for_label }}" class="checkbox">
+                                {{ form.jefe_departamento }}
+                                <i class="input-helper m-r-20"></i>
+                                {{ form.jefe_departamento.label }}
+                            </label>
+	                    </div>
+	                </div>
+                  <br class="space">
+	            </div>
+				<br>
+				<br class="space-down">
+				<div class="row">
+					<div class="col-md-4">
+	                  <div class="input-group {{ form.cargo.css_classes }}">
+	                      <span class="input-group-addon">
+	                          <i class="zmdi zmdi-pin-account"></i>
+	                      </span>
+	                      <div class="fg-line">
+	                          <label for="{{ form.cargo.id_for_label }}" class="control-label">{{ form.cargo.label }}:</label>
+	                              {{ form.cargo }}
+	                      </div>
+	                      {{ form.cargo.errors }}
+	                  </div>
+	              </div>
+				</div>
+                <br>
+                <br>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-4">
+                        <button type="submit" value="Aceptar" name="aceptar" class="btn btn-primary btn-block">{% trans "Aceptar" %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+	</div>
+</div>
+{% endblock contenido %}
+
+{% block js %}
+<script>
+	jQuery(document).ready(function($) {
+
+    $('#{{ form.departamento.id_for_label }}').change(function(event){
+        $.ajax({
+          type: 'POST',
+          data: {},
+          url: "{% url 'compras:get_areas_by_departamento_json' 0 %}".replace('0', $(this).val()),
+          success: function(data) {
+              var opciones = '';
+              data.forEach(function(item){
+                  opciones += '<option value="' + item['id'] + '">' + item['area'] + '</option>';
+              });
+              //$("#"+idCombo).empty();
+              $('#{{ form.areas.id_for_label }}').html(opciones);
+              $('#{{ form.areas.id_for_label }}').trigger('chosen:updated');
+              $('#{{ form.areas.id_for_label }}').selectpicker('refresh');
+          },
+
+        }).fail(function(){
+            var opciones = '';
+            $('#{{ form.areas.id_for_label }}').html(opciones);
+            $('#{{ form.areas.id_for_label }}').trigger('chosen:updated');
+            $('#{{ form.areas.id_for_label }}').selectpicker('refresh');
+        })
+
+    });
+
+	{% if form.jefe_departamento.value %}
+	$('#{{ form.areas.id_for_label }}').attr('disabled', true);
+	{% endif %}
+
+    $('#{{ form.jefe_departamento.id_for_label }}').change(function(event) {
+        if ($(this).is(':checked')) {
+            $('#{{ form.areas.id_for_label }}').attr('disabled', true);
+            $('#{{ form.areas.id_for_label }}').selectpicker('refresh');
+        } else {
+            $('#{{ form.areas.id_for_label }}').attr('disabled', false);
+            $('#{{ form.areas.id_for_label }}').selectpicker('refresh');
+        }
+    });
+
+    $('#formulario-empleado').submit(function(event){
+        if ($('#{{ form.areas.id_for_label }}').prop('disabled')) {
+            var opciones = '';
+            $('#{{ form.areas.id_for_label }}').html(opciones);
+            $('#{{ form.areas.id_for_label }}').trigger('chosen:updated');
+            $('#{{ form.areas.id_for_label }}').prop('disabled', false)
+            $('#{{ form.areas.id_for_label }}').selectpicker('refresh');
+        }
+    });
+
+		if ($('#contrasena').hasClass('has-error')) {
+            $('#id_contrasena').on('keydown', function() {
+                $('#contrasena').removeClass('has-error');
+            });
+        };
+
+        var validar = function(emisor, receptor) {
+
+            emisor.on('keydown keyup blur focus click change', function(){
+                var $val = emisor.val();
+                var listen = function (){
+                    if ($val.length >= 10) {
+                        if (receptor.hasClass('has-error')) {
+                            receptor.removeClass('has-error');
+                        };
+
+                        if (receptor.hasClass('has-warning')) {
+                            receptor.removeClass('has-warning');
+                        };
+                        receptor.addClass('has-success');
+
+                    } else if ($val.length <= 3) {
+                        if (receptor.hasClass('has-warning') || receptor.hasClass('has-success')) {
+                            receptor.removeClass('has-warning')
+                                .removeClass('has-success')
+                                .addClass('has-error');
+                        }
+
+                    } else if ($val.length <= 9) {
+                        if (receptor.hasClass('has-success')) {
+                            receptor.removeClass('has-success')
+                                .addClass('has-warning');
+
+                        } else if (receptor.hasClass('has-error')) {
+                            receptor.removeClass('has-error')
+                                .addClass('has-warning');
+
+                        } else {
+                            receptor.addClass('has-warning');
+                        }
+                    }
+                }
+                setTimeout(listen, 200);
+            });
+        }
+
+        validar($('#id_contrasena'), $('#contrasena'));
+        validar($('#id_contrasena_confirmacion'), $('#contrasena_confirmacion'));
+
+	});
+</script>
+{% endblock js %}
